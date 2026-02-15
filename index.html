@@ -91,6 +91,57 @@
     padding: 40px;
     color: #aaa;
   }
+ .glass-card {
+  max-width: 520px;
+  margin: 50px auto;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card a {
+  display: block;
+  color: white;
+  text-decoration: none;
+}
+
+.glass-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9);
+}
+
+.glass-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.glass-content {
+  padding: 20px;
+}
+
+.glass-content h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.glass-content p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.glass-content span {
+  display: inline-block;
+  margin-top: 12px;
+  color: #8ec5ff;
+  font-weight: bold;
+}
 </style>
 </head>
 
@@ -156,7 +207,18 @@
       <li>Developing long-term aerospace engineering roadmap</li>
     </ul>
   </div>
-</section>
+</section><!-- Glass Preview Card -->
+<div class="glass-card">
+  <a href="https://developer-portfolio-beige-zeta.vercel.app/#contact" target="_blank">
+    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475" alt="Developer Portfolio Preview">
+
+    <div class="glass-content">
+      <h3>Developer Portfolio</h3>
+      <p>Explore my full-stack projects, web apps, and software development work.</p>
+      <span>Open Portfolio →</span>
+    </div>
+  </a>
+</div>
 <!--
 <link rel="stylesheet" href="/chat.css">
 
