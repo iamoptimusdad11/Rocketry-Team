@@ -142,6 +142,59 @@
   color: #8ec5ff;
   font-weight: bold;
 }
+ <style>
+.project-buttons {
+  margin-top: 10px;
+}
+
+.btn {
+  background: #2e7d32;
+  color: white;
+  padding: 10px 14px;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-right: 8px;
+}
+
+.btn:hover {
+  background: #1b5e20;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+  position: relative;
+  margin: 5% auto;
+  width: 90%;
+  height: 80%;
+  background: white;
+}
+
+.modal iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.close {
+  position: absolute;
+  right: 10px;
+  top: 5px;
+  font-size: 28px;
+  cursor: pointer;
+}
+</style>
 </style>
 </head>
 
@@ -219,6 +272,13 @@
     </div>
   </a>
 </div>
+ <!-- Preview Modal -->
+<div id="previewModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closePreview()">&times;</span>
+    <iframe src="https://walk-with-christ.vercel.app/" frameborder="0"></iframe>
+  </div>
+</div>
 <!--
 <link rel="stylesheet" href="/chat.css">
 
@@ -234,6 +294,14 @@ Later add billing on OPENAI(BOOOOOOOOOOOO! Maybe if i had money lol!)-->
 <footer>
   <p>© 2026 Garrett Johnson • Mission Driven 🚀</p>
 </footer>
+<script>
+function openPreview() {
+  document.getElementById("previewModal").style.display = "block";
+}
 
+function closePreview() {
+  document.getElementById("previewModal").style.display = "none";
+}
+</script>
 </body>
 </html>
