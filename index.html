@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joshua Cartwright • Garrett Johnson | Mission Portfolio</title>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: "Segoe UI", sans-serif;
+    background: black;
+    color: white;
+    overflow-x: hidden;
+  }
+
+  /* PARALLAX BACKGROUND */
+  .parallax {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .parallax img {
+    position: absolute;
+    width: 100%;
+    height: 120%;
+    object-fit: cover;
+    top: 0;
+    left: 0;
+    transform: translateZ(0);
+  }
+
+  .stars {
+    animation: drift 60s linear infinite;
+    opacity: 0.1;
+  }
+
+  @keyframes drift {
+    from { transform: translateY(0); }
+    to { transform: translateY(-200px); }
+  }
+
+  .hero {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    top: 40%;
+    transform: translateY(-50%);
+    padding: 20px;
+  }
+
+  .hero h1 {
+    font-size: 3em;
+    letter-spacing: 2px;
+  }
+
+  .hero p {
+    color: #9cc9ff;
+    margin-top: 10px;
+    font-size: 1.2em;
+  }
+
+  .section {
+    padding: 80px 20px;
+    max-width: 900px;
+    margin: auto;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 25px;
+    margin-top: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+  }
+
+  h2 {
+    color: #6fb3ff;
+    margin-bottom: 10px;
+  }
+
+  footer {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+  }
+ .glass-card {
+  max-width: 520px;
+  margin: 50px auto;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card a {
+  display: block;
+  color: white;
+  text-decoration: none;
+}
+
+.glass-card:hover {
+  transform: translateY(-8px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.9);
+}
+
+.glass-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  opacity: 0.85;
+}
+
+.glass-content {
+  padding: 20px;
+}
+
+.glass-content h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+
+.glass-content p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.glass-content span {
+  display: inline-block;
+  margin-top: 12px;
+  color: #8ec5ff;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<!-- PARALLAX HERO -->
+<div class="parallax">
+  <img herf="/img/logo.png" alt="space">
+  <img class="stars" src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564" alt="stars">
+  
+  <div class="hero">
+    <h1>Joshua Cartwright • Garrett Johnson</h1>
+    <p>Rocketry Team Mission: Meteorological and Avionics Energy Supply Experimentation  </p>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="section">
+  <h2>About Our Project</h2>
+  <div class="card">
+    <p>
+      Welcome! We are Joshua and Garrett , an independent student research and rocketry team pushing the boundaries of high-altitude technology and atmospheric science.
+Driven by curiosity and hands-on engineering, our mission centers on solving two critical challenges in modern rocketry: sustainable avionics power generation and in-flight meteorological data collection.</p>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section class="section">
+  <h2>What We Do</h2>
+  <div class="card">
+    <p>Standard rocketry avionics rely heavily on traditional batteries, which bring constraints in weight, lifespan, and performance under extreme conditions. Our team is actively experimenting with alternative and novel energy-generation methods to keep critical flight systems, sensors, and telemetry powered dynamically throughout ascent and recovery.
+In tandem with power systems, our custom rocket payloads serve as micro-observatories for atmospheric research. By capturing real-time meteorological data—such as temperature gradients, pressure profiles, humidity, and airflow dynamics—we aim to gain deeper insights into weather patterns and low-altitude atmospheric behavior.</p>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="section">
+  <h2>Key Areas Of Focus </h2>
+  <div class="card">
+    <ul>
+      <li><strong>Self-Sustaining Avionics:</strong> Designing and testing experimental power systems to lighter, smarter, and longer-lasting electronics in flight</li>
+      <li><strong>Atmospheric Sensing: </strong>Integrating specialized payloads to gather high-resolution meteorological metrics across varied altitudes.</li>
+      <li><strong/>Iterative Engineering:</strong>Building, testing, logging, and refining custom hardware and telemetry systems from the ground up.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="section">
+  <h2>Level 1 High-Power Rocketry Certification</h2>
+  <h3><strong>Lead:</strong>Garrett Johnson<strong>Status</strong>In progress / Active Build</h3>
+  <div class="card">
+  <p>To lay the foundation for high-altitude research, Garrett is constructing a dual-deployment high-power rocket to earn his <strong>Level 1 Tripoli / NAR High-Power Rocketry Certification.</strong></p>
+    <ul>
+      <li> Flight Profile: Dual-deployment configuration featuring an drogue parachute deployed at apogee and a main parachute deployed at a lower altitude for precise, close-range recovery</li>
+      <li>Purpose: Demonstrating structural integrity, reliable recovery electronics, and high-power motor safety to qualify for larger-scale experimental flights.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Subscale Avionics & Energy Generation Testbeds</h2>
+  <h3><strong>Lead:</strong>Joshua Cartwright<strong>Status</strong>Active Prototyping</h3>
+  <div class="card">
+  <p>While working toward high-power certification, we are collaborating on smaller-scale test vehicles and modular electronics bays to validate our avionics theories safely and cost-effectively.</p>  <ul>
+      <li> Miniaturized Payload Bores: Developing lightweight, low-power sensor arrays to log altitude, acceleration, temperature, and atmospheric pressure on smaller model rockets.</li>
+      <li>Energy Harvesting Prototypes: Experimenting with alternative energy generation mechanisms—testing their feasibility, thermal limits, and power output under actual flight vibrations and dynamics.</li>
+      <li>Telemetry & Logging Systems: Testing ground station communication and onboard data logging to ensure reliable data retention before deploying on high-power vehicles.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Meteorological Flight Payloads (Upcoming)</h2>
+  <h3><strong>Lead:</strong>Joshua Cartwright/Garrett Johnson<strong>Status</strong>Design Phase</h3>
+  <div class="card">
+  <p>Once Level 1 certification is achieved, these experimental payloads will scale up for deployment in high-power flights, collecting high-resolution atmospheric data across extended vertical profiles.
+"Build small, test rigorously, scale high."</p>
+  </div>
+</section>
+
+ <footer>
+  <p>© 2026 Joshua Cartwright • Garrett Johnson • Mission Driven </p>
+</footer>
+
+</body>
+</html>
