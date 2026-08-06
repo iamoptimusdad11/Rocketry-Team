@@ -30,7 +30,7 @@
     position: absolute;
     width: 100%;
     height: 120%;
-    object-fit: contain;
+    object-fit: cover;
     top: 0;
     left: 0;
     transform: translateZ(0);
@@ -61,7 +61,7 @@
   }
 
   .hero p {
-    color: #47FF00;
+    color: #9cc9ff;
     margin-top: 10px;
     font-size: 1.2em;
   }
@@ -142,36 +142,146 @@
   color: #8ec5ff;
   font-weight: bold;
 }
+.navbar{
+
+position:fixed;
+top:0;
+left:0;
+width:100%;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+padding:20px 40px;
+
+background:
+rgba(2,6,23,.85);
+
+backdrop-filter:blur(10px);
+
+border-bottom:
+1px solid rgba(56,189,248,.3);
+
+z-index:1000;
+
+}
+
+
+.logo{
+
+font-size:22px;
+
+font-weight:bold;
+
+letter-spacing:3px;
+
+color:#38bdf8;
+
+}
+
+
+
+.navbar ul{
+
+display:flex;
+
+gap:25px;
+
+list-style:none;
+
+}
+
+
+
+.navbar a{
+
+color:white;
+
+text-decoration:none;
+
+font-weight:bold;
+
+transition:.3s;
+
+}
+
+
+
+.navbar a:hover{
+
+color:#38bdf8;
+
+}
+
+
+
+@media(max-width:700px){
+
+.navbar{
+
+flex-direction:column;
+
+}
+
+
+.navbar ul{
+
+flex-wrap:wrap;
+
+justify-content:center;
+
+}
+
+}
 </style>
 </head>
 
 <body>
+<nav class="navbar">
 
+<div class="logo">
+JG AEROSPACE
+</div>
+
+<ul>
+
+<li><a href="index.html">Home</a></li>
+
+<li><a href="mission-control.html">Mission Control</a></li>
+
+<li><a href="#rocket">Rocket Lab</a></li>
+
+<li><a href="#experiments">Experiments</a></li>
+
+<li><a href="#team">Team</a></li>
+
+<li><a href="#contact">Contact</a></li>
+
+</ul>
+
+</nav>
 <!-- PARALLAX HERO -->
 <div class="parallax">
-  <img src="./images/logo.png" alt="space">
+  <img herf="/img/logo.png" alt="space">
   <img class="stars" src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564" alt="stars">
   
   <div class="hero">
-     </div>
+  </div>
 </div>
 
 <!-- ABOUT -->
 <section class="section">
-  <h2>About Our Project</h2>
+  
   <div class="card">
-    <p>
-      Welcome! We are Joshua and Garrett an independent student research and rocketry team pushing the boundaries of high-altitude technology and atmospheric science.
-Driven by curiosity and hands-on engineering, our mission centers on solving two critical challenges in modern rocketry: sustainable avionics power generation and in-flight meteorological data collection.</p>
-  </div>
+     </div>
 </section>
 
 <!-- EDUCATION -->
 <section class="section">
   <h2>What We Do</h2>
   <div class="card">
-    <p>Standard rocketry avionics rely heavily on traditional batteries, which bring constraints in weight, lifespan, and performance under extreme conditions. Our team is actively experimenting with alternative and novel energy-generation methods to keep critical flight systems, sensors, and telemetry powered dynamically throughout ascent and recovery.
-In tandem with power systems, our custom rocket payloads serve as micro-observatories for atmospheric research. By capturing real-time meteorological data—such as temperature gradients, pressure profiles, humidity, and airflow dynamics—we aim to gain deeper insights into weather patterns and low-altitude atmospheric behavior.</p>
+    
   </div>
 </section>
 
@@ -190,7 +300,7 @@ In tandem with power systems, our custom rocket payloads serve as micro-observat
 <!-- PROJECTS -->
 <section class="section">
   <h2>Level 1 High-Power Rocketry Certification</h2>
-  <h3>Lead • Garrett Johnson, Status: In progress / Active Build</h3>
+  <h3><strong>Lead:</strong>Garrett Johnson<strong>Status</strong>In progress / Active Build</h3>
   <div class="card">
   <p>To lay the foundation for high-altitude research, Garrett is constructing a dual-deployment high-power rocket to earn his <strong>Level 1 Tripoli / NAR High-Power Rocketry Certification.</strong></p>
     <ul>
@@ -202,7 +312,7 @@ In tandem with power systems, our custom rocket payloads serve as micro-observat
 
 <section class="section">
   <h2>Subscale Avionics & Energy Generation Testbeds</h2>
-  <h3>Lead • Joshua Cartwright, Status: Active Prototyping</h3>
+  <h3><strong>Lead:</strong>Joshua Cartwright<strong>Status</strong>Active Prototyping</h3>
   <div class="card">
   <p>While working toward high-power certification, we are collaborating on smaller-scale test vehicles and modular electronics bays to validate our avionics theories safely and cost-effectively.</p>  <ul>
       <li> Miniaturized Payload Bores: Developing lightweight, low-power sensor arrays to log altitude, acceleration, temperature, and atmospheric pressure on smaller model rockets.</li>
@@ -214,7 +324,7 @@ In tandem with power systems, our custom rocket payloads serve as micro-observat
 
 <section class="section">
   <h2>Meteorological Flight Payloads (Upcoming)</h2>
-  <h3>Lead • Joshua Cartwright/Garrett Johnson, Status: Design Phase</h3>
+  <h3><strong>Lead:</strong>Joshua Cartwright/Garrett Johnson<strong>Status</strong>Design Phase</h3>
   <div class="card">
   <p>Once Level 1 certification is achieved, these experimental payloads will scale up for deployment in high-power flights, collecting high-resolution atmospheric data across extended vertical profiles.
 "Build small, test rigorously, scale high."</p>
