@@ -264,30 +264,23 @@ font-weight:bold;
 
 
 
-.telemetry{
-
-text-align:center;
-
-padding:70px 20px;
-
-}
-
-
-
 .telemetry-grid{
 
-display:flex;
+display:grid;
 
-justify-content:center;
+grid-template-columns:repeat(4, minmax(0, 1fr));
 
 gap:25px;
 
-flex-wrap:wrap;
-
 margin-top:40px;
 
-}
+max-width:1000px;
 
+margin-left:auto;
+
+margin-right:auto;
+
+}
 
 
 .telemetry-grid div{
@@ -296,26 +289,24 @@ background:#0f172a;
 
 border:1px solid #334155;
 
-padding:30px;
-
-width:220px;
+padding:30px 15px;
 
 border-radius:15px;
 
-}
+min-width:0;
 
+overflow:hidden;
+
+}
 
 
 .telemetry-grid h3{
 
-font-size:35px;
+font-size:clamp(24px, 5vw, 35px);
 
 color:#38bdf8;
 
 }
-
-
-
 
 
 .timeline{
@@ -416,10 +407,11 @@ opacity:.3;
 
 @media(max-width:700px){
 
-
 .navbar{
 
 flex-direction:column;
+
+padding:15px;
 
 }
 
@@ -432,6 +424,8 @@ flex-wrap:wrap;
 
 justify-content:center;
 
+gap:15px;
+
 }
 
 
@@ -443,5 +437,50 @@ letter-spacing:5px;
 
 }
 
+
+.dashboard{
+
+padding:25px 15px;
+
+}
+
+
+.card{
+
+width:100%;
+
+max-width:350px;
+
+}
+
+
+.telemetry{
+
+padding:50px 15px;
+
+}
+
+
+.telemetry-grid{
+
+grid-template-columns:repeat(2, 1fr);
+
+gap:15px;
+
+}
+
+
+.telemetry-grid div{
+
+padding:20px 10px;
+
+}
+
+
+.timeline-box{
+
+padding:0 10px;
+
+}
 
 }
