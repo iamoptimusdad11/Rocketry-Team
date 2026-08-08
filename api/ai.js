@@ -1,23 +1,16 @@
 // ============================================================
 // LIMITLESS ROCKETRY — SECURE AI BACKEND
 // Vercel Serverless Function
-//
-// IMPORTANT:
-// No API keys belong in this file.
-// Cloudflare credentials are stored in Vercel Environment Variables.
 // ============================================================
 
 const ALLOWED_ORIGINS = [
     "https://rocketry-team.vercel.app"
 ];
 
-// Small request limit to prevent abuse.
 const MAX_MESSAGE_LENGTH = 4000;
 
-// Cloudflare Workers AI model.
-// We start with a relatively lightweight model to conserve
-// the free daily Neuron allocation.
-const MODEL = "@cf/meta/llama-3.2-1b-instruct";
+const MODEL =
+    "@cf/meta/llama-3.2-1b-instruct";
 
 export default async function handler(req, res) {
 
@@ -28,7 +21,10 @@ export default async function handler(req, res) {
     const origin = req.headers.origin;
 
     if (ALLOWED_ORIGINS.includes(origin)) {
-        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader(
+            "Access-Control-Allow-Origin",
+            origin
+        );
     }
 
     res.setHeader(
@@ -41,7 +37,6 @@ export default async function handler(req, res) {
         "Content-Type"
     );
 
-    // Preflight request
     if (req.method === "OPTIONS") {
         return res.status(204).end();
     }
@@ -57,7 +52,7 @@ export default async function handler(req, res) {
     }
 
     // --------------------------------------------------------
-    // ENVIRONMENT VARIABLES
+    // CLOUDFLARE CREDENTIALS
     // --------------------------------------------------------
 
     const accountId =
@@ -90,6 +85,7 @@ export default async function handler(req, res) {
             : "";
 
     if (!mission) {
+
         return res.status(400).json({
             error:
                 "Mission parameters are required."
@@ -100,6 +96,7 @@ export default async function handler(req, res) {
         mission.length >
         MAX_MESSAGE_LENGTH
     ) {
+
         return res.status(413).json({
             error:
                 "Mission parameters are too long."
@@ -108,27 +105,38 @@ export default async function handler(req, res) {
 
     // --------------------------------------------------------
     // AI PROMPT
-    //
-    // One AI request produces two perspectives.
-    // This saves free-tier AI usage compared with making
-    // two completely independent requests.
     // --------------------------------------------------------
 
     const prompt = `
-You are operating inside the Limitless Rocketry
-AI Laboratory.
+You are the central intelligence system of
+the Limitless Rocketry AI Laboratory.
 
-Analyze the following research or engineering mission:
+Analyze the following research or engineering
+mission:
 
 ${mission}
 
-Provide TWO clearly separated analyses.
+You must produce TWO independent analyses.
 
-SECTION 1 — AI ENGINEER
+IMPORTANT:
+Return your answer using EXACTLY this format:
+
+ENGINEER:
+[engineering analysis]
+
+SCIENTIST:
+[scientific analysis]
+
+Do not put either section inside JSON.
+Do not combine the two sections.
+
+==================================================
+
+ENGINEER
 
 Act as an aerospace engineer.
 
-Focus on:
+Analyze:
 - engineering feasibility
 - physical principles
 - design considerations
@@ -136,31 +144,37 @@ Focus on:
 - useful calculations or measurements
 - practical testing approaches
 
-Do not pretend that an unverified design is safe.
-Identify assumptions clearly.
+Clearly identify assumptions.
 
-SECTION 2 — AI SCIENTIST
+Do not claim that an untested design is safe.
+
+==================================================
+
+SCIENTIST
 
 Act as a research scientist.
 
-Focus on:
+Analyze:
 - scientific principles
 - hypotheses
-- variables
+- independent variables
+- dependent variables
+- controls
 - experimental design
 - measurements
 - expected observations
-- possible sources of error
+- sources of error
 - ways to improve the experiment
 
-Clearly distinguish established principles
+Clearly distinguish established science
 from assumptions or speculation.
 
-Keep the response technically useful but concise.
+Keep both analyses technically useful
+and reasonably concise.
 `;
 
     // --------------------------------------------------------
-    // CLOUDFLARE WORKERS AI REQUEST
+    // CLOUDFLARE AI
     // --------------------------------------------------------
 
     const cloudflareUrl =
@@ -185,9 +199,6 @@ Keep the response technically useful but concise.
 
                     body: JSON.stringify({
                         prompt: prompt,
-
-                        // Limit output so the free allocation
-                        // isn't consumed unnecessarily.
                         max_tokens: 1200
                     })
                 }
@@ -200,7 +211,10 @@ Keep the response technically useful but concise.
         // CLOUDFLARE ERROR
         // ----------------------------------------------------
 
-        if (!aiResponse.ok || !data.success) {
+        if (
+            !aiResponse.ok ||
+            !data.success
+        ) {
 
             console.error(
                 "Cloudflare AI error:",
@@ -214,16 +228,17 @@ Keep the response technically useful but concise.
         }
 
         // ----------------------------------------------------
-        // EXTRACT RESPONSE
+        // GET AI RESPONSE
         // ----------------------------------------------------
 
-        const response =
+        const rawResponse =
             data.result?.response;
 
         if (
-            typeof response !== "string" ||
-            !response.trim()
+            typeof rawResponse !== "string" ||
+            !rawResponse.trim()
         ) {
+
             return res.status(502).json({
                 error:
                     "The AI service returned an empty response."
@@ -231,12 +246,80 @@ Keep the response technically useful but concise.
         }
 
         // ----------------------------------------------------
-        // RETURN ONLY SAFE DATA TO FRONTEND
+        // SEPARATE ENGINEER / SCIENTIST
+        // ----------------------------------------------------
+
+        const engineerMarker =
+            "ENGINEER:";
+
+        const scientistMarker =
+            "SCIENTIST:";
+
+        const engineerStart =
+            rawResponse.indexOf(
+                engineerMarker
+            );
+
+        const scientistStart =
+            rawResponse.indexOf(
+                scientistMarker
+            );
+
+        let engineerResponse =
+            "";
+
+        let scientistResponse =
+            "";
+
+        if (
+            engineerStart !== -1 &&
+            scientistStart !== -1 &&
+            scientistStart > engineerStart
+        ) {
+
+            engineerResponse =
+                rawResponse
+                    .substring(
+                        engineerStart +
+                        engineerMarker.length,
+                        scientistStart
+                    )
+                    .trim();
+
+            scientistResponse =
+                rawResponse
+                    .substring(
+                        scientistStart +
+                        scientistMarker.length
+                    )
+                    .trim();
+
+        } else {
+
+            // Fallback if the model does not follow
+            // the requested format.
+
+            engineerResponse =
+                rawResponse.trim();
+
+            scientistResponse =
+                "The scientific analysis could not be separated from the AI response.";
+        }
+
+        // ----------------------------------------------------
+        // RETURN SEPARATE RESPONSES
         // ----------------------------------------------------
 
         return res.status(200).json({
+
             success: true,
-            response: response.trim()
+
+            engineer:
+                engineerResponse,
+
+            scientist:
+                scientistResponse
+
         });
 
     } catch (error) {
