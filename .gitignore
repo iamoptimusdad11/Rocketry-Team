@@ -1,0 +1,21 @@
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Dependencies
+node_modules/
+
+# Build output
+.vercel/
+dist/
+build/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
