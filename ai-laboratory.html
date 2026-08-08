@@ -1242,14 +1242,16 @@ async function startMission() {
                 "AI backend request failed."
             );
         }
+if (
+    !data.engineer ||
+    !data.scientist
+) {
 
+    throw new Error(
+        "The AI returned an incomplete response."
+    );
+}
         if (!data.response) {
-
-            throw new Error(
-                "The AI returned no response."
-            );
-        }
-
         networkStatus.textContent =
             "AI NETWORK ONLINE";
 
@@ -1259,23 +1261,29 @@ async function startMission() {
             "system"
         );
 
-        addPanelMessage(
-            engineerChat,
-            "AI Laboratory",
-            data.response
-        );
+        addPanelMessageaddPanelMessage(
+    engineerChat,
+    "AI Engineer",
+    data.engineer
+);
 
-        addPanelMessage(
-            scientistChat,
-            "AI Laboratory",
-            data.response
-        );
+addPanelMessage(
+    scientistChat,
+    "AI Scientist",
+    data.scientist
+);
 
-        addTranscript(
-            "AI Laboratory",
-            data.response
-        );
+addTranscript(
+    "AI Engineer",
+    data.engineer
+);
 
+addTranscript(
+    "AI Scientist",
+    data.scientist,
+    "scientist"
+);
+       
     } catch (error) {
 
         console.error(
