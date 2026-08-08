@@ -1148,61 +1148,169 @@ function addPanelMessage(
 }
 /* =========================================================
    START
-   ========================================================= */
-function startMission() {
+   ========================================================= */async function startMission() {
+
     const mission =
         missionInput.value.trim();
+
     if (!mission) {
+
         addTranscript(
             "Mission Control",
             "Mission parameters are required before starting.",
             "system"
         );
+
         return;
     }
+
+    if (missionRunning) {
+
+        addTranscript(
+            "Mission Control",
+            "A mission is already running.",
+            "system"
+        );
+
+        return;
+    }
+
     missionRunning = true;
     missionPaused = false;
+
     engineerStatus.textContent =
         "Online";
+
     scientistStatus.textContent =
         "Online";
+
     engineerStatus.classList.add(
         "online"
     );
+
     scientistStatus.classList.add(
         "online"
     );
+
     networkStatus.textContent =
-        "BACKEND REQUIRED";
+        "CONNECTING";
+
     addTranscript(
         "Mission Control",
         `Mission initialized: ${mission}`,
         "system"
     );
+
     addPanelMessage(
         engineerChat,
         "AI Engineer",
-        "Mission parameters received. Secure backend connection is not configured yet."
+        "Connecting to secure engineering intelligence..."
     );
+
     addPanelMessage(
         scientistChat,
         "AI Scientist",
-        "Mission parameters received. Awaiting secure AI service connection."
+        "Connecting to secure scientific intelligence..."
     );
-    addTranscript(
-        "AI Engineer",
-        "Engineering intelligence is standing by for secure backend authorization."
-    );
-    addTranscript(
-        "AI Scientist",
-        "Scientific intelligence is standing by for secure backend authorization.",
-        "scientist"
-    );
-    addTranscript(
-        "Mission Control",
-        "Frontend verified. No credentials are exposed. Backend integration is the next stage.",
-        "system"
-    );
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/ai",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        mission: mission
+                    })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "AI backend request failed."
+            );
+        }
+
+        if (!data.response) {
+
+            throw new Error(
+                "The AI returned no response."
+            );
+        }
+
+        networkStatus.textContent =
+            "AI NETWORK ONLINE";
+
+        addTranscript(
+            "Mission Control",
+            "Secure AI connection established.",
+            "system"
+        );
+
+        addPanelMessage(
+            engineerChat,
+            "AI Laboratory",
+            data.response
+        );
+
+        addPanelMessage(
+            scientistChat,
+            "AI Laboratory",
+            data.response
+        );
+
+        addTranscript(
+            "AI Laboratory",
+            data.response
+        );
+
+    } catch (error) {
+
+        console.error(
+            "AI laboratory error:",
+            error
+        );
+
+        networkStatus.textContent =
+            "CONNECTION ERROR";
+
+        addTranscript(
+            "Mission Control",
+            error.message ||
+            "Unable to establish the secure AI connection.",
+            "system"
+        );
+
+    } finally {
+
+        missionRunning = false;
+
+        engineerStatus.textContent =
+            "Standby";
+
+        scientistStatus.textContent =
+            "Standby";
+
+        engineerStatus.classList.remove(
+            "online"
+        );
+
+        scientistStatus.classList.remove(
+            "online"
+        );
+    }
 }
 /* =========================================================
    PAUSE
