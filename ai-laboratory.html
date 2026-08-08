@@ -1149,178 +1149,141 @@ function addPanelMessage(
 /* =========================================================
    START
    ========================================================= */async function startMission() {
+/* =========================================================
+   START
+   ========================================================= */
 async function startMission() {
     const mission =
         missionInput.value.trim();
-
     if (!mission) {
-
         addTranscript(
             "Mission Control",
             "Mission parameters are required before starting.",
             "system"
         );
-
         return;
     }
-
     if (missionRunning) {
-
         addTranscript(
             "Mission Control",
             "A mission is already running.",
             "system"
         );
-
         return;
     }
-
     missionRunning = true;
     missionPaused = false;
-
     engineerStatus.textContent =
         "Online";
-
     scientistStatus.textContent =
         "Online";
-
     engineerStatus.classList.add(
         "online"
     );
-
     scientistStatus.classList.add(
         "online"
     );
-
     networkStatus.textContent =
         "CONNECTING";
-
     addTranscript(
         "Mission Control",
         `Mission initialized: ${mission}`,
         "system"
     );
-
     addPanelMessage(
         engineerChat,
         "AI Engineer",
         "Connecting to secure engineering intelligence..."
     );
-
     addPanelMessage(
         scientistChat,
         "AI Scientist",
         "Connecting to secure scientific intelligence..."
     );
-
     try {
-
         const response =
             await fetch(
                 "/api/ai",
                 {
                     method: "POST",
-
                     headers: {
                         "Content-Type":
                             "application/json"
                     },
-
                     body: JSON.stringify({
                         mission: mission
                     })
                 }
             );
-
         const data =
             await response.json();
-
         if (!response.ok) {
-
             throw new Error(
                 data.error ||
                 "AI backend request failed."
             );
         }
-if (
-    !data.engineer ||
-    !data.scientist
-) {
-
-    throw new Error(
-        "The AI returned an incomplete response."
-    );
-}
-        if (!data.response) {
+        if (
+            !data.engineer ||
+            !data.scientist
+        ) {
+            throw new Error(
+                "The AI returned an incomplete response."
+            );
+        }
         networkStatus.textContent =
             "AI NETWORK ONLINE";
-
         addTranscript(
             "Mission Control",
             "Secure AI connection established.",
             "system"
         );
-
-        addPanelMessageaddPanelMessage(
-    engineerChat,
-    "AI Engineer",
-    data.engineer
-);
-
-addPanelMessage(
-    scientistChat,
-    "AI Scientist",
-    data.scientist
-);
-
-addTranscript(
-    "AI Engineer",
-    data.engineer
-);
-
-addTranscript(
-    "AI Scientist",
-    data.scientist,
-    "scientist"
-);
-       
+        addPanelMessage(
+            engineerChat,
+            "AI Engineer",
+            data.engineer
+        );
+        addPanelMessage(
+            scientistChat,
+            "AI Scientist",
+            data.scientist
+        );
+        addTranscript(
+            "AI Engineer",
+            data.engineer
+        );
+        addTranscript(
+            "AI Scientist",
+            data.scientist,
+            "scientist"
+        );
     } catch (error) {
-
         console.error(
             "AI laboratory error:",
             error
         );
-
         networkStatus.textContent =
             "CONNECTION ERROR";
-
         addTranscript(
             "Mission Control",
             error.message ||
             "Unable to establish the secure AI connection.",
             "system"
         );
-
     } finally {
-
         missionRunning = false;
-
         engineerStatus.textContent =
             "Standby";
-
         scientistStatus.textContent =
             "Standby";
-
         engineerStatus.classList.remove(
             "online"
         );
-
         scientistStatus.classList.remove(
             "online"
         );
     }
-}
-/* =========================================================
+}/* =========================================================
    PAUSE
    ========================================================= */
 function pauseMission() {
