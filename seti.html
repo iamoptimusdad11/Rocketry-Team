@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SETI RF Signal Analysis Dashboard</title>
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(18, 26, 43, 0.7);
+      --border-color: rgba(0, 229, 255, 0.2);
+      --accent-cyan: #00e5ff;
+      --accent-green: #00ff66;
+      --accent-alert: #ff0055;
+      --text-main: #e2e8f0;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(11, 15, 25, 0.9);
+      backdrop-filter: blur(10px);
+    }
+
+    .title-group h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+    }
+
+    .title-group p {
+      margin: 4px 0 0 0;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      background: rgba(0, 255, 102, 0.1);
+      border: 1px solid var(--accent-green);
+      color: var(--accent-green);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-green);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-green);
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      width: calc(100% - 4rem);
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.1rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 360px;
+      background: #000;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .metric-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .metric-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .log-table th, .log-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .log-table th {
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    .tag-anomaly {
+      color: var(--accent-alert);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="title-group">
+      <h1>SETI RF Anomaly Engine</h1>
+      <p>Automated Public Dataset Signal Processing Pipeline</p>
+    </div>
+    <div class="status-badge">
+      <span class="pulse"></span> Active Stream
+    </div>
+  </header>
+
+  <main class="dashboard-grid">
+    <!-- Main Spectrogram Panel -->
+    <section class="card">
+      <h2>Real-Time Spectrogram (Waterfall Display)</h2>
+      <canvas id="waterfallCanvas"></canvas>
+    </section>
+
+    <!-- Telemetry & Controls -->
+    <section class="card">
+      <h2>Pipeline Diagnostics</h2>
+      <div class="telemetry-grid">
+        <div class="metric-box">
+          <div class="metric-label">Center Freq</div>
+          <div class="metric-value">1420.405 MHz</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Drift Window</div>
+          <div class="metric-value">±4.0 Hz/s</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">SNR Threshold</div>
+          <div class="metric-value">6.5 σ</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-label">Candidates</div>
+          <div class="metric-value" style="color: var(--accent-green);">1 Flagged</div>
+        </div>
+      </div>
+
+      <h2 style="margin-top: 2rem;">Detected Candidate Log</h2>
+      <table class="log-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Freq Shift</th>
+            <th>Drift Rate</th>
+            <th>Class</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>18:22:04</td>
+            <td>+12.4 Hz</td>
+            <td>-0.32 Hz/s</td>
+            <td class="tag-anomaly">Narrowband</td>
+          </tr>
+          <tr>
+            <td>18:19:40</td>
+            <td>-104.1 Hz</td>
+            <td>0.00 Hz/s</td>
+            <td>RFI (Ground)</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    // Canvas Waterfall Simulation
+    const canvas = document.getElementById('waterfallCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+
+    let driftOffset = 0;
+
+    function renderFrame() {
+      // Shift existing Canvas down 2px
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height - 2);
+      ctx.putImageData(imgData, 0, 2);
+
+      // Generate new line of simulated RF spectrum
+      const row = ctx.createImageData(canvas.width, 2);
+      driftOffset = (driftOffset + 0.3) % (canvas.width / 2);
+
+      for (let x = 0; x < canvas.width; x++) {
+        let intensity = Math.random() * 40; // Background noise
+        
+        // Inject narrow drifting anomaly line
+        const targetX = Math.floor(canvas.width * 0.4 + driftOffset);
+        if (Math.abs(x - targetX) < 2) {
+          intensity = 225; // Bright signal candidate
+        }
+
+        const idx = x * 4;
+        row.data[idx] = 0;                 // R
+        row.data[idx + 1] = intensity;     // G
+        row.data[idx + 2] = intensity * 1.2;// B
+        row.data[idx + 3] = 255;           // Alpha
+      }
+
+      ctx.putImageData(row, 0, 0);
+      requestAnimationFrame(renderFrame);
+    }
+
+    renderFrame();
+  </script>
+</body>
+</html>
