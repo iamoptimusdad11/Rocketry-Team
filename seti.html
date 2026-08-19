@@ -227,44 +227,64 @@
   </main>
 
   <script>
-    // Canvas Waterfall Simulation
-    const canvas = document.getElementById('waterfallCanvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
+   const canvas = document.getElementById('waterfallCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = canvas.offsetWidth;
+canvas.height = canvas.offsetHeight;
 
-    let driftOffset = 0;
+async function updateSetiDashboard() {
+  try {
+    const response = await fetch('/api/seti_hits');
+    const data = await response.json();
 
-    function renderFrame() {
-      // Shift existing Canvas down 2px
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height - 2);
-      ctx.putImageData(imgData, 0, 2);
+    if (!data.spectrum_row || data.spectrum_row.length === 0) return;
 
-      // Generate new line of simulated RF spectrum
-      const row = ctx.createImageData(canvas.width, 2);
-      driftOffset = (driftOffset + 0.3) % (canvas.width / 2);
+    // 1. Shift existing Canvas down 2px
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height - 2);
+    ctx.putImageData(imgData, 0, 2);
 
-      for (let x = 0; x < canvas.width; x++) {
-        let intensity = Math.random() * 40; // Background noise
-        
-        // Inject narrow drifting anomaly line
-        const targetX = Math.floor(canvas.width * 0.4 + driftOffset);
-        if (Math.abs(x - targetX) < 2) {
-          intensity = 225; // Bright signal candidate
-        }
+    // 2. Draw real RF stream slice on the top row
+    const row = ctx.createImageData(canvas.width, 2);
+    const spectrum = data.spectrum_row;
 
-        const idx = x * 4;
-        row.data[idx] = 0;                 // R
-        row.data[idx + 1] = intensity;     // G
-        row.data[idx + 2] = intensity * 1.2;// B
-        row.data[idx + 3] = 255;           // Alpha
-      }
+    for (let x = 0; x < canvas.width; x++) {
+      // Map canvas pixel position to streamed spectrum channel
+      const channelIdx = Math.floor((x / canvas.width) * spectrum.length);
+      const intensity = Math.min(255, spectrum[channelIdx] * 2);
 
-      ctx.putImageData(row, 0, 0);
-      requestAnimationFrame(renderFrame);
+      const idx = x * 4;
+      row.data[idx] = 0;                  // Red
+      row.data[idx + 1] = intensity;      // Green
+      row.data[idx + 2] = intensity * 1.2;// Blue
+      row.data[idx + 3] = 255;            // Alpha
     }
 
-    renderFrame();
+    ctx.putImageData(row, 0, 0);
+
+    // 3. Update Candidates Table
+    if (data.candidates && data.candidates.length > 0) {
+      const tbody = document.querySelector('.log-table tbody');
+      const hit = data.candidates[0];
+      tbody.innerHTML = `
+        <tr>
+          <td>${hit.time}</td>
+          <td>${hit.freq_shift}</td>
+          <td>${hit.drift_rate}</td>
+          <td class="${hit.classification === 'Narrowband' ? 'tag-anomaly' : ''}">${hit.classification}</td>
+        </tr>
+      `;
+    }
+
+  } catch (err) {
+    console.error("Stream sync error:", err);
+  }
+}
+
+// Poll streaming API every 2 seconds
+setInterval(updateSetiDashboard, 2000);
+updateSetiDashboard();
+
+
   </script>
 </body>
 </html>
