@@ -1,0 +1,34 @@
+name: Ephemeral Difference Imaging
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  difference-imaging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Science Libraries
+        run: |
+          pip install astroquery astropy reproject numpy pillow
+
+      - name: Run Ephemeral Subtraction Pipeline
+        run: python scripts/process_ephemeral.py
+
+      - name: Commit Lightweight Web Outputs Only
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add docs/data/*.png docs/data/telemetry.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update difference telemetry [skip ci]"
+          git push
