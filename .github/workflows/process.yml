@@ -1,7 +1,7 @@
 name: Ephemeral Difference Imaging
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 permissions:
   contents: write
@@ -20,7 +20,7 @@ jobs:
 
       - name: Install Science Libraries
         run: |
-          pip install astroquery astropy reproject numpy pillow
+          pip install astroquery astropy reproject numpy pillow scipy
 
       - name: Run Ephemeral Subtraction Pipeline
         run: python scripts/process_ephemeral.py
