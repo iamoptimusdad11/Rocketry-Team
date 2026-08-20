@@ -2,191 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mission Control // Optical Transient Detector</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&family=Orbitron:wght@600;900&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Optical Transient Detector | Limitless Rocketry</title>
+  <link rel="stylesheet" href="mission-control.css">
   <style>
     :root {
-      --bg-dark: #0b0e14;
-      --bg-card: #121824;
-      --border-color: #2a3447;
-      --accent-orange: #ff5500;
-      --accent-cyan: #00e5ff;
-      --text-main: #e2e8f0;
-      --text-muted: #64748b;
-      --font-heading: 'Orbitron', sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
-      --font-body: 'Inter', sans-serif;
+      --bg-dark: #07090e;
+      --panel-bg: rgba(13, 17, 23, 0.85);
+      --accent-cyan: #00f0ff;
+      --accent-orange: #ff6b00;
+      --text-main: #e6edf3;
+      --text-muted: #8b949e;
+      --font-mono: 'Courier New', Courier, monospace;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       background-color: var(--bg-dark);
       color: var(--text-main);
-      font-family: var(--font-body);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    /* Mobile Navigation Adjustments */
+    .navbar {
       display: flex;
       flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Top Navigation / Telemetry Bar */
-    header {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-color);
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      justify-content: space-between;
       align-items: center;
+      padding: 0.75rem 1rem;
+      background: rgba(7, 9, 14, 0.95);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
     }
 
-    .brand {
+    .navbar ul {
       display: flex;
-      align-items: center;
-      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.5rem 1rem;
+      padding: 0;
+      margin: 0.5rem 0 0 0;
+      list-style: none;
     }
 
-    .brand-logo {
-      width: 12px;
-      height: 12px;
-      background: var(--accent-orange);
-      box-shadow: 0 0 10px var(--accent-orange);
-      transform: rotate(45deg);
-    }
-
-    .brand h1 {
-      font-family: var(--font-heading);
-      font-size: 1.1rem;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .system-status {
+    .navbar a {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.85rem;
       font-family: var(--font-mono);
-      font-size: 0.8rem;
-      display: flex;
+      padding: 0.4rem 0.6rem;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    .navbar a:active, .navbar a.active {
+      background: rgba(0, 240, 255, 0.15);
+      color: var(--accent-cyan);
+    }
+
+    /* Layout Container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .detector-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .detector-header h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(1.4rem, 5vw, 2.2rem);
+      color: var(--accent-cyan);
+      margin: 0 0 0.5rem 0;
+      letter-spacing: 1px;
+    }
+
+    .detector-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    /* Responsive Grid Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
       gap: 1.5rem;
     }
 
-    .status-item { display: flex; align-items: center; gap: 0.5rem; }
-    .indicator { width: 8px; height: 8px; border-radius: 50%; background: var(--accent-cyan); box-shadow: 0 0 8px var(--accent-cyan); }
-
-    /* Dashboard Layout */
-    main {
-      display: grid;
-      grid-template-columns: 280px 1fr 320px;
-      flex: 1;
-      overflow: hidden;
+    @media (min-width: 900px) {
+      .main-grid {
+        grid-template-columns: 2fr 1fr;
+      }
     }
 
-    .panel {
-      background: var(--bg-card);
-      border-right: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
+    /* Viewport Panel */
+    .viewport-panel {
+      background: var(--panel-bg);
+      border: 1px solid rgba(0, 240, 255, 0.2);
+      border-radius: 8px;
       padding: 1rem;
-      gap: 1rem;
-    }
-
-    .panel-right {
-      border-right: none;
-      border-left: 1px solid var(--border-color);
-    }
-
-    .panel-title {
-      font-family: var(--font-heading);
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 0.5rem;
-    }
-
-    /* Form Controls */
-    .control-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    label {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-
-    input, select, button {
-      background: var(--bg-dark);
-      border: 1px solid var(--border-color);
-      color: var(--text-main);
-      padding: 0.6rem;
-      border-radius: 4px;
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--accent-cyan);
-    }
-
-    .btn-primary {
-      background: var(--accent-orange);
-      color: #000;
-      font-weight: 800;
-      border: none;
-      cursor: pointer;
-      font-family: var(--font-heading);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: 0.5rem;
-      transition: opacity 0.2s;
-    }
-
-    .btn-primary:hover { opacity: 0.9; }
-
-    /* Main Viewer Area */
-    .viewport {
-      display: flex;
-      flex-direction: column;
-      background: #000;
-      position: relative;
+      box-sizing: border-box;
     }
 
     .viewport-controls {
-      background: var(--bg-card);
-      border-bottom: 1px solid var(--border-color);
-      padding: 0.5rem 1rem;
       display: flex;
-      gap: 1rem;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
     }
 
-    .toggle-btn {
-      background: transparent;
-      border: 1px solid var(--border-color);
+    .btn-toggle {
+      flex: 1 1 calc(33.33% - 0.5rem);
+      min-width: 90px;
+      padding: 0.6rem 0.4rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      border-radius: 4px;
       cursor: pointer;
+      touch-action: manipulation;
+      text-align: center;
     }
 
-    .toggle-btn.active {
-      background: var(--accent-cyan);
-      color: #000;
-      font-weight: bold;
+    .btn-toggle.active {
+      background: rgba(0, 240, 255, 0.2);
       border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
     }
 
+    /* Mobile Image Display Frame */
     .image-grid {
-      flex: 1;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2px;
-      background: var(--border-color);
+      grid-template-columns: 1fr;
+      gap: 1rem;
       position: relative;
+      width: 100%;
+      min-height: 280px;
+      background: #000;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    @media (min-width: 600px) {
+      .image-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     .image-grid.blink-mode {
@@ -194,311 +165,297 @@
     }
 
     .frame-container {
-      background: #05070a;
       position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #05070a;
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
     }
 
-    .frame-container.hidden { display: none; }
+    .frame-container.hidden {
+      display: none;
+    }
 
     .frame-tag {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 8px;
+      left: 8px;
       background: rgba(0, 0, 0, 0.75);
-      border: 1px solid var(--border-color);
-      padding: 0.2rem 0.5rem;
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
       color: var(--accent-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.4rem;
+      border-radius: 3px;
       z-index: 10;
+      border: 1px solid rgba(0, 240, 255, 0.3);
     }
 
-    /* Mock Canvas Display */
     .space-canvas {
       width: 100%;
       height: 100%;
-      object-fit: cover;
-      opacity: 0.85;
+      object-fit: contain;
     }
 
-    /* Reticle Overlay */
+    /* Target Reticle Overlay */
     .target-overlay {
       position: absolute;
-      width: 40px;
-      height: 40px;
-      border: 1px solid var(--accent-orange);
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--accent-orange);
       border-radius: 50%;
-      top: 45%;
-      left: 55%;
       transform: translate(-50%, -50%);
       pointer-events: none;
-      box-shadow: 0 0 8px var(--accent-orange);
+      display: none;
+      z-index: 5;
+      animation: pulse 1.5s infinite;
     }
 
-    /* Telemetry Feed / Alerts */
-    .alert-feed {
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(255, 107, 0, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); }
+    }
+
+    /* Right Telemetry Panel */
+    .panel-right {
+      background: var(--panel-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 1rem;
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      overflow-y: auto;
+      gap: 1rem;
+    }
+
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 0.4rem;
     }
 
     .alert-card {
-      background: var(--bg-dark);
-      border-left: 3px solid var(--accent-orange);
-      padding: 0.6rem;
+      background: rgba(255, 107, 0, 0.08);
+      border: 1px solid rgba(255, 107, 0, 0.3);
+      border-radius: 6px;
+      padding: 0.75rem;
       font-family: var(--font-mono);
-      font-size: 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.2rem;
+      font-size: 0.8rem;
     }
 
-    .alert-card .title { color: var(--text-main); font-weight: bold; }
-    .alert-card .meta { color: var(--text-muted); font-size: 0.7rem; }
+    .alert-card .title {
+      color: var(--accent-orange);
+      font-weight: bold;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .alert-card .meta {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      display: block;
+    }
+
+    /* Action Trigger Button */
+    .btn-primary {
+      width: 100%;
+      padding: 0.85rem;
+      background: var(--accent-cyan);
+      color: #000;
+      font-family: var(--font-mono);
+      font-weight: bold;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      touch-action: manipulation;
+      transition: opacity 0.2s ease;
+      margin-top: auto;
+    }
+
+    .btn-primary:active {
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
 
-  <!-- Top Navigation -->
-  <header>
-    <div class="brand">
-      <div class="brand-logo"></div>
-      <h1>PAYLOAD // TRANSIENT DETECTOR</h1>
+  <nav class="navbar">
+    <div class="logo">
+      <span style="font-family: var(--font-mono); color: var(--accent-cyan); font-weight: bold;">LIMITLESS ROCKETRY</span>
     </div>
-    <div class="system-status">
-      <div class="status-item"><div class="indicator"></div> MAST API: ONLINE</div>
-      <div class="status-item"><div class="indicator" style="background:var(--accent-orange); box-shadow:0 0 8px var(--accent-orange)"></div> DIA PIPELINE: READY</div>
-    </div>
-  </header>
+    <ul>
+      <li><a href="index.html">Home</a></li>
+      <li><a href="mission-control.html">Control</a></li>
+      <li><a href="ai-laboratory.html">AI Lab</a></li>
+      <li><a href="seti.html">SETI</a></li>
+      <li><a href="optical-transient-detector.html" class="active">OTD</a></li>
+      <li><a href="team.html">Team</a></li>
+    </ul>
+  </nav>
 
-  <main>
-    <!-- Left Sidebar: Controls -->
-    <section class="panel">
-      <div class="panel-title">Targeting Parameters</div>
-      
-      <div class="control-group">
-        <label for="preset">Presets</label>
-        <select id="preset">
-          <option value="goods-s">GOODS-South Deep Field</option>
-          <option value="hudf">Hubble Ultra Deep Field</option>
-          <option value="smacs">SMACS 0723 Cluster</option>
-        </select>
-      </div>
+  <div class="container">
+    <header class="detector-header">
+      <h1>OPTICAL TRANSIENT DETECTOR</h1>
+      <p>PSF-Matched Difference Imaging & Anomaly Detection Pipeline</p>
+    </header>
 
-      <div class="control-group">
-        <label>Right Ascension (RA)</label>
-        <input type="text" value="03:32:38.5" readonly>
-      </div>
-
-      <div class="control-group">
-        <label>Declination (DEC)</label>
-        <input type="text" value="-27:48:00.0" readonly>
-      </div>
-
-      <div class="panel-title" style="margin-top: 1rem;">Observation Epochs</div>
-
-      <div class="control-group">
-        <label>Reference (Hubble / Optical)</label>
-        <input type="text" value="HST_ACS_F814W (2004)" readonly>
-      </div>
-
-      <div class="control-group">
-        <label>Target (JWST / Infrared)</label>
-        <input type="text" value="JWST_NIRCam_F200W (2022)" readonly>
-      </div>
-
-      <button class="btn-primary">Execute Subtraction</button>
-    </section>
-
-    <!-- Center Viewport -->
-    <section class="viewport">
-      <div class="viewport-controls">
-        <label>Display Mode:</label>
-        <button class="toggle-btn active" id="btn-split">Side-By-Side</button>
-        <button class="toggle-btn" id="btn-blink">Blink Comparator</button>
-        <button class="toggle-btn" id="btn-diff">Difference Map</button>
-      </div>
-
-      <div class="image-grid" id="grid">
-        <!-- Frame A: HST -->
-        <div class="frame-container" id="frame-a">
-          <div class="frame-tag">HST // F814W (2004)</div>
-          <svg class="space-canvas" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-            <rect width="400" height="400" fill="#030508"/>
-            <circle cx="100" cy="120" r="3" fill="#ffffff" opacity="0.8"/>
-            <circle cx="280" cy="80" r="5" fill="#ffffff" opacity="0.9"/>
-            <circle cx="220" cy="180" r="2" fill="#ffffff" opacity="0.5"/>
-            <!-- Target star (faint) -->
-            <circle cx="220" cy="180" r="1.5" fill="#a0c4ff" opacity="0.4"/>
-          </svg>
+    <div class="main-grid">
+      <!-- Left Column: Viewport & Canvas Controls -->
+      <div class="viewport-panel">
+        <div class="viewport-controls">
+          <button id="btn-split" class="btn-toggle active">SPLIT</button>
+          <button id="btn-blink" class="btn-toggle">BLINK</button>
+          <button id="btn-diff" class="btn-toggle">DIFF ONLY</button>
         </div>
 
-        <!-- Frame B: JWST -->
-        <div class="frame-container" id="frame-b">
-          <div class="frame-tag">JWST // F200W (2022)</div>
-          <div class="target-overlay"></div>
-          <svg class="space-canvas" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-            <rect width="400" height="400" fill="#030508"/>
-            <circle cx="100" cy="120" r="3" fill="#ffffff" opacity="0.8"/>
-            <circle cx="280" cy="80" r="5" fill="#ffffff" opacity="0.9"/>
-            <!-- Target star flared up (Transient) -->
-            <circle cx="220" cy="180" r="8" fill="#ffaa00" opacity="0.9"/>
-            <line x1="220" y1="165" x2="220" y2="195" stroke="#ffaa00" stroke-width="1.5"/>
-            <line x1="205" y1="180" x2="235" y2="180" stroke="#ffaa00" stroke-width="1.5"/>
-          </svg>
+        <div id="grid" class="image-grid">
+          <div id="frame-a" class="frame-container">
+            <div class="frame-tag">HST // OPTICAL</div>
+            <img src="data/hst_aligned.png" class="space-canvas" alt="HST Aligned Frame" />
+          </div>
+          <div id="frame-b" class="frame-container">
+            <div class="frame-tag">JWST // IR</div>
+            <div class="target-overlay" id="reticle"></div>
+            <img src="data/jwst.png" class="space-canvas" alt="JWST Frame" />
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Right Sidebar: Transient Data Telemetry -->
-    <section class="panel panel-right">
-      <div class="panel-title">Detection Telemetry</div>
-      
-      <div class="alert-card">
-        <span class="title">ANOMALY DETECTED [98.4%]</span>
-        <span class="meta">RA: 03:32:38.52 | DEC: -27:48:01.1</span>
-        <span style="color: var(--accent-orange); margin-top:0.2rem;">Flux Δ: +4.2 Mag (Infrared Excess)</span>
-      </div>
-
-      <div class="panel-title" style="margin-top: 1rem;">Candidate Classification</div>
-      <div style="font-family: var(--font-mono); font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.5rem;">
-        <div>Supernova (Type Ia): <span style="color:var(--accent-cyan)">82%</span></div>
-        <div>Tidal Disruption Event: <span style="color:var(--text-muted)">14%</span></div>
-        <div>Instrument Artifact: <span style="color:var(--text-muted)">4%</span></div>
-      </div>
-
-      <div class="panel-title" style="margin-top: 1rem;">Recent Target Logs</div>
-      <div class="alert-feed">
-        <div class="alert-card">
-          <span class="title">Candidate #10492</span>
-          <span class="meta">GOODS-S | Verified Transients</span>
-        </div>
-        <div class="alert-card" style="border-color: var(--border-color);">
-          <span class="title">Candidate #10491</span>
-          <span class="meta">HUDF | High-z Variable Star</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
- <script>
-  const btnSplit = document.getElementById('btn-split');
-  const btnBlink = document.getElementById('btn-blink');
-  const btnDiff  = document.getElementById('btn-diff');
-  const grid     = document.getElementById('grid');
-  const frameA   = document.getElementById('frame-a');
-  const frameB   = document.getElementById('frame-b');
-  const executeBtn = document.querySelector('.btn-primary');
-
-  let blinkInterval = null;
-  let telemetryData = null;
-
-  // View Mode Toggles
-  btnSplit.addEventListener('click', () => {
-    stopBlink();
-    setActiveBtn(btnSplit);
-    grid.className = 'image-grid';
-    frameA.classList.remove('hidden');
-    frameB.classList.remove('hidden');
-  });
-
-  btnBlink.addEventListener('click', () => {
-    setActiveBtn(btnBlink);
-    grid.className = 'image-grid blink-mode';
-    startBlink();
-  });
-
-  btnDiff.addEventListener('click', () => {
-    stopBlink();
-    setActiveBtn(btnDiff);
-    grid.className = 'image-grid blink-mode';
-    frameA.classList.add('hidden');
-    frameB.classList.remove('hidden');
-  });
-
-  function setActiveBtn(btn) {
-    [btnSplit, btnBlink, btnDiff].forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-  }
-
-  function startBlink() {
-    stopBlink();
-    let visible = 0;
-    blinkInterval = setInterval(() => {
-      if (visible === 0) {
-        frameA.classList.remove('hidden');
-        frameB.classList.add('hidden');
-        visible = 1;
-      } else {
-        frameA.classList.add('hidden');
-        frameB.classList.remove('hidden');
-        visible = 0;
-      }
-    }, 500);
-  }
-
-  function stopBlink() {
-    if (blinkInterval) clearInterval(blinkInterval);
-  }
-
-  // Load live telemetry and update viewport overlay
-  executeBtn.addEventListener('click', async () => {
-    try {
-      executeBtn.innerText = "LOADING DATA...";
-      const res = await fetch('./data/telemetry.json?t=' + Date.now());
-      telemetryData = await res.json();
-
-      // 1. Inject Aligned & Processed PNGs
-      frameA.innerHTML = `
-        <div class="frame-tag">HST // ALIGNED OPTICAL</div>
-        <img src="${telemetryData.hst_img}" class="space-canvas" id="img-hst"/>`;
-
-      frameB.innerHTML = `
-        <div class="frame-tag">JWST // PSF-MATCHED IR</div>
-        <div class="target-overlay" id="reticle"></div>
-        <img src="${telemetryData.jwst_img}" class="space-canvas" id="img-jwst"/>`;
-
-      // 2. Position Target Reticle dynamically based on detected anomaly coordinates
-      if (telemetryData.anomalies_found > 0 && telemetryData.targets.length > 0) {
-        const target = telemetryData.targets[0];
-        const reticle = document.getElementById('reticle');
-        
-        // Assuming default image dimensions normalized to percentages
-        reticle.style.left = `${(target.pixel_x / 400) * 100}%`;
-        reticle.style.top = `${(target.pixel_y / 400) * 100}%`;
-        reticle.style.display = 'block';
-      }
-
-      // 3. Update Telemetry Panel Cards
-      const telemetryPanel = document.querySelector('.panel-right');
-      telemetryPanel.innerHTML = `
+      <!-- Right Column: Live Telemetry Controls -->
+      <div class="panel-right">
         <div class="panel-title">Detection Telemetry</div>
-        <div class="alert-card">
-          <span class="title">${telemetryData.anomalies_found > 0 ? 'ANOMALY DETECTED' : 'NO ANOMALIES'}</span>
-          <span class="meta">PSF MATCHING: APPLIED</span>
-          <span class="meta">KERNEL STDDEV: ${telemetryData.kernel_stddev}</span>
-          <span style="color: var(--accent-orange); margin-top:0.2rem;">
-            SIGMA PEAK: ${telemetryData.targets[0]?.peak_flux_sigma || 0}σ
-          </span>
+
+        <div id="telemetry-content">
+          <div class="alert-card">
+            <span class="title">READY FOR FETCH</span>
+            <span class="meta">SYSTEM STATUS: IDLE</span>
+            <span class="meta">PIPELINE: STANDBY</span>
+          </div>
         </div>
 
-        <div class="panel-title" style="margin-top: 1rem;">Pipeline Config</div>
-        <div style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; color: var(--text-muted);">
-          <div>Threshold: <span style="color:var(--text-main)">${telemetryData.sigma_threshold}σ</span></div>
-          <div>Targets Found: <span style="color:var(--accent-cyan)">${telemetryData.anomalies_found}</span></div>
-        </div>
-      `;
+        <button class="btn-primary" id="btn-execute">EXECUTE SUBTRACTION</button>
+      </div>
+    </div>
+  </div>
 
-      executeBtn.innerText = "EXECUTE SUBTRACTION";
-    } catch (err) {
-      console.error("Telemetry loading failed:", err);
-      executeBtn.innerText = "ERROR LOADING DATA";
+  <script>
+    const btnSplit = document.getElementById('btn-split');
+    const btnBlink = document.getElementById('btn-blink');
+    const btnDiff  = document.getElementById('btn-diff');
+    const grid     = document.getElementById('grid');
+    const frameA   = document.getElementById('frame-a');
+    const frameB   = document.getElementById('frame-b');
+    const executeBtn = document.getElementById('btn-execute');
+    const telemetryContainer = document.getElementById('telemetry-content');
+
+    let blinkInterval = null;
+
+    // Responsive Viewport Controls
+    btnSplit.addEventListener('click', () => {
+      stopBlink();
+      setActiveBtn(btnSplit);
+      grid.className = 'image-grid';
+      frameA.classList.remove('hidden');
+      frameB.classList.remove('hidden');
+    });
+
+    btnBlink.addEventListener('click', () => {
+      setActiveBtn(btnBlink);
+      grid.className = 'image-grid blink-mode';
+      startBlink();
+    });
+
+    btnDiff.addEventListener('click', () => {
+      stopBlink();
+      setActiveBtn(btnDiff);
+      grid.className = 'image-grid blink-mode';
+      frameA.classList.add('hidden');
+      frameB.classList.remove('hidden');
+    });
+
+    function setActiveBtn(btn) {
+      [btnSplit, btnBlink, btnDiff].forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
     }
-  });
-</script></body>
+
+    function startBlink() {
+      stopBlink();
+      let visible = 0;
+      blinkInterval = setInterval(() => {
+        if (visible === 0) {
+          frameA.classList.remove('hidden');
+          frameB.classList.add('hidden');
+          visible = 1;
+        } else {
+          frameA.classList.add('hidden');
+          frameB.classList.remove('hidden');
+          visible = 0;
+        }
+      }, 500);
+    }
+
+    function stopBlink() {
+      if (blinkInterval) clearInterval(blinkInterval);
+    }
+
+    // Dynamic Telemetry Data Sync
+    executeBtn.addEventListener('click', async () => {
+      try {
+        executeBtn.innerText = "LOADING TELEMETRY...";
+        const res = await fetch('./data/telemetry.json?t=' + Date.now());
+        const telemetryData = await res.json();
+
+        // 1. Update Image Frames
+        frameA.innerHTML = `
+          <div class="frame-tag">HST // ALIGNED OPTICAL</div>
+          <img src="${telemetryData.hst_img}" class="space-canvas" alt="HST Aligned"/>`;
+
+        frameB.innerHTML = `
+          <div class="frame-tag">JWST // PSF-MATCHED IR</div>
+          <div class="target-overlay" id="reticle"></div>
+          <img src="${telemetryData.jwst_img}" class="space-canvas" alt="JWST Processed"/>`;
+
+        // 2. Snap Dynamic Target Reticle Overlay
+        if (telemetryData.anomalies_found > 0 && telemetryData.targets.length > 0) {
+          const target = telemetryData.targets[0];
+          const reticle = document.getElementById('reticle');
+          if (reticle) {
+            reticle.style.left = `${(target.pixel_x / 400) * 100}%`;
+            reticle.style.top = `${(target.pixel_y / 400) * 100}%`;
+            reticle.style.display = 'block';
+          }
+        }
+
+        // 3. Populate Telemetry Data
+        telemetryContainer.innerHTML = `
+          <div class="alert-card">
+            <span class="title">${telemetryData.anomalies_found > 0 ? 'ANOMALY DETECTED' : 'NO ANOMALIES'}</span>
+            <span class="meta">PSF MATCHING: ${telemetryData.psf_matching_applied ? 'APPLIED' : 'OFF'}</span>
+            <span class="meta">KERNEL STDDEV: ${telemetryData.kernel_stddev}</span>
+            <span style="color: var(--accent-orange); margin-top:0.2rem; display:block;">
+              SIGMA PEAK: ${telemetryData.targets[0]?.peak_flux_sigma || 0}σ
+            </span>
+          </div>
+
+          <div class="panel-title" style="margin-top: 0.8rem;">Pipeline Specs</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--text-muted);">
+            <div>Threshold: <span style="color:var(--text-main)">${telemetryData.sigma_threshold}σ</span></div>
+            <div>Targets Found: <span style="color:var(--accent-cyan)">${telemetryData.anomalies_found}</span></div>
+          </div>
+        `;
+
+        executeBtn.innerText = "EXECUTE SUBTRACTION";
+      } catch (err) {
+        console.error("Failed to load telemetry data:", err);
+        executeBtn.innerText = "ERROR LOADING DATA";
+      }
+    });
+  </script>
+</body>
 </html>
