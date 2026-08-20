@@ -79,7 +79,9 @@ def run_real_archive_pipeline(target_name="M51", radius_arcmin=10):
         Image.fromarray(diff_norm).save(os.path.join(OUT_DIR, "difference.png"))
 
         # 6. Build Dynamic Telemetry JSON
+       # Save Current Run Telemetry
         telemetry = {
+            "timestamp": int(time.time()),
             "target_name": target_name,
             "psf_matching_applied": True,
             "kernel_stddev": kernel_sigma,
@@ -94,11 +96,14 @@ def run_real_archive_pipeline(target_name="M51", radius_arcmin=10):
         with open(os.path.join(OUT_DIR, "telemetry.json"), "w") as f:
             json.dump(telemetry, f, indent=2)
 
-        print(f"[✓] Successfully retrieved and processed {target_name}. Output written to /data.")
+        # Append to Archive Log for Long-Term Progress
+        archive_path = os.path.join(OUT_DIR, "archive.json")
+        history = []
+        if os.path.exists(archive_path):
+            with open(archive_path, "r") as f:
+                try: history = json.load(f)
+                except: history = []
 
-    except Exception as e:
-        print(f"[!] Archival fetch failed: {e}")
-        raise e
-
-if __name__ == "__main__":
-    run_pipeline = run_real_archive_pipeline("M51")
+        history.append(telemetry)
+        with open(archive_path, "w") as f:
+            json.dump(history, f, indent=2)
