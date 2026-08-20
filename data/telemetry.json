@@ -1,13 +1,14 @@
 {
+  "target_name": "M51",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 220,
-      "pixel_y": 180,
-      "peak_flux_sigma": 8.42
+      "pixel_x": 287,
+      "pixel_y": 168,
+      "peak_flux_sigma": 15.86
     }
   ],
   "hst_img": "data/hst_aligned.png",
