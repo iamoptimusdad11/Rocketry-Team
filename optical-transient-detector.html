@@ -25,7 +25,7 @@
       overflow-x: hidden;
     }
 
-    /* Mobile Navigation Adjustments */
+    /* Navigation Styling */
     .navbar {
       display: flex;
       flex-direction: column;
@@ -64,7 +64,7 @@
       color: var(--accent-cyan);
     }
 
-    /* Layout Container */
+    /* Container & Layout */
     .container {
       max-width: 1200px;
       margin: 0 auto;
@@ -91,7 +91,7 @@
       margin: 0;
     }
 
-    /* Responsive Grid Layout */
+    /* Grid System */
     .main-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -141,7 +141,7 @@
       color: var(--accent-cyan);
     }
 
-    /* Mobile Image Display Frame */
+    /* Canvas Frame Display */
     .image-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -175,7 +175,7 @@
     }
 
     .frame-container.hidden {
-      display: none;
+      display: none !important;
     }
 
     .frame-tag {
@@ -196,6 +196,7 @@
       width: 100%;
       height: 100%;
       object-fit: contain;
+      display: block;
     }
 
     /* Target Reticle Overlay */
@@ -218,7 +219,7 @@
       100% { box-shadow: 0 0 0 0 rgba(255, 107, 0, 0); }
     }
 
-    /* Right Telemetry Panel */
+    /* Telemetry Panel */
     .panel-right {
       background: var(--panel-bg);
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -261,7 +262,6 @@
       display: block;
     }
 
-    /* Action Trigger Button */
     .btn-primary {
       width: 100%;
       padding: 0.85rem;
@@ -306,7 +306,7 @@
     </header>
 
     <div class="main-grid">
-      <!-- Left Column: Viewport & Canvas Controls -->
+      <!-- Left Column: Image Canvas & Viewport -->
       <div class="viewport-panel">
         <div class="viewport-controls">
           <button id="btn-split" class="btn-toggle active">SPLIT</button>
@@ -316,18 +316,18 @@
 
         <div id="grid" class="image-grid">
           <div id="frame-a" class="frame-container">
-            <div class="frame-tag">HST // OPTICAL</div>
-            <img src="data/hst_aligned.png" class="space-canvas" alt="HST Aligned Frame" />
+            <div class="frame-tag" id="tag-a">HST // OPTICAL</div>
+            <img id="img-a" src="data/hst_aligned.png" class="space-canvas" alt="HST Frame" />
           </div>
           <div id="frame-b" class="frame-container">
-            <div class="frame-tag">JWST // IR</div>
+            <div class="frame-tag" id="tag-b">JWST // IR</div>
             <div class="target-overlay" id="reticle"></div>
-            <img src="data/jwst.png" class="space-canvas" alt="JWST Frame" />
+            <img id="img-b" src="data/jwst.png" class="space-canvas" alt="JWST Frame" />
           </div>
         </div>
       </div>
 
-      <!-- Right Column: Live Telemetry Controls -->
+      <!-- Right Column: Control & Telemetry -->
       <div class="panel-right">
         <div class="panel-title">Detection Telemetry</div>
 
@@ -343,68 +343,151 @@
       </div>
     </div>
   </div>
-<script>
-  // Dynamic Telemetry Data Sync
-executeBtn.addEventListener('click', async () => {
-  try {
-    executeBtn.innerText = "LOADING TELEMETRY...";
-    
-    // 1. Fetch from root data folder
-    const res = await fetch('./data/telemetry.json?t=' + Date.now());
-    const telemetryData = await res.json();
 
-    // Helper to ensure paths strictly point to the root /data/ directory
-    const getImgPath = (path) => {
-      if (!path) return '';
-      // Clean leading slashes or duplicate folders
-      const cleanPath = path.replace(/^\/+/, '').replace(/^docs\//, '');
-      return cleanPath.startsWith('data/') ? `./${cleanPath}` : `./data/${cleanPath}`;
-    };
+  <script>
+    const btnSplit = document.getElementById('btn-split');
+    const btnBlink = document.getElementById('btn-blink');
+    const btnDiff  = document.getElementById('btn-diff');
+    const grid     = document.getElementById('grid');
+    const frameA   = document.getElementById('frame-a');
+    const frameB   = document.getElementById('frame-b');
+    const imgA     = document.getElementById('img-a');
+    const imgB     = document.getElementById('img-b');
+    const tagB     = document.getElementById('tag-b');
+    const executeBtn = document.getElementById('btn-execute');
+    const telemetryContainer = document.getElementById('telemetry-content');
+    const reticle  = document.getElementById('reticle');
 
-    // 2. Render Image Frames with absolute-relative paths
-    frameA.innerHTML = `
-      <div class="frame-tag">HST // ALIGNED OPTICAL</div>
-      <img src="${getImgPath(telemetryData.hst_img)}" class="space-canvas" alt="HST Aligned"/>`;
+    let blinkInterval = null;
+    let telemetryCache = null;
 
-    frameB.innerHTML = `
-      <div class="frame-tag">JWST // PSF-MATCHED IR</div>
-      <div class="target-overlay" id="reticle"></div>
-      <img src="${getImgPath(telemetryData.jwst_img)}" class="space-canvas" alt="JWST Processed"/>`;
-
-    // 3. Position Reticle Overlay
-    if (telemetryData.anomalies_found > 0 && telemetryData.targets.length > 0) {
-      const target = telemetryData.targets[0];
-      const reticle = document.getElementById('reticle');
-      if (reticle) {
-        reticle.style.left = `${(target.pixel_x / 400) * 100}%`;
-        reticle.style.top = `${(target.pixel_y / 400) * 100}%`;
-        reticle.style.display = 'block';
+    // Helper to format clean relative image URLs
+    function formatImagePath(pathStr) {
+      if (!pathStr) return 'data/hst_aligned.png';
+      let clean = pathStr.replace(/^\/+/, '').replace(/^docs\//, '');
+      if (!clean.startsWith('data/')) {
+        clean = 'data/' + clean;
       }
+      return clean;
     }
 
-    // 4. Update Telemetry Panel Cards
-    telemetryContainer.innerHTML = `
-      <div class="alert-card">
-        <span class="title">${telemetryData.anomalies_found > 0 ? 'ANOMALY DETECTED' : 'NO ANOMALIES'}</span>
-        <span class="meta">PSF MATCHING: ${telemetryData.psf_matching_applied ? 'APPLIED' : 'OFF'}</span>
-        <span class="meta">KERNEL STDDEV: ${telemetryData.kernel_stddev}</span>
-        <span style="color: var(--accent-orange); margin-top:0.2rem; display:block;">
-          SIGMA PEAK: ${telemetryData.targets[0]?.peak_flux_sigma || 0}σ
-        </span>
-      </div>
+    // Viewport Mode Toggles
+    btnSplit.addEventListener('click', () => {
+      stopBlink();
+      setActiveBtn(btnSplit);
+      grid.className = 'image-grid';
+      frameA.classList.remove('hidden');
+      frameB.classList.remove('hidden');
+      if (telemetryCache) {
+        imgB.src = formatImagePath(telemetryCache.jwst_img);
+        tagB.innerText = "JWST // PSF-MATCHED IR";
+      }
+    });
 
-      <div class="panel-title" style="margin-top: 0.8rem;">Pipeline Specs</div>
-      <div style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--text-muted);">
-        <div>Threshold: <span style="color:var(--text-main)">${telemetryData.sigma_threshold}σ</span></div>
-        <div>Targets Found: <span style="color:var(--accent-cyan)">${telemetryData.anomalies_found}</span></div>
-      </div>
-    `;
+    btnBlink.addEventListener('click', () => {
+      setActiveBtn(btnBlink);
+      grid.className = 'image-grid blink-mode';
+      if (telemetryCache) {
+        imgB.src = formatImagePath(telemetryCache.jwst_img);
+        tagB.innerText = "JWST // PSF-MATCHED IR";
+      }
+      startBlink();
+    });
 
-    executeBtn.innerText = "EXECUTE SUBTRACTION";
-  } catch (err) {
-    console.error("Failed to load telemetry data:", err);
-    executeBtn.innerText = "ERROR LOADING DATA";
-  }
-});</script>
+    btnDiff.addEventListener('click', () => {
+      stopBlink();
+      setActiveBtn(btnDiff);
+      grid.className = 'image-grid blink-mode';
+      frameA.classList.add('hidden');
+      frameB.classList.remove('hidden');
+      if (telemetryCache && telemetryCache.diff_img) {
+        imgB.src = formatImagePath(telemetryCache.diff_img);
+        tagB.innerText = "DIFFERENCE MAP";
+      }
+    });
+
+    function setActiveBtn(btn) {
+      [btnSplit, btnBlink, btnDiff].forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    function startBlink() {
+      stopBlink();
+      let visible = 0;
+      blinkInterval = setInterval(() => {
+        if (visible === 0) {
+          frameA.classList.remove('hidden');
+          frameB.classList.add('hidden');
+          visible = 1;
+        } else {
+          frameA.classList.add('hidden');
+          frameB.classList.remove('hidden');
+          visible = 0;
+        }
+      }, 500);
+    }
+
+    function stopBlink() {
+      if (blinkInterval) clearInterval(blinkInterval);
+    }
+
+    // Execution & Data Fetch
+    executeBtn.addEventListener('click', async () => {
+      try {
+        executeBtn.innerText = "LOADING TELEMETRY...";
+        const res = await fetch('data/telemetry.json?t=' + Date.now());
+        
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status} - ${res.statusText}`);
+        }
+
+        telemetryCache = await res.json();
+
+        // 1. Update Image Sources
+        imgA.src = formatImagePath(telemetryCache.hst_img);
+        imgB.src = formatImagePath(telemetryCache.jwst_img);
+
+        // 2. Position Overlay Reticle
+        if (telemetryCache.anomalies_found > 0 && telemetryCache.targets && telemetryCache.targets.length > 0) {
+          const target = telemetryCache.targets[0];
+          reticle.style.left = `${(target.pixel_x / 400) * 100}%`;
+          reticle.style.top = `${(target.pixel_y / 400) * 100}%`;
+          reticle.style.display = 'block';
+        } else {
+          reticle.style.display = 'none';
+        }
+
+        // 3. Populate Telemetry Panel
+        telemetryContainer.innerHTML = `
+          <div class="alert-card">
+            <span class="title">${telemetryCache.anomalies_found > 0 ? 'ANOMALY DETECTED' : 'NO ANOMALIES'}</span>
+            <span class="meta">PSF MATCHING: ${telemetryCache.psf_matching_applied ? 'APPLIED' : 'OFF'}</span>
+            <span class="meta">KERNEL STDDEV: ${telemetryCache.kernel_stddev}</span>
+            <span style="color: var(--accent-orange); margin-top:0.2rem; display:block;">
+              SIGMA PEAK: ${telemetryCache.targets[0]?.peak_flux_sigma || 0}σ
+            </span>
+          </div>
+
+          <div class="panel-title" style="margin-top: 0.8rem;">Pipeline Specs</div>
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--text-muted);">
+            <div>Threshold: <span style="color:var(--text-main)">${telemetryCache.sigma_threshold}σ</span></div>
+            <div>Targets Found: <span style="color:var(--accent-cyan)">${telemetryCache.anomalies_found}</span></div>
+          </div>
+        `;
+
+        executeBtn.innerText = "EXECUTE SUBTRACTION";
+      } catch (err) {
+        console.error("Pipeline Execution Error:", err);
+        executeBtn.innerText = "ERROR LOADING DATA";
+        telemetryContainer.innerHTML = `
+          <div class="alert-card" style="border-color: #ff0055; background: rgba(ff, 0, 85, 0.1);">
+            <span class="title" style="color: #ff0055;">FETCH ERROR</span>
+            <span class="meta">Could not read data/telemetry.json</span>
+            <span class="meta">Check console for details.</span>
+          </div>
+        `;
+      }
+    });
+  </script>
 </body>
 </html>
