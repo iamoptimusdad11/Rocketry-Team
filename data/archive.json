@@ -70,5 +70,23 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1787532881,
+    "target_name": "M104",
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 115,
+        "pixel_y": 81,
+        "peak_flux_sigma": 12.14
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]

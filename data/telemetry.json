@@ -1,15 +1,15 @@
 {
-  "timestamp": 1787446583,
-  "target_name": "M1",
+  "timestamp": 1787532881,
+  "target_name": "M104",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 146,
-      "pixel_y": 386,
-      "peak_flux_sigma": 17.4
+      "pixel_x": 115,
+      "pixel_y": 81,
+      "peak_flux_sigma": 12.14
     }
   ],
   "hst_img": "data/hst_aligned.png",
