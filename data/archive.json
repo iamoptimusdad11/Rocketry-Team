@@ -232,5 +232,23 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1788315740,
+    "target_name": "NGC 4038",
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 399,
+        "pixel_y": 41,
+        "peak_flux_sigma": 19.94
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]
