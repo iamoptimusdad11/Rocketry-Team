@@ -1,15 +1,15 @@
 {
-  "timestamp": 1788488692,
-  "target_name": "M51",
+  "timestamp": 1788575173,
+  "target_name": "NGC 4038",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 287,
-      "pixel_y": 168,
-      "peak_flux_sigma": 15.86
+      "pixel_x": 399,
+      "pixel_y": 41,
+      "peak_flux_sigma": 19.94
     }
   ],
   "hst_img": "data/hst_aligned.png",
