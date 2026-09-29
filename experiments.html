@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI For AI - Live Site Tagging Visualizer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: sans-serif; background: #070a11; color: #fff; height: 100vh; overflow: hidden; }
+    
+    header { height: 50px; background: #0d121e; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #1e293b; }
+    
+    .layout { display: grid; grid-template-columns: 1fr 1fr; height: calc(100vh - 50px); }
+    
+    iframe { width: 100%; height: 100%; border: none; background: #fff; }
+    .canvas-container { position: relative; width: 100%; height: 100%; background: #070a11; }
+    canvas { width: 100%; height: 100%; display: block; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div><strong>AI•{}</strong> Live Site Tagging Visualizer</div>
+    <div style="color: #10b981;">● Visualizer Active</div>
+  </header>
+
+  <div class="layout">
+    <!-- Replace URL with your actual website URL -->
+    <iframe src="YOUR_WEBSITE_URL_HERE" id="siteFrame"></iframe>
+    
+    <div class="canvas-container">
+      <canvas id="quantumCanvas"></canvas>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('quantumCanvas');
+    const ctx = canvas.getContext('2d');
+    let nodes = [];
+
+    function resize() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // LISTEN FOR MESSAGES FROM YOUR WEBSITE TRACKING SNIPPET
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'AI_TAG_EVENT') {
+        spawnDot(event.data.tag);
+      }
+    });
+
+    function spawnDot(tag) {
+      nodes.push({
+        x: Math.random() * (canvas.width - 60) + 30,
+        y: Math.random() * (canvas.height - 60) + 30,
+        tag: tag,
+        radius: 6,
+        color: '#06b6d4'
+      });
+      if (nodes.length > 20) nodes.shift();
+    }
+
+    function render() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      nodes.forEach(node => {
+        ctx.fillStyle = node.color;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '12px monospace';
+        ctx.fillText(node.tag, node.x - 20, node.y - 10);
+      });
+      requestAnimationFrame(render);
+    }
+    render();
+  </script>
+</body>
+</html>
