@@ -18,6 +18,7 @@
       --accent-magenta: #ec4899;
       --accent-green: #10b981;
       --accent-amber: #f59e0b;
+      --accent-red: #ef4444;
       --text: #f8fafc;
       --text-muted: #94a3b8;
     }
@@ -115,7 +116,7 @@
       border: none;
     }
 
-    /* Right Viewport (Canvas + Log Overlay) */
+    /* Right Viewport (Canvas + Controls + Log Overlay) */
     .visualizer-container {
       position: relative;
       width: 100%;
@@ -125,6 +126,53 @@
       display: flex;
       flex-direction: column;
     }
+
+    /* Control Toolbar above Canvas */
+    .toolbar {
+      background: rgba(13, 18, 30, 0.95);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+      z-index: 5;
+    }
+
+    .btn-sm {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-sm:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent-cyan);
+      transform: translateY(-1px);
+    }
+
+    .btn-reset {
+      background: rgba(239, 68, 68, 0.15);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+    .btn-reset:hover {
+      background: var(--accent-red);
+      color: #fff;
+    }
+
+    .btn-calc { border-color: rgba(6, 182, 212, 0.5); color: var(--accent-cyan); }
+    .btn-lead { border-color: rgba(236, 72, 153, 0.5); color: var(--accent-magenta); }
+    .btn-state { border-color: rgba(139, 92, 246, 0.5); color: var(--accent-purple); }
 
     .canvas-wrapper {
       position: relative;
@@ -141,14 +189,14 @@
 
     .canvas-overlay-hint {
       position: absolute;
-      top: 14px;
-      left: 14px;
+      top: 12px;
+      left: 12px;
       background: rgba(0, 0, 0, 0.65);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border);
-      padding: 6px 12px;
+      padding: 5px 10px;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: var(--text-muted);
       pointer-events: none;
       font-family: 'JetBrains Mono', monospace;
@@ -156,10 +204,10 @@
 
     /* Telemetry Drawer Overlay at Bottom */
     .telemetry-drawer {
-      height: 180px;
+      height: 170px;
       background: rgba(13, 18, 30, 0.92);
       border-top: 1px solid var(--border);
-      padding: 12px 16px;
+      padding: 10px 14px;
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
@@ -169,8 +217,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-      font-size: 0.8rem;
+      margin-bottom: 6px;
+      font-size: 0.78rem;
       font-weight: bold;
       color: var(--accent-cyan);
       font-family: 'JetBrains Mono', monospace;
@@ -178,18 +226,18 @@
 
     .log-stream {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       flex-grow: 1;
     }
 
     .log-item {
       background: rgba(0, 0, 0, 0.4);
       border-left: 3px solid var(--accent-cyan);
-      padding: 6px 10px;
+      padding: 5px 8px;
       border-radius: 4px;
       animation: fadeIn 0.3s ease;
       display: flex;
@@ -229,15 +277,34 @@
     <!-- LEFT: Embedded Website Frame -->
     <div class="iframe-container">
       <!-- REPLACE WITH YOUR ACTUAL WEBSITE URL BELOW -->
-      <iframe src="https://rocketry-team.vercel.app/index.html" id="siteFrame"></iframe>
+      <iframe src="https://rocketry-team.vercel.app" id="siteFrame"></iframe>
     </div>
 
-    <!-- RIGHT: 2D Quantum Superposition Canvas -->
+    <!-- RIGHT: 2D Quantum Canvas & Control Toolbar -->
     <div class="visualizer-container">
       
+      <!-- Interactive Toolbar -->
+      <div class="toolbar">
+        <button class="btn-sm btn-reset" id="btnReset">
+          <span>🧹 Reset Dots</span>
+        </button>
+        <button class="btn-sm" id="btnPause">
+          <span id="pauseLabel">⏸️ Pause Motion</span>
+        </button>
+        <button class="btn-sm btn-calc" id="btnTagCalc">
+          <span>+ AI•{calc}</span>
+        </button>
+        <button class="btn-sm btn-lead" id="btnTagLead">
+          <span>+ AI•{lead}</span>
+        </button>
+        <button class="btn-sm btn-state" id="btnTagState">
+          <span>+ AI•{superposition}</span>
+        </button>
+      </div>
+
       <div class="canvas-wrapper">
         <div class="canvas-overlay-hint">
-          ⚡ Interact on your website (Left) to spawn Superposition Dots (Right)
+          ⚡ Click site (Left) or canvas (Right) to tag data
         </div>
         <canvas id="quantumCanvas"></canvas>
       </div>
@@ -266,18 +333,19 @@
       const ctx = canvas.getContext('2d');
       const logStream = document.getElementById('logStream');
       const nodeCountEl = document.getElementById('nodeCount');
+      const pauseLabel = document.getElementById('pauseLabel');
 
       let width, height;
       let nodes = [];
       let time = 0;
+      let isPaused = false;
 
-      // Color mapping according to tag classification
       const TAG_COLORS = {
-        calc: '#06b6d4',          // Cyan (Calculation)
-        click: '#f59e0b',         // Amber (User Click)
-        lead: '#ec4899',          // Magenta (Form/Lead)
-        superposition: '#8b5cf6', // Purple (Quantum State)
-        default: '#10b981'        // Green (Default)
+        calc: '#06b6d4',          // Cyan
+        click: '#f59e0b',         // Amber
+        lead: '#ec4899',          // Magenta
+        superposition: '#8b5cf6', // Purple
+        default: '#10b981'        // Green
       };
 
       function resize() {
@@ -288,7 +356,6 @@
       window.addEventListener('resize', resize);
       resize();
 
-      // Math Evaluator for AI•{calc: ...} tags
       function parseCalcTag(tagStr) {
         const match = tagStr.match(/calc:\s*([^}]+)/);
         if (!match) return null;
@@ -302,8 +369,7 @@
         }
       }
 
-      // Spawn a Quantum Dot Node
-      function spawnQuantumDot(tagStr) {
+      function spawnQuantumDot(tagStr, customX = null, customY = null) {
         const type = tagStr.includes('calc:') ? 'calc' :
                      tagStr.includes('click') ? 'click' :
                      tagStr.includes('lead') || tagStr.includes('submit') ? 'lead' :
@@ -313,8 +379,8 @@
 
         const node = {
           id: Math.random().toString(36).substr(2, 9),
-          x: Math.random() * (width - 120) + 60,
-          y: Math.random() * (height - 120) + 60,
+          x: customX !== null ? customX : Math.random() * (width - 120) + 60,
+          y: customY !== null ? customY : Math.random() * (height - 120) + 60,
           vx: (Math.random() - 0.5) * 0.9,
           vy: (Math.random() - 0.5) * 0.9,
           radius: 6,
@@ -326,10 +392,10 @@
         };
 
         nodes.push(node);
-        if (nodes.length > 20) nodes.shift(); // Retain up to 20 nodes
+        if (nodes.length > 25) nodes.shift();
 
         logTelemetry(tagStr, calcRes);
-        nodeCountEl.innerText = `${nodes.length} Quantum Dots`;
+        updateCount();
       }
 
       function logTelemetry(tagStr, calcRes) {
@@ -348,19 +414,52 @@
         logStream.prepend(item);
       }
 
-      // LISTEN FOR MESSAGES FROM YOUR EMBEDDED WEBSITE TRACKING SNIPPET
+      function updateCount() {
+        nodeCountEl.innerText = `${nodes.length} Quantum Dots`;
+      }
+
+      // LISTEN FOR MESSAGES FROM EMBEDDED WEBSITE TRACKING SNIPPET
       window.addEventListener('message', function(event) {
         if (event.data && event.data.type === 'AI_TAG_EVENT') {
           spawnQuantumDot(event.data.tag || 'AI•{event: interaction}');
         }
       });
 
-      // Canvas Superposition Physics & Wave Renderer
+      // BUTTON HANDLERS
+      document.getElementById('btnReset').addEventListener('click', function() {
+        nodes = [];
+        updateCount();
+        logStream.innerHTML = '<div class="log-item" style="border-left-color: var(--accent-red);"><span>Canvas reset. All dots cleared.</span></div>';
+      });
+
+      document.getElementById('btnPause').addEventListener('click', function() {
+        isPaused = !isPaused;
+        pauseLabel.innerText = isPaused ? '▶️ Resume Motion' : '⏸️ Pause Motion';
+      });
+
+      document.getElementById('btnTagCalc').addEventListener('click', function() {
+        const a = Math.floor(Math.random() * 50) + 10;
+        const b = Math.floor(Math.random() * 8) + 2;
+        spawnQuantumDot(`AI•{event: calculation, calc: ${a} * ${b}}`);
+      });
+
+      document.getElementById('btnTagLead').addEventListener('click', function() {
+        spawnQuantumDot('AI•{event: lead_captured, priority: "high", state: superposition}');
+      });
+
+      document.getElementById('btnTagState').addEventListener('click', function() {
+        spawnQuantumDot('AI•{state: quantum_superposition, weight: 0.95}');
+      });
+
+      // Canvas Renderer Loop
       function render() {
-        time += 0.03;
+        if (!isPaused) {
+          time += 0.03;
+        }
+
         ctx.clearRect(0, 0, width, height);
 
-        // 1. Grid Background
+        // Grid Background
         ctx.strokeStyle = 'rgba(30, 41, 59, 0.25)';
         ctx.lineWidth = 1;
         const gridSize = 40;
@@ -371,7 +470,7 @@
           ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
         }
 
-        // 2. Entanglement Beams
+        // Entanglement Beams
         for (let i = 0; i < nodes.length; i++) {
           for (let j = i + 1; j < nodes.length; j++) {
             const n1 = nodes[i];
@@ -394,16 +493,17 @@
           }
         }
 
-        // 3. Quantum Dots & Superposition Wave Rings
+        // Quantum Dots & Waves
         nodes.forEach(node => {
-          // Physics
-          node.x += node.vx;
-          node.y += node.vy;
+          if (!isPaused) {
+            node.x += node.vx;
+            node.y += node.vy;
 
-          if (node.x < 30 || node.x > width - 30) node.vx *= -1;
-          if (node.y < 30 || node.y > height - 30) node.vy *= -1;
+            if (node.x < 30 || node.x > width - 30) node.vx *= -1;
+            if (node.y < 30 || node.y > height - 30) node.vy *= -1;
+          }
 
-          // Expanding Probability Wave Rings
+          // Wave rings
           for (let r = 1; r <= 3; r++) {
             const waveRadius = (time * 25 + r * 20 + node.wavePhase * 10) % 90;
             const alpha = Math.max(0, 1 - waveRadius / 90) * 0.35;
@@ -426,7 +526,7 @@
           ctx.fill();
           ctx.shadowBlur = 0;
 
-          // Tag Label text above node
+          // Tag Label
           ctx.fillStyle = '#ffffff';
           ctx.font = '10px "JetBrains Mono", monospace';
           ctx.textAlign = 'center';
@@ -437,17 +537,17 @@
         requestAnimationFrame(render);
       }
 
-      // Spawn initial default node
+      // Initial Node
       spawnQuantumDot('AI•{state: superposition, engine: ready}');
 
       render();
 
-      // Manual click on canvas to spawn custom dot
+      // Manual Canvas Click
       canvas.addEventListener('click', function(e) {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        spawnQuantumDot(`AI•{manual_dot: [${Math.round(x)},${Math.round(y)}]}`);
+        spawnQuantumDot(`AI•{manual_tag: [${Math.round(x)},${Math.round(y)}]`, x, y);
       });
 
     })();
