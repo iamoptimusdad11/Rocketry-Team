@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI For AI - Live Site & Superposition Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AI For AI - Live Quantum Site & Tag Visualizer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -23,42 +23,48 @@
       --text-muted: #94a3b8;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-    body {
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
       background-color: var(--bg);
       color: var(--text);
       font-family: 'Outfit', sans-serif;
-      height: 100vh;
-      overflow: hidden;
+    }
+
+    body {
       display: flex;
       flex-direction: column;
     }
 
+    /* Header Navigation */
     header {
       height: 54px;
-      padding: 0 20px;
+      padding: 0 16px;
       background: rgba(9, 13, 22, 0.95);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
-      z-index: 10;
+      z-index: 20;
+      flex-shrink: 0;
     }
 
     .logo {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
     }
     .logo span {
       font-family: 'JetBrains Mono', monospace;
       color: var(--accent-cyan);
       background: rgba(6, 182, 212, 0.1);
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 4px;
       border: 1px solid rgba(6, 182, 212, 0.3);
     }
@@ -66,8 +72,8 @@
     .status-badge {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.8rem;
+      gap: 6px;
+      font-size: 0.75rem;
       color: var(--accent-green);
       font-family: 'JetBrains Mono', monospace;
     }
@@ -76,7 +82,7 @@
       height: 8px;
       background-color: var(--accent-green);
       border-radius: 50%;
-      box-shadow: 0 0 10px var(--accent-green);
+      box-shadow: 0 0 8px var(--accent-green);
       animation: pulse 1.5s infinite;
     }
 
@@ -86,18 +92,67 @@
       100% { opacity: 0.3; transform: scale(0.8); }
     }
 
-    /* Split Screen Layout */
+    /* Mobile View Toggle Switcher (Hidden on Desktop) */
+    .mobile-nav-tabs {
+      display: none;
+      background: #0d121e;
+      border-bottom: 1px solid var(--border);
+      padding: 6px;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--card-bg);
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      font-weight: bold;
+    }
+
+    /* Main Responsive Grid Layout */
     .app-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
       flex-grow: 1;
       height: calc(100vh - 54px);
+      position: relative;
+      overflow: hidden;
     }
 
+    /* Mobile Breakpoint Modifications */
     @media (max-width: 900px) {
+      .mobile-nav-tabs {
+        display: flex;
+      }
+
       .app-layout {
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1fr;
+        display: block;
+        height: calc(100vh - 98px);
+      }
+
+      .iframe-container, .visualizer-container {
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 100%;
+        display: none;
+      }
+
+      .iframe-container.active-view, .visualizer-container.active-view {
+        display: flex !important;
       }
     }
 
@@ -131,13 +186,18 @@
     .toolbar {
       background: rgba(13, 18, 30, 0.95);
       border-bottom: 1px solid var(--border);
-      padding: 8px 14px;
+      padding: 8px 12px;
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
-      flex-wrap: wrap;
+      overflow-x: auto;
+      white-space: nowrap;
       z-index: 5;
+      flex-shrink: 0;
     }
+
+    .toolbar::-webkit-scrollbar { height: 4px; }
+    .toolbar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
     .btn-sm {
       background: rgba(255, 255, 255, 0.06);
@@ -145,29 +205,22 @@
       border: 1px solid var(--border);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
-      padding: 5px 10px;
-      border-radius: 5px;
+      padding: 6px 10px;
+      border-radius: 6px;
       cursor: pointer;
       transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
+      flex-shrink: 0;
     }
 
-    .btn-sm:hover {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: var(--accent-cyan);
-      transform: translateY(-1px);
-    }
+    .btn-sm:active { transform: scale(0.96); }
 
     .btn-reset {
       background: rgba(239, 68, 68, 0.15);
       border-color: rgba(239, 68, 68, 0.4);
       color: #fca5a5;
-    }
-    .btn-reset:hover {
-      background: var(--accent-red);
-      color: #fff;
     }
 
     .btn-calc { border-color: rgba(6, 182, 212, 0.5); color: var(--accent-cyan); }
@@ -178,6 +231,8 @@
       position: relative;
       flex-grow: 1;
       width: 100%;
+      height: 100%;
+      overflow: hidden;
     }
 
     canvas {
@@ -189,28 +244,30 @@
 
     .canvas-overlay-hint {
       position: absolute;
-      top: 12px;
-      left: 12px;
-      background: rgba(0, 0, 0, 0.65);
+      top: 10px;
+      left: 10px;
+      background: rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(8px);
       border: 1px solid var(--border);
-      padding: 5px 10px;
+      padding: 4px 10px;
       border-radius: 20px;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: var(--text-muted);
       pointer-events: none;
       font-family: 'JetBrains Mono', monospace;
+      max-width: calc(100% - 20px);
     }
 
     /* Telemetry Drawer Overlay at Bottom */
     .telemetry-drawer {
-      height: 170px;
-      background: rgba(13, 18, 30, 0.92);
+      height: 150px;
+      background: rgba(13, 18, 30, 0.95);
       border-top: 1px solid var(--border);
-      padding: 10px 14px;
+      padding: 8px 12px;
       backdrop-filter: blur(10px);
       display: flex;
       flex-direction: column;
+      flex-shrink: 0;
     }
 
     .drawer-header {
@@ -218,7 +275,7 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       font-weight: bold;
       color: var(--accent-cyan);
       font-family: 'JetBrains Mono', monospace;
@@ -226,7 +283,7 @@
 
     .log-stream {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.73rem;
+      font-size: 0.7rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -250,46 +307,47 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    .log-tag {
-      color: var(--accent-cyan);
-      font-weight: bold;
-    }
-
-    .log-calc {
-      color: var(--accent-green);
-    }
+    .log-tag { color: var(--accent-cyan); font-weight: bold; }
+    .log-calc { color: var(--accent-green); }
   </style>
 </head>
 <body>
 
+  <!-- Top Header Navigation -->
   <header>
     <div class="logo">
-      <span>AI•{}</span> Live Quantum Visualizer
+      <span>AI•{}</span> Quantum Visualizer
     </div>
     <div class="status-badge">
       <div class="pulse-dot"></div>
-      Superposition Wave Engine Active
+      Active Engine
     </div>
   </header>
+
+  <!-- Mobile Tab Switcher (Only visible on small screens) -->
+  <div class="mobile-nav-tabs">
+    <button class="tab-btn active" id="tabSite" onclick="switchMobileTab('site')">🌐 Website View</button>
+    <button class="tab-btn" id="tabCanvas" onclick="switchMobileTab('canvas')">✨ Quantum Dots (<span id="mobileDotCount">0</span>)</button>
+  </div>
 
   <div class="app-layout">
     
     <!-- LEFT: Embedded Website Frame -->
-    <div class="iframe-container">
+    <div class="iframe-container active-view" id="siteContainer">
       <!-- REPLACE WITH YOUR ACTUAL WEBSITE URL BELOW -->
       <iframe src="https://rocketry-team.vercel.app" id="siteFrame"></iframe>
     </div>
 
-    <!-- RIGHT: 2D Quantum Canvas & Control Toolbar -->
-    <div class="visualizer-container">
+    <!-- RIGHT: 2D Quantum Canvas & Controls -->
+    <div class="visualizer-container" id="canvasContainer">
       
-      <!-- Interactive Toolbar -->
+      <!-- Interactive Mobile/Desktop Toolbar -->
       <div class="toolbar">
         <button class="btn-sm btn-reset" id="btnReset">
-          <span>🧹 Reset Dots</span>
+          <span>🧹 Reset</span>
         </button>
         <button class="btn-sm" id="btnPause">
-          <span id="pauseLabel">⏸️ Pause Motion</span>
+          <span id="pauseLabel">⏸️ Pause</span>
         </button>
         <button class="btn-sm btn-calc" id="btnTagCalc">
           <span>+ AI•{calc}</span>
@@ -298,18 +356,18 @@
           <span>+ AI•{lead}</span>
         </button>
         <button class="btn-sm btn-state" id="btnTagState">
-          <span>+ AI•{superposition}</span>
+          <span>+ AI•{state}</span>
         </button>
       </div>
 
       <div class="canvas-wrapper">
         <div class="canvas-overlay-hint">
-          ⚡ Click site (Left) or canvas (Right) to tag data
+          ⚡ Tap site or canvas to tag data
         </div>
         <canvas id="quantumCanvas"></canvas>
       </div>
 
-      <!-- Telemetry Stream Output -->
+      <!-- Telemetry Drawer -->
       <div class="telemetry-drawer">
         <div class="drawer-header">
           <span>AI• Pipeline Telemetry</span>
@@ -317,7 +375,7 @@
         </div>
         <div class="log-stream" id="logStream">
           <div class="log-item" style="border-left-color: var(--accent-purple);">
-            <span>System ready. Waiting for live website events...</span>
+            <span>System ready. Waiting for site events...</span>
             <span style="color: #64748b;">NOW</span>
           </div>
         </div>
@@ -328,11 +386,33 @@
   </div>
 
   <script>
+    // Mobile Tab Switching Handler
+    function switchMobileTab(tab) {
+      const siteContainer = document.getElementById('siteContainer');
+      const canvasContainer = document.getElementById('canvasContainer');
+      const tabSite = document.getElementById('tabSite');
+      const tabCanvas = document.getElementById('tabCanvas');
+
+      if (tab === 'site') {
+        siteContainer.classList.add('active-view');
+        canvasContainer.classList.remove('active-view');
+        tabSite.classList.add('active');
+        tabCanvas.classList.remove('active');
+      } else {
+        canvasContainer.classList.add('active-view');
+        siteContainer.classList.remove('active-view');
+        tabCanvas.classList.add('active');
+        tabSite.classList.remove('active');
+        window.triggerCanvasResize(); // Ensure canvas matches mobile screen dimensions
+      }
+    }
+
     (function() {
       const canvas = document.getElementById('quantumCanvas');
       const ctx = canvas.getContext('2d');
       const logStream = document.getElementById('logStream');
       const nodeCountEl = document.getElementById('nodeCount');
+      const mobileDotCount = document.getElementById('mobileDotCount');
       const pauseLabel = document.getElementById('pauseLabel');
 
       let width, height;
@@ -350,10 +430,12 @@
 
       function resize() {
         const wrapper = canvas.parentElement;
+        if (!wrapper) return;
         width = canvas.width = wrapper.clientWidth;
         height = canvas.height = wrapper.clientHeight;
       }
       window.addEventListener('resize', resize);
+      window.triggerCanvasResize = resize;
       resize();
 
       function parseCalcTag(tagStr) {
@@ -373,14 +455,14 @@
         const type = tagStr.includes('calc:') ? 'calc' :
                      tagStr.includes('click') ? 'click' :
                      tagStr.includes('lead') || tagStr.includes('submit') ? 'lead' :
-                     tagStr.includes('superposition') ? 'superposition' : 'default';
+                     tagStr.includes('superposition') || tagStr.includes('state') ? 'superposition' : 'default';
 
         const calcRes = parseCalcTag(tagStr);
 
         const node = {
           id: Math.random().toString(36).substr(2, 9),
-          x: customX !== null ? customX : Math.random() * (width - 120) + 60,
-          y: customY !== null ? customY : Math.random() * (height - 120) + 60,
+          x: customX !== null ? customX : Math.random() * Math.max(100, width - 80) + 40,
+          y: customY !== null ? customY : Math.random() * Math.max(100, height - 80) + 40,
           vx: (Math.random() - 0.5) * 0.9,
           vy: (Math.random() - 0.5) * 0.9,
           radius: 6,
@@ -392,7 +474,7 @@
         };
 
         nodes.push(node);
-        if (nodes.length > 25) nodes.shift();
+        if (nodes.length > 20) nodes.shift();
 
         logTelemetry(tagStr, calcRes);
         updateCount();
@@ -415,7 +497,9 @@
       }
 
       function updateCount() {
-        nodeCountEl.innerText = `${nodes.length} Quantum Dots`;
+        const text = `${nodes.length} Dots`;
+        nodeCountEl.innerText = text;
+        if (mobileDotCount) mobileDotCount.innerText = nodes.length;
       }
 
       // LISTEN FOR MESSAGES FROM EMBEDDED WEBSITE TRACKING SNIPPET
@@ -429,12 +513,12 @@
       document.getElementById('btnReset').addEventListener('click', function() {
         nodes = [];
         updateCount();
-        logStream.innerHTML = '<div class="log-item" style="border-left-color: var(--accent-red);"><span>Canvas reset. All dots cleared.</span></div>';
+        logStream.innerHTML = '<div class="log-item" style="border-left-color: var(--accent-red);"><span>Canvas cleared.</span></div>';
       });
 
       document.getElementById('btnPause').addEventListener('click', function() {
         isPaused = !isPaused;
-        pauseLabel.innerText = isPaused ? '▶️ Resume Motion' : '⏸️ Pause Motion';
+        pauseLabel.innerText = isPaused ? '▶️ Resume' : '⏸️ Pause';
       });
 
       document.getElementById('btnTagCalc').addEventListener('click', function() {
@@ -444,14 +528,14 @@
       });
 
       document.getElementById('btnTagLead').addEventListener('click', function() {
-        spawnQuantumDot('AI•{event: lead_captured, priority: "high", state: superposition}');
+        spawnQuantumDot('AI•{event: lead_captured, priority: "high"}');
       });
 
       document.getElementById('btnTagState').addEventListener('click', function() {
-        spawnQuantumDot('AI•{state: quantum_superposition, weight: 0.95}');
+        spawnQuantumDot('AI•{state: superposition, weight: 0.95}');
       });
 
-      // Canvas Renderer Loop
+      // Canvas Physics & Wave Renderer
       function render() {
         if (!isPaused) {
           time += 0.03;
@@ -462,7 +546,7 @@
         // Grid Background
         ctx.strokeStyle = 'rgba(30, 41, 59, 0.25)';
         ctx.lineWidth = 1;
-        const gridSize = 40;
+        const gridSize = 35;
         for (let x = 0; x < width; x += gridSize) {
           ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
         }
@@ -479,8 +563,8 @@
             const dy = n2.y - n1.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist < 170) {
-              const alpha = (1 - dist / 170) * 0.45;
+            if (dist < 150) {
+              const alpha = (1 - dist / 150) * 0.45;
               ctx.strokeStyle = n1.color;
               ctx.globalAlpha = alpha;
               ctx.lineWidth = 1.2;
@@ -499,14 +583,14 @@
             node.x += node.vx;
             node.y += node.vy;
 
-            if (node.x < 30 || node.x > width - 30) node.vx *= -1;
-            if (node.y < 30 || node.y > height - 30) node.vy *= -1;
+            if (node.x < 20 || node.x > width - 20) node.vx *= -1;
+            if (node.y < 20 || node.y > height - 20) node.vy *= -1;
           }
 
           // Wave rings
           for (let r = 1; r <= 3; r++) {
-            const waveRadius = (time * 25 + r * 20 + node.wavePhase * 10) % 90;
-            const alpha = Math.max(0, 1 - waveRadius / 90) * 0.35;
+            const waveRadius = (time * 25 + r * 20 + node.wavePhase * 10) % 80;
+            const alpha = Math.max(0, 1 - waveRadius / 80) * 0.35;
 
             ctx.strokeStyle = node.color;
             ctx.lineWidth = 1;
@@ -520,34 +604,34 @@
           // Core Dot
           ctx.fillStyle = node.color;
           ctx.shadowColor = node.color;
-          ctx.shadowBlur = 12;
+          ctx.shadowBlur = 10;
           ctx.beginPath();
           ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
           ctx.fill();
           ctx.shadowBlur = 0;
 
-          // Tag Label
+          // Tag Text Label
           ctx.fillStyle = '#ffffff';
           ctx.font = '10px "JetBrains Mono", monospace';
           ctx.textAlign = 'center';
           const label = node.calcResult ? `${node.tag} = ${node.calcResult.result}` : node.tag;
-          ctx.fillText(label, node.x, node.y - 12);
+          ctx.fillText(label, node.x, node.y - 10);
         });
 
         requestAnimationFrame(render);
       }
 
-      // Initial Node
+      // Initial Quantum Dot
       spawnQuantumDot('AI•{state: superposition, engine: ready}');
 
       render();
 
-      // Manual Canvas Click
+      // Touch & Mouse Click Canvas Handler
       canvas.addEventListener('click', function(e) {
         const rect = canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        spawnQuantumDot(`AI•{manual_tag: [${Math.round(x)},${Math.round(y)}]`, x, y);
+        spawnQuantumDot(`AI•{tap: [${Math.round(x)},${Math.round(y)}]`, x, y);
       });
 
     })();
