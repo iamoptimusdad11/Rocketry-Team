@@ -1,6 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- ================================================================= -->
+<!-- AI•{} TRACKING SDK SNIPPET (Add to any website)                   -->
+<!-- ================================================================= -->
+<script>
+(function() {
+  // CONFIGURATION: Set this to your live Quantum Visualizer URL or Webhook endpoint
+  const AI_CONFIG = {
+    appId: "my-website-tracker",
+    debug: true,
+    // Replace with your hosted Visualizer URL if using postMessage / webhooks:
+    endpoint: "https://your-visualizer-domain.com/api/ingest" 
+  };
+
+  // Main Tracking Function
+  window.AI = {
+    tag: function(tagString, customData = {}) {
+      const payload = {
+        type: "AI_TAG_EVENT",
+        appId: AI_CONFIG.appId,
+        tag: tagString,
+        data: customData,
+        url: window.location.href,
+        timestamp: new Date().toISOString()
+      };
+
+      if (AI_CONFIG.debug) {
+        console.log("[AI• Tag Dispatched]", payload);
+      }
+
+      // 1. Dispatch via PostMessage (if embedded or connected to the Visualizer canvas)
+      if (window.parent !== window) {
+        window.parent.postMessage(payload, "*");
+      }
+      if (window.opener) {
+        window.opener.postMessage(payload, "*");
+      }
+
+      // 2. Transmit via API Endpoint / Webhook (if server endpoint configured)
+      if (AI_CONFIG.endpoint && AI_CONFIG.endpoint.startsWith("http")) {
+        try {
+          fetch(AI_CONFIG.endpoint, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          }).catch(function() {});
+        } catch(e) {}
+      }
+    }
+  };
+
+  // AUTO-TRACKER 1: Button & Link Clicks
+  document.addEventListener("click", function(e) {
+    const target = e.target.closest("button, a, [data-ai-tag]");
+    if (!target) return;
+
+    // Check if element has explicit custom tag
+    let tagAttr = target.getAttribute("data-ai-tag");
+    
+    if (!tagAttr) {
+      const elId = target.id || target.tagName.toLowerCase();
+      const elText = (target.innerText || "").trim().substring(0, 20);
+      tagAttr = `AI•{event: click, element: "${elId}", text: "${elText}"}`;
+    }
+
+    window.AI.tag(tagAttr, {
+      x: e.clientX,
+      y: e.clientY,
+      id: target.id || null
+    });
+  });
+
+  // AUTO-TRACKER 2: Form Submissions
+  document.addEventListener("submit", function(e) {
+    const form = e.target;
+    const formId = form.id || "unnamed_form";
+    const tagStr = `AI•{event: form_submit, id: "${formId}", state: superposition}`;
+    
+    window.AI.tag(tagStr, {
+      action: form.action || window.location.href
+    });
+  });
+
+  // AUTO-TRACKER 3: Scroll Depth (Fires every 25% scrolled)
+  let maxScroll = 0;
+  window.addEventListener("scroll", function() {
+    const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+    if (totalHeight <= 0) return;
+    
+    const currentScroll = Math.round((window.scrollY / totalHeight) * 100);
+    if (currentScroll >= maxScroll + 25 && currentScroll <= 100) {
+      maxScroll = currentScroll;
+      window.AI.tag(`AI•{event: scroll, depth: ${maxScroll}%}`, { depth: maxScroll });
+    }
+  });
+
+  // Initial Page Load Pulse
+  window.AI.tag(`AI•{event: page_view, path: "${window.location.pathname}"}`);
+})();
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SETI RF Signal Analysis Dashboard</title>
