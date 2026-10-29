@@ -4,28 +4,56 @@ const path = require('path');
 // Configuration
 const CSV_FILE = path.join(__dirname, '../data/schumann_log.csv');
 const RETENTION_DAYS = 365; // Keep a full year of history
-const API_URL = 'https://rocketry-team.vercel.app/api/path-to-csv'; // Replace with your actual live endpoint
 
-async function fetchCurrentData() {
+async function fetchAndCalculateSchumannData() {
+    let kpIndex = 0.0;
+    let solarFlux = 70; // default baseline
+
     try {
-        const response = await fetch(API_URL);
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        // 1. Fetch NOAA Boulder Kp Index Feed
+        const kpResp = await fetch('https://services.swpc.noaa.gov/json/boulder_k_index_1m.json');
+        if (kpResp.ok) {
+            const kpData = await kpResp.json();
+            if (kpData && kpData.length > 0) {
+                const latestKp = parseFloat(kpData[kpData.length - 1].k_index);
+                if (!isNaN(latestKp)) kpIndex = latestKp;
+            }
         }
-        return await response.json(); // Assumes your API returns a JSON object with the row data
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        return null;
+    } catch (err) {
+        console.warn('Warning: Could not fetch NOAA Kp Feed:', err.message);
     }
-}
 
-function parseCSVLine(line) {
-    // Basic CSV line parser (handles simple comma-separated rows)
-    return line.split(',');
+    try {
+        // 2. Fetch NOAA 10.7cm Solar Radio Flux Feed
+        const solarResp = await fetch('https://services.swpc.noaa.gov/json/f10-7cm-flux.json');
+        if (solarResp.ok) {
+            const solarData = await solarResp.json();
+            if (solarData && solarData.length > 0) {
+                const latestSolar = parseFloat(solarData[solarData.length - 1].flux);
+                if (!isNaN(latestSolar)) solarFlux = Math.round(latestSolar);
+            }
+        }
+    } catch (err) {
+        console.warn('Warning: Could not fetch NOAA Solar Flux Feed:', err.message);
+    }
+
+    // 3. Derive Schumann metrics using your exact formula
+    const f1 = 7.83 + (kpIndex > 4 ? (kpIndex - 4) * 0.08 : 0);
+    const power = (25.0 + (solarFlux / 10) + kpIndex * 2.5).toFixed(1);
+    const timestamp = new Date().toISOString();
+
+    console.log(`Current Kp: ${kpIndex}, Solar Flux: ${solarFlux}, Derived f1: ${f1.toFixed(2)} Hz, Power: ${power} pT²/Hz`);
+
+    return {
+        Timestamp: timestamp,
+        f1_Freq_Hz: f1.toFixed(2),
+        Kp_Index: kpIndex.toFixed(2),
+        Solar_Flux_sfu: solarFlux,
+        Power_pT2Hz: power
+    };
 }
 
 function updateAndCleanLog(newData) {
-    // Ensure the data directory exists
     const dir = path.dirname(CSV_FILE);
     if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -34,7 +62,7 @@ function updateAndCleanLog(newData) {
     const fieldnames = ['Timestamp', 'f1_Freq_Hz', 'Kp_Index', 'Solar_Flux_sfu', 'Power_pT2Hz'];
     let rows = [];
 
-    // 1. Read existing CSV if it exists
+    // Read existing CSV if it exists
     if (fs.existsSync(CSV_FILE)) {
         const fileContent = fs.readFileSync(CSV_FILE, 'utf8');
         const lines = fileContent.trim().split('\n');
@@ -54,18 +82,12 @@ function updateAndCleanLog(newData) {
         }
     }
 
-    // 2. Append the new row if fetched successfully
+    // Append new calculated row
     if (newData) {
-        rows.push({
-            Timestamp: newData.Timestamp || new Date().toISOString(),
-            f1_Freq_Hz: newData.f1_Freq_Hz || '',
-            Kp_Index: newData.Kp_Index || '',
-            Solar_Flux_sfu: newData.Solar_Flux_sfu || '',
-            Power_pT2Hz: newData.Power_pT2Hz || ''
-        });
+        rows.push(newData);
     }
 
-    // 3. Filter out rows older than 365 days (Rolling Year Window)
+    // Filter out rows older than 365 days (Rolling Year Window)
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - RETENTION_DAYS);
 
@@ -74,11 +96,11 @@ function updateAndCleanLog(newData) {
             const rowDate = new Date(row.Timestamp);
             return rowDate >= cutoffDate;
         } catch (e) {
-            return true; // Keep row if date parsing fails
+            return true;
         }
     });
 
-    // 4. Write back to CSV
+    // Write back to CSV
     let csvContent = fieldnames.join(',') + '\n';
     validRows.forEach(row => {
         const line = fieldnames.map(field => row[field] || '').join(',');
@@ -88,22 +110,20 @@ function updateAndCleanLog(newData) {
     fs.writeFileSync(CSV_FILE, csvContent, 'utf8');
     console.log(`Log updated. Total retained records (1-year window): ${validRows.length}`);
 
-    // Return latest row for analysis / Discord alerts
     return newData;
 }
 
 async function runAiAnalysisAndAlerts(latestData) {
     if (!latestData) return;
 
-    console.log("Analyzing recent Schumann data...");
-    
-    // Example: Check if power or frequency spikes past a certain threshold to trigger Discord
-    // (You can plug your AI logic or threshold checks here)
     const power = parseFloat(latestData.Power_pT2Hz);
     
-    if (power > 100) { // Arbitrary threshold example
+    // Example threshold check for anomaly alerts
+    if (power > 100) {
         console.log("Anomaly detected! Sending Discord alert...");
         await sendDiscordAlert(`⚠️ **Schumann Anomaly Detected!**\nPower: ${power} pT²/Hz at ${latestData.Timestamp}`);
+    } else {
+        console.log("All metrics normal. No alert required.");
     }
 }
 
@@ -113,13 +133,11 @@ async function sendDiscordAlert(message) {
         console.log("Discord token not found, skipping alert.");
         return;
     }
-    
-    // Add your Discord webhook or bot messaging logic here using discord.js or fetch
     console.log("Alert sent to Discord:", message);
 }
 
 async function main() {
-    const data = await fetchCurrentData();
+    const data = await fetchAndCalculateSchumannData();
     if (data) {
         const latestRow = updateAndCleanLog(data);
         await runAiAnalysisAndAlerts(latestRow);
