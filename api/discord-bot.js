@@ -51,7 +51,7 @@ module.exports = async function handler(req, res) {
                     const kp = latest ? latest.kp_index : '2.0';
 
                     return res.status(200).json({
-                        type: 4,
+                        type: 4, // Channel message with source
                         data: {
                             content: `🌍 **Schumann Observatory Live Status**\n- **Planetary Kp Index:** ${kp}\n- **Fundamental Frequency:** 7.83 Hz\n- **Dashboard Link:** https://rocketry-team.vercel.app/schumann.html`
                         }
