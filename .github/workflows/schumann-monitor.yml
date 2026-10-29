@@ -8,6 +8,9 @@ on:
 jobs:
   monitor:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # REQUIRED: Allows the bot to commit and push the updated CSV back to your repo
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,3 +27,11 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
         run: node scripts/monitor.js
+
+      - name: Commit and push changes if data updated
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add data/schumann_log.csv
+          # Only commit and push if there are actual changes (skips if nothing changed)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update Schumann resonance log [skip ci]" && git push)
