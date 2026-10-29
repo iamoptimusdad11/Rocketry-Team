@@ -896,38 +896,47 @@
 
         // --- Data Exports (FIXED) ---
         document.getElementById('btn-export-png').addEventListener('click', () => {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = spectrogramCanvas.width;
-            tempCanvas.height = spectrogramCanvas.height;
-            const tempCtx = tempCanvas.getContext('2d');
+    // Create a temporary canvas with watermark
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = spectrogramCanvas.width;
+    tempCanvas.height = spectrogramCanvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
 
-            tempCtx.drawImage(spectrogramCanvas, 0, 0);
+    tempCtx.drawImage(spectrogramCanvas, 0, 0);
+    tempCtx.fillStyle = '#00f2ff';
+    tempCtx.font = '14px JetBrains Mono';
+    tempCtx.fillText(`Schumann Observatory Snapshot | ${new Date().toISOString()}`, 15, 25);
 
-            tempCtx.fillStyle = '#00f2ff';
-            tempCtx.font = '14px JetBrains Mono';
-            tempCtx.fillText(`Schumann Observatory Snapshot | ${new Date().toISOString()}`, 15, 25);
+    // Use Blob instead of dataURL for iPhone compatibility
+    tempCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `schumann_spectrogram_${Date.now()}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }, 'image/png');
+});
 
-            const dataUrl = tempCanvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.download = `schumann_spectrogram_${Date.now()}.png`;
-            link.href = dataUrl;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
 
         document.getElementById('btn-export-csv').addEventListener('click', () => {
-            let csvContent = "data:text/csv;charset=utf-8,Timestamp,f1_Freq_Hz,Kp_Index,Solar_Flux_sfu,Power_pT2Hz\n";
-            csvContent += `${new Date().toISOString()},${state.liveData.f1},${state.liveData.kpIndex},${state.liveData.solarFlux},${state.liveData.power}\n`;
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', `schumann_telemetry_${Date.now()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
+    const csvHeader = "Timestamp,f1_Freq_Hz,Kp_Index,Solar_Flux_sfu,Power_pT2Hz\n";
+    const csvRow = `${new Date().toISOString()},${state.liveData.f1},${state.liveData.kpIndex},${state.liveData.solarFlux},${state.liveData.power}\n`;
+    
+    // Use Blob for mobile file download handling
+    const blob = new Blob([csvHeader + csvRow], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `schumann_telemetry_${Date.now()}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+});
 
         // --- Main Render Loop ---
         function animLoop() {
