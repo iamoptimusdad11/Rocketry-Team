@@ -118,8 +118,8 @@ async function runAiAnalysisAndAlerts(latestData) {
 
     const power = parseFloat(latestData.Power_pT2Hz);
     
-    // Example threshold check for anomaly alerts
-    if (true) {
+    // Threshold check for anomaly alerts (change to true if testing webhooks)
+    if (power > 100) {
         console.log("Anomaly detected! Sending Discord alert...");
         await sendDiscordAlert(`⚠️ **Schumann Anomaly Detected!**\nPower: ${power} pT²/Hz at ${latestData.Timestamp}`);
     } else {
@@ -151,5 +151,12 @@ async function sendDiscordAlert(message) {
     }
 }
 
+async function main() {
+    const data = await fetchAndCalculateSchumannData();
+    if (data) {
+        const latestRow = updateAndCleanLog(data);
+        await runAiAnalysisAndAlerts(latestRow);
+    }
+}
 
 main();
