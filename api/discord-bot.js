@@ -1,6 +1,5 @@
 const { verifyKey } = require('discord-interactions');
 
-// CRITICAL: Disable Vercel's default body parser so raw bytes stay intact for verification
 module.exports.config = {
     api: {
         bodyParser: false,
@@ -31,8 +30,8 @@ module.exports = async function handler(req, res) {
     try {
         const rawBody = await getRawBody(req);
 
-        // Verify cryptographic signature from Discord
-        const isVerified = verifyKey(rawBody, signature, timestamp, process.env.DISCORD_PUBLIC_KEY);
+        // CRITICAL: Added 'await' here for the async verifyKey function
+        const isVerified = await verifyKey(rawBody, signature, timestamp, process.env.DISCORD_PUBLIC_KEY);
         
         if (!isVerified) {
             return res.status(401).send('Invalid request signature');
