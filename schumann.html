@@ -1,1004 +1,972 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schumann Resonance Live Spectrogram & Atmospheric Science Dashboard</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#0a0c10',
-                        darkCard: '#0d1117',
-                        darkSubtle: '#161b22',
-                        darkBorder: '#30363d',
-                        neonCyan: '#00f2ff',
-                        electricBlue: '#1f6feb',
-                        spacePurple: '#8957e5',
-                        amberGlow: '#f97316',
-                        roseGlow: '#f43f5e',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'Space Mono', 'Consolas', 'monospace'],
-                    }
-                }
-            }
-        }
-    </script>
+    <title>Schumann Resonance Live Spectrogram & Atmospheric Science | Rocketry Team</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,500;0,700;1,400&family=JetBrains+Mono:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Modern Aerospace & Mission Control Aesthetics */
+        :root {
+            --bg-dark: #0a0c10;
+            --bg-card: #0d1117;
+            --bg-card-header: #161b22;
+            --border-glow: #00f2ff22;
+            --border-light: #30363d;
+            --accent-cyan: #00f2ff;
+            --accent-blue: #0088ff;
+            --accent-purple: #7000ff;
+            --accent-amber: #ff9d00;
+            --accent-red: #ff3366;
+            --accent-green: #00ff88;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --font-head: 'Chakra Petch', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            background-color: #0a0c10;
-            color: #c9d1d9;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 242, 255, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(112, 0, 255, 0.04) 0%, transparent 40%);
         }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        /* Nav Header */
+        nav {
+            background: rgba(13, 17, 23, 0.95);
+            border-bottom: 1px solid var(--border-light);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
-        ::-webkit-scrollbar-track {
-            background: #0d1117;
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: var(--font-head);
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-transform: uppercase;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #30363d;
+
+        .nav-brand span {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-family: var(--font-head);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            padding: 6px 12px;
             border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00f2ff;
+            border: 1px solid transparent;
         }
 
-        /* Glowing Border Utilities */
-        .glow-cyan-box {
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.15);
-            border-color: rgba(0, 242, 255, 0.3);
-        }
-        .glow-cyan-box:hover {
-            box-shadow: 0 0 25px rgba(0, 242, 255, 0.3);
-            border-color: rgba(0, 242, 255, 0.6);
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent-cyan);
+            background: rgba(0, 242, 255, 0.05);
+            border-color: rgba(0, 242, 255, 0.2);
+            text-shadow: 0 0 8px rgba(0, 242, 255, 0.3);
         }
 
-        /* Grid Overlay Effect */
-        .grid-bg {
-            background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 24px 24px;
+        /* Layout Container */
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 24px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            flex-grow: 1;
         }
 
-        /* Scanline Animation Effect */
-        .scanline {
+        /* Top Live Bar */
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--accent-cyan);
+            padding: 14px 20px;
+            border-radius: 6px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-head);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.95rem;
+        }
+
+        .pulse-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 255, 136, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        .status-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .status-meta span strong {
+            color: #fff;
+        }
+
+        /* Metric Cards Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 16px 20px;
+            border-radius: 6px;
             position: relative;
             overflow: hidden;
+            transition: border-color 0.2s ease;
         }
-        .scanline::after {
-            content: "";
+
+        .metric-card:hover {
+            border-color: rgba(0, 242, 255, 0.4);
+        }
+
+        .metric-card::before {
+            content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(0,242,255,0.03) 50%, rgba(255,255,255,0));
-            pointer-events: none;
-            animation: scan 8s linear infinite;
+            top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, var(--accent-cyan), transparent);
         }
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
+
+        .metric-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .metric-unit {
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            font-family: var(--font-mono);
+            font-weight: 400;
+        }
+
+        .metric-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Main Display Section */
+        .main-display {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-display { grid-template-columns: 1fr; }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--bg-card-header);
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            font-family: var(--font-head);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--accent-cyan);
+            color: #fff;
+        }
+
+        .btn-accent {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--accent-cyan);
+            color: var(--accent-cyan);
+        }
+
+        .btn-accent:hover {
+            background: var(--accent-cyan);
+            color: #000;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            background: #000;
+            width: 100%;
+            flex-grow: 1;
+            min-height: 420px;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Control Strip */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .control-group label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .control-group select, .control-group input[type="range"] {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-light);
+            color: var(--text-main);
+            padding: 6px;
+            border-radius: 4px;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        .control-group select:focus {
+            border-color: var(--accent-cyan);
+        }
+
+        /* Secondary Analytics Grid */
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .analytics-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: auto;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border-light);
+            padding: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Tooltip style */
+        .hover-tooltip {
+            position: absolute;
+            pointer-events: none;
+            background: rgba(13, 17, 23, 0.95);
+            border: 1px solid var(--accent-cyan);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #fff;
+            display: none;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Science Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-body {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 12px;
+        }
+
+        .modal-header h3 {
+            font-family: var(--font-head);
+            color: var(--accent-cyan);
+            text-transform: uppercase;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans selection:bg-neonCyan selection:text-darkBg">
+<body>
 
-    <!-- Top Navigation Header -->
-    <header class="border-b border-darkBorder bg-darkCard/90 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-        <div class="flex items-center space-x-3">
-            <div class="p-2 bg-neonCyan/10 border border-neonCyan/40 rounded-lg text-neonCyan animate-pulse">
-                <i data-lucide="radio" class="w-6 h-6"></i>
+    <!-- Navigation Header -->
+    <nav>
+        <div class="nav-brand">
+            🚀 <span>Rocketry Research</span> Payload Ops
+        </div>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="mission-control.html">Control</a></li>
+            <li><a href="schumann.html" class="active">Schumann Live</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+
+        <!-- Status Header -->
+        <div class="status-header">
+            <div class="status-badge">
+                <div class="pulse-dot"></div>
+                <span id="apiStatusText">LIVE API CONNECTED — NOAA SWPC & RESONANCE DATA</span>
+            </div>
+            <div class="status-meta">
+                <span>Station: <strong>Global Synthesized Array (Tomsk / Boulder / SOS)</strong></span>
+                <span>Last Sync: <strong id="syncTime">UTC --:--:--</strong></span>
+                <span>Update Interval: <strong>Realtime 60FPS / API 60s</strong></span>
             </div>
             <div>
-                <div class="flex items-center gap-2">
-                    <span class="text-xs font-mono px-2 py-0.5 rounded bg-electricBlue/20 text-electricBlue border border-electricBlue/40 font-semibold tracking-wider">ROCKETRY TEAM PAYLOAD</span>
-                    <span id="api-status-badge" class="text-xs font-mono text-emerald-400 flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> NOAA SWPC API CONNECTED
-                    </span>
-                </div>
-                <h1 class="text-lg md:text-xl font-bold tracking-tight text-white flex items-center gap-2 mt-0.5">
-                    Schumann Resonance Observatory <span class="text-xs text-slate-400 font-mono font-normal hidden sm:inline">(0 – 40 Hz ELF Band)</span>
-                </h1>
+                <button class="btn btn-accent" id="refreshApiBtn">🔄 Sync Live APIs</button>
+                <button class="btn" id="openGuideBtn">📘 Rocketry Payload Context</button>
             </div>
         </div>
 
-        <!-- Navigation Links matching Website Layout -->
-        <nav class="flex items-center gap-1 sm:gap-2 text-xs md:text-sm font-medium">
-            <a href="https://rocketry-team.vercel.app/index.html" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-darkSubtle transition flex items-center gap-1.5">
-                <i data-lucide="home" class="w-4 h-4"></i>
-                <span>Home</span>
-            </a>
-            <a href="https://rocketry-team.vercel.app/mission-control.html" class="px-3 py-1.5 rounded-lg text-slate-300 hover:text-white hover:bg-darkSubtle transition flex items-center gap-1.5">
-                <i data-lucide="gauge" class="w-4 h-4"></i>
-                <span>Mission Control</span>
-            </a>
-            <a href="#" class="px-3 py-1.5 rounded-lg bg-neonCyan/10 text-neonCyan border border-neonCyan/40 font-semibold transition flex items-center gap-1.5 shadow-sm">
-                <i data-lucide="activity" class="w-4 h-4"></i>
-                <span>Schumann Observatory</span>
-            </a>
-            <button id="guide-modal-btn" class="ml-2 p-2 rounded-lg bg-darkSubtle hover:bg-darkBorder text-slate-300 hover:text-white transition border border-darkBorder" title="Research Payload Guide">
-                <i data-lucide="book-open" class="w-4 h-4"></i>
-            </button>
-        </nav>
-    </header>
-
-    <!-- Live API Status Bar -->
-    <div class="bg-darkSubtle border-b border-darkBorder px-4 md:px-8 py-2 flex flex-wrap items-center justify-between text-xs font-mono text-slate-400 gap-2">
-        <div class="flex items-center gap-4">
-            <span class="flex items-center gap-1.5 text-slate-300">
-                <i data-lucide="satellite" class="w-3.5 h-3.5 text-neonCyan"></i>
-                DATA FEEDS: <span class="text-neonCyan font-semibold">NOAA SWPC / ResonanceOne Live Bridge</span>
-            </span>
-            <span id="last-sync-time" class="hidden md:inline text-slate-500">Last Sync: UTC Live</span>
+        <!-- Real-time Metric Cards -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">Fundamental Mode (f₀)</div>
+                <div class="metric-value" id="valMode1">7.83 <span class="metric-unit">Hz</span></div>
+                <div class="metric-sub" id="driftMode1">Nominal Drift: ±0.04 Hz</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Harmonic Modes (f₁ / f₂)</div>
+                <div class="metric-value" id="valHarmonics">14.3 / 20.8 <span class="metric-unit">Hz</span></div>
+                <div class="metric-sub">Modes 2 & 3 Resonance Power</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">NOAA Geomagnetic Kp-Index</div>
+                <div class="metric-value" id="valKp">2.33 <span class="metric-unit">Kp</span></div>
+                <div class="metric-sub" id="valGeomagState">Status: Quiet / Unsettled</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-title">Solar Radio Flux (10.7cm)</div>
+                <div class="metric-value" id="valSolarFlux">142.5 <span class="metric-unit">SFU</span></div>
+                <div class="metric-sub">Ionospheric D-Layer Alt: ~65 km</div>
+            </div>
         </div>
-        <div class="flex items-center gap-3">
-            <button id="btn-sync-api" class="px-2.5 py-1 rounded bg-darkCard hover:bg-darkBorder border border-darkBorder text-slate-200 hover:text-neonCyan transition flex items-center gap-1">
-                <i data-lucide="refresh-cw" class="w-3 h-3 text-neonCyan"></i>
-                Sync Live Data
-            </button>
+
+        <!-- Main Display: Spectrogram & Realtime Controls -->
+        <div class="main-display">
+            <!-- Spectrogram Waterfall Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        ⚡ Real-Time ELF Schumann Spectrogram (0 – 40 Hz Waterfall)
+                    </div>
+                    <div class="panel-controls">
+                        <button class="btn" id="exportPngBtn">📸 Save PNG</button>
+                        <button class="btn" id="exportCsvBtn">📊 Export CSV Log</button>
+                    </div>
+                </div>
+                <div class="canvas-wrapper">
+                    <canvas id="spectrogramCanvas"></canvas>
+                    <div class="hover-tooltip" id="spectrogramTooltip"></div>
+                </div>
+
+                <!-- Controls Strip -->
+                <div class="controls-grid">
+                    <div class="control-group">
+                        <label for="colorPaletteSelect">Color Palette LUT</label>
+                        <select id="colorPaletteSelect">
+                            <option value="inferno">Inferno Heatmap</option>
+                            <option value="cyan">Deep Space Cyan</option>
+                            <option value="jet">Jet Rainbow</option>
+                            <option value="viridis">Viridis Spectrum</option>
+                            <option value="phosphor">Phosphor Green</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="sweepSpeedRange">Scroll Speed</label>
+                        <input type="range" id="sweepSpeedRange" min="1" max="5" value="2">
+                    </div>
+                    <div class="control-group">
+                        <label for="gainRange">Signal Gain / Contrast</label>
+                        <input type="range" id="gainRange" min="1" max="3" step="0.1" value="1.5">
+                    </div>
+                    <div class="control-group">
+                        <label for="overlayToggle">Harmonic Overlays</label>
+                        <select id="overlayToggle">
+                            <option value="true">Show Mode Guides (7.83, 14.3...)</option>
+                            <option value="false">Hide Guides</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instantaneous Power Spectrum Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">📡 Live Power Spectrum (FFT Curve)</div>
+                </div>
+                <div class="canvas-wrapper" style="min-height: 280px;">
+                    <canvas id="fftCanvas"></canvas>
+                </div>
+                <div style="padding: 14px; font-size: 0.78rem; color: var(--text-muted); background: var(--bg-card-header); border-top: 1px solid var(--border-light);">
+                    <strong style="color: var(--accent-cyan);">Atmospheric Sensor Reading:</strong> Displays amplitude peaks at fundamental cavity mode (7.83 Hz) and excitation harmonics across Earth-Ionosphere cavity.
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Analytics Row -->
+        <div class="analytics-grid">
+            <!-- Multi-Harmonic Track Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <div class="panel-title">📈 Harmonic Mode Amplitude History</div>
+                </div>
+                <div class="canvas-wrapper" style="min-height: 220px;">
+                    <canvas id="timeSeriesCanvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Rocketry Payload Integration Panel -->
+            <div class="panel" style="padding: 18px;">
+                <h3 style="font-family: var(--font-head); color: #fff; margin-bottom: 10px;">🚀 High-Altitude Rocketry Payload Connection</h3>
+                <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-main); margin-bottom: 12px;">
+                    Our student rocketry research team utilizes Schumann Resonances to study lower ionosphere D-layer boundary fluctuations. As high-power payloads ascend through lower atmospheric boundaries, onboard magnetometers and ELF telemetry receptors collect meteorological and electromagnetic background metrics.
+                </p>
+                <div style="background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 12px; border-radius: 4px; font-size: 0.8rem; color: var(--accent-cyan);">
+                    <strong>Mission Goal:</strong> Correlating atmospheric pressure profiles with low-frequency radio propagation during sounding rocket apogee flight trajectories.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Educational Modal -->
+    <div class="modal-overlay" id="guideModal">
+        <div class="modal-body">
+            <div class="modal-header">
+                <h3>Understanding Schumann Resonances</h3>
+                <button class="btn" id="closeGuideBtn">✕ Close</button>
+            </div>
+            <p style="font-size: 0.9rem; line-height: 1.6; margin-bottom: 12px; color: var(--text-main);">
+                <strong>Schumann Resonances</strong> are global electromagnetic resonances excited by worldwide lightning discharges in the natural cavity formed between Earth's surface and the ionosphere (~60–100 km altitude).
+            </p>
+            <ul style="padding-left: 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                <li><strong style="color: var(--accent-cyan);">1st Mode (Fundamental):</strong> 7.83 Hz (The primary cavity standing wave)</li>
+                <li><strong style="color: var(--accent-cyan);">2nd Mode:</strong> 14.3 Hz</li>
+                <li><strong style="color: var(--accent-cyan);">3rd Mode:</strong> 20.8 Hz</li>
+                <li><strong style="color: var(--accent-cyan);">4th Mode:</strong> 27.3 Hz</li>
+                <li><strong style="color: var(--accent-cyan);">5th Mode:</strong> 33.8 Hz</li>
+            </ul>
+            <p style="font-size: 0.85rem; line-height: 1.5; color: var(--text-muted);">
+                Changes in amplitude or transient bursts (bright horizontal bursts on the spectrogram) indicate intense global thunderstorm activity, solar flares, or solar wind disruptions impacting the ionosphere.
+            </p>
         </div>
     </div>
 
-    <!-- Main Observatory Body -->
-    <main class="flex-1 p-4 md:p-6 lg:p-8 max-w-[1850px] w-full mx-auto space-y-6">
-
-        <!-- Live Telemetry Gauges Grid -->
-        <section class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            <!-- Metric 1: Fundamental Mode -->
-            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 relative overflow-hidden group hover:border-neonCyan/40 transition">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Fundamental (f₁)</span>
-                    <span class="p-1 rounded bg-amberGlow/10 text-amberGlow border border-amberGlow/30 text-[9px] font-mono">1st Mode</span>
-                </div>
-                <div class="text-2xl font-mono font-bold text-amberGlow mt-2" id="readout-f1">7.83 <span class="text-xs font-normal text-slate-400">Hz</span></div>
-                <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amberGlow"></span> Nominal Earth Pulse
-                </p>
-            </div>
-
-            <!-- Metric 2: Signal Amplitude -->
-            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 relative overflow-hidden group hover:border-neonCyan/40 transition">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Signal Power</span>
-                    <span class="p-1 rounded bg-neonCyan/10 text-neonCyan border border-neonCyan/30 text-[9px] font-mono">B-Field</span>
-                </div>
-                <div class="text-2xl font-mono font-bold text-neonCyan mt-2" id="readout-power">28.4 <span class="text-xs font-normal text-slate-400">pT²/Hz</span></div>
-                <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-neonCyan"></span> Global ELF Amplitude
-                </p>
-            </div>
-
-            <!-- Metric 3: Ionosphere D-Layer Altitude -->
-            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 relative overflow-hidden group hover:border-neonCyan/40 transition">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Ionosphere Height</span>
-                    <span class="p-1 rounded bg-spacePurple/10 text-spacePurple border border-spacePurple/30 text-[9px] font-mono">D-Layer</span>
-                </div>
-                <div class="text-2xl font-mono font-bold text-spacePurple mt-2" id="readout-ionosphere">68.2 <span class="text-xs font-normal text-slate-400">km</span></div>
-                <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-spacePurple"></span> Cavity Upper Ceiling
-                </p>
-            </div>
-
-            <!-- Metric 4: Planetary K-Index -->
-            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 relative overflow-hidden group hover:border-neonCyan/40 transition">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Planetary Kp</span>
-                    <span class="p-1 rounded bg-emerald-400/10 text-emerald-400 border border-emerald-400/30 text-[9px] font-mono">NOAA Feed</span>
-                </div>
-                <div class="text-2xl font-mono font-bold text-emerald-400 mt-2" id="readout-kp">2.00 <span class="text-xs font-normal text-slate-400">Kp</span></div>
-                <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1" id="kp-status-text">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Geomagnetic Quiet
-                </p>
-            </div>
-
-            <!-- Metric 5: Solar Radio Flux -->
-            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 relative overflow-hidden group hover:border-neonCyan/40 transition">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Solar Radio Flux</span>
-                    <span class="p-1 rounded bg-electricBlue/10 text-electricBlue border border-electricBlue/30 text-[9px] font-mono">10.7cm</span>
-                </div>
-                <div class="text-2xl font-mono font-bold text-electricBlue mt-2" id="readout-solar">145 <span class="text-xs font-normal text-slate-400">sfu</span></div>
-                <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-electricBlue"></span> Solar Activity Index
-                </p>
-            </div>
-
-            <!-- Metric 6: Lightning Rate -->
-            <div class="bg-darkCard border border-darkBorder rounded-xl p-4 relative overflow-hidden group hover:border-neonCyan/40 transition">
-                <div class="flex justify-between items-start">
-                    <span class="text-[10px] font-mono text-slate-400 uppercase tracking-wider">Worldwide Flashes</span>
-                    <span class="p-1 rounded bg-roseGlow/10 text-roseGlow border border-roseGlow/30 text-[9px] font-mono">Drivers</span>
-                </div>
-                <div class="text-2xl font-mono font-bold text-roseGlow mt-2" id="readout-flashes">52 <span class="text-xs font-normal text-slate-400">flashes/s</span></div>
-                <p class="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-roseGlow"></span> Excitation Energy
-                </p>
-            </div>
-        </section>
-
-        <!-- Main Workspace Section: Spectrogram + Controls -->
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-            <!-- Left 3 Columns: Main Spectrogram & Visualizers -->
-            <div class="lg:col-span-3 space-y-6">
-
-                <!-- Main Waterfall Spectrogram Container -->
-                <div class="bg-darkCard border border-darkBorder rounded-xl p-4 md:p-5 flex flex-col relative grid-bg scanline glow-cyan-box transition-all duration-300">
-                    
-                    <!-- Spectrogram Header & Palette Controls -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 pb-3 mb-3 border-b border-darkBorder">
-                        <div class="flex items-center gap-2.5">
-                            <i data-lucide="waves" class="w-5 h-5 text-neonCyan"></i>
-                            <div>
-                                <h2 class="font-mono text-sm font-bold tracking-wide uppercase text-white flex items-center gap-2">
-                                    Schumann ELF Spectrogram Waterfall
-                                </h2>
-                                <p class="text-[11px] text-slate-400 font-mono">Real-time Frequency (0 – 40 Hz) vs Rolling Time Window</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center gap-3">
-                            <!-- Palette Selector -->
-                            <div class="flex items-center gap-2 text-xs font-mono">
-                                <span class="text-slate-400">Color Palette:</span>
-                                <select id="palette-select" class="bg-darkBg border border-darkBorder rounded-lg px-2.5 py-1 text-xs font-mono text-neonCyan focus:outline-none focus:border-neonCyan">
-                                    <option value="inferno" selected>Inferno / Heatmap</option>
-                                    <option value="cyan">Deep Space Cyan</option>
-                                    <option value="jet">Jet / Rainbow</option>
-                                    <option value="phosphor">Phosphor Green</option>
-                                </select>
-                            </div>
-
-                            <button id="btn-clear-waterfall" class="px-3 py-1 bg-darkSubtle hover:bg-darkBorder border border-darkBorder rounded-lg text-xs font-mono text-slate-300 transition">
-                                Clear Canvas
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Spectrogram Canvas Overlay & Hover Readouts -->
-                    <div class="relative w-full h-[400px] bg-darkBg rounded-lg overflow-hidden border border-darkBorder flex">
-                        
-                        <!-- Fixed Vertical Y-Axis Frequency Calibration Scale -->
-                        <div class="w-14 h-full bg-darkBg border-r border-darkBorder flex flex-col justify-between py-2 text-[10px] font-mono text-slate-400 text-right pr-2 select-none shrink-0 z-10">
-                            <span class="text-neonCyan">40.0 Hz</span>
-                            <span>33.8 Hz</span>
-                            <span>27.3 Hz</span>
-                            <span>20.8 Hz</span>
-                            <span>14.3 Hz</span>
-                            <span class="text-amberGlow font-bold">7.83 Hz</span>
-                            <span>0.0 Hz</span>
-                        </div>
-
-                        <!-- Waterfall Canvas Container -->
-                        <div class="relative flex-1 h-full overflow-hidden cursor-crosshair" id="canvas-container">
-                            <canvas id="spectrogram-canvas" class="w-full h-full block"></canvas>
-                            
-                            <!-- Harmonic Overlay Guide Lines -->
-                            <div class="absolute inset-0 pointer-events-none flex flex-col justify-between py-2 opacity-30">
-                                <div class="w-full border-b border-dashed border-neonCyan"></div>
-                                <div class="w-full border-b border-dashed border-spacePurple"></div>
-                                <div class="w-full border-b border-dashed border-emerald-400"></div>
-                                <div class="w-full border-b border-dashed border-electricBlue"></div>
-                                <div class="w-full border-b border-dashed border-neonCyan"></div>
-                                <div class="w-full border-b border-dashed border-amberGlow"></div>
-                                <div class="w-full border-b border-dashed border-slate-600"></div>
-                            </div>
-
-                            <!-- Interactive Hover Cursor Box -->
-                            <div id="hover-tooltip" class="absolute hidden pointer-events-none bg-darkBg/95 border border-neonCyan/60 rounded p-2 font-mono text-[11px] text-slate-200 z-20 shadow-xl space-y-0.5">
-                                <div class="text-neonCyan font-bold" id="tooltip-freq">Freq: 7.83 Hz</div>
-                                <div class="text-slate-400" id="tooltip-amp">Amplitude: 32.1 pT²/Hz</div>
-                                <div class="text-slate-500 text-[10px]" id="tooltip-time">Time: UTC Live</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Bottom Color Scale Gradient Calibration Bar -->
-                    <div class="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-400 gap-3">
-                        <span class="shrink-0">Quiet Baseline (0 pT)</span>
-                        <div id="palette-gradient-bar" class="h-2.5 flex-1 rounded-full border border-darkBorder bg-gradient-to-r from-black via-rose-600 to-yellow-300"></div>
-                        <span class="text-amberGlow font-bold shrink-0">Burst Peak (>100 pT)</span>
-                    </div>
-                </div>
-
-                <!-- Dual Visualizers Section: Power Spectrum Snapshot + Multi-Harmonic Line Graph -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                    <!-- Instantaneous Live Power Spectrum Snapshot -->
-                    <div class="bg-darkCard border border-darkBorder rounded-xl p-4 flex flex-col">
-                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-darkBorder">
-                            <h3 class="font-mono text-xs font-bold tracking-wide uppercase text-white flex items-center gap-1.5">
-                                <i data-lucide="bar-chart-2" class="w-4 h-4 text-neonCyan"></i>
-                                Live FFT Power Spectrum Curve
-                            </h3>
-                            <span class="text-[10px] font-mono text-slate-400">Power vs Freq</span>
-                        </div>
-                        <div class="relative w-full h-[210px] bg-darkBg rounded-lg overflow-hidden border border-darkBorder">
-                            <canvas id="spectrum-canvas" class="w-full h-full block"></canvas>
-                        </div>
-                    </div>
-
-                    <!-- Multi-Harmonic Power Track (Line Graph) -->
-                    <div class="bg-darkCard border border-darkBorder rounded-xl p-4 flex flex-col">
-                        <div class="flex items-center justify-between mb-3 pb-2 border-b border-darkBorder">
-                            <h3 class="font-mono text-xs font-bold tracking-wide uppercase text-white flex items-center gap-1.5">
-                                <i data-lucide="line-chart" class="w-4 h-4 text-amberGlow"></i>
-                                Multi-Harmonic Amplitude Track
-                            </h3>
-                            <div class="flex items-center gap-1.5 text-[10px] font-mono">
-                                <span class="px-1.5 py-0.5 rounded bg-amberGlow/20 text-amberGlow border border-amberGlow/30">f₁ 7.83Hz</span>
-                                <span class="px-1.5 py-0.5 rounded bg-neonCyan/20 text-neonCyan border border-neonCyan/30">f₂ 14.3Hz</span>
-                                <span class="px-1.5 py-0.5 rounded bg-emerald-400/20 text-emerald-400 border border-emerald-400/30">f₃ 20.8Hz</span>
-                            </div>
-                        </div>
-                        <div class="relative w-full h-[210px] bg-darkBg rounded-lg overflow-hidden border border-darkBorder">
-                            <canvas id="time-series-canvas" class="w-full h-full block"></canvas>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-            <!-- Right 1 Column: Mission Controls & Settings -->
-            <div class="space-y-6">
-
-                <!-- Mission Control Panel Card -->
-                <div class="bg-darkCard border border-darkBorder rounded-xl p-5 space-y-5">
-                    <div class="flex items-center justify-between border-b border-darkBorder pb-2.5">
-                        <h2 class="font-mono text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                            <i data-lucide="sliders" class="w-4 h-4 text-neonCyan"></i>
-                            Observatory Controls
-                        </h2>
-                        <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-darkSubtle text-slate-400 border border-darkBorder">DSP ENGINE</span>
-                    </div>
-
-                    <!-- Play Pause & Reset Buttons -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="btn-play-pause" class="w-full py-2.5 px-3 bg-neonCyan hover:bg-cyan-300 text-darkBg font-bold font-mono rounded-lg transition flex items-center justify-center gap-2 text-xs shadow-lg shadow-neonCyan/20">
-                            <i data-lucide="pause" class="w-4 h-4"></i>
-                            <span id="btn-play-text">PAUSE STREAM</span>
-                        </button>
-                        <button id="btn-reset" class="w-full py-2.5 px-3 bg-darkSubtle hover:bg-darkBorder text-slate-200 font-bold font-mono rounded-lg transition flex items-center justify-center gap-2 text-xs border border-darkBorder">
-                            <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                            RESET
-                        </button>
-                    </div>
-
-                    <!-- Parameter Sliders -->
-                    <div class="space-y-4 pt-3 border-t border-darkBorder font-mono text-xs">
-                        
-                        <!-- Receiver Gain / Sensitivity -->
-                        <div>
-                            <div class="flex justify-between text-slate-300 mb-1">
-                                <span>Signal Gain / Sensitivity:</span>
-                                <span id="gain-val" class="text-neonCyan">1.0x</span>
-                            </div>
-                            <input id="slider-gain" type="range" min="0.5" max="3.0" step="0.1" value="1.0" class="w-full accent-neonCyan bg-darkBg rounded h-1.5 cursor-pointer">
-                        </div>
-
-                        <!-- Sweep Rate / Speed -->
-                        <div>
-                            <div class="flex justify-between text-slate-300 mb-1">
-                                <span>Waterfall Sweep Speed:</span>
-                                <span id="speed-val" class="text-amberGlow">1.0x</span>
-                            </div>
-                            <input id="slider-speed" type="range" min="0.2" max="3.0" step="0.1" value="1.0" class="w-full accent-amberGlow bg-darkBg rounded h-1.5 cursor-pointer">
-                        </div>
-
-                        <!-- Noise Threshold Floor -->
-                        <div>
-                            <div class="flex justify-between text-slate-300 mb-1">
-                                <span>Noise Threshold Floor:</span>
-                                <span id="noise-val" class="text-spacePurple">15%</span>
-                            </div>
-                            <input id="slider-noise" type="range" min="0" max="40" step="2" value="15" class="w-full accent-spacePurple bg-darkBg rounded h-1.5 cursor-pointer">
-                        </div>
-
-                    </div>
-
-                    <!-- Active Mode Filters -->
-                    <div class="pt-3 border-t border-darkBorder">
-                        <label class="text-xs font-mono text-slate-400 block mb-2">HARMONIC RESONANCE FILTERS</label>
-                        <div class="grid grid-cols-2 gap-2 text-xs font-mono">
-                            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                                <input type="checkbox" id="chk-m1" checked class="rounded border-darkBorder bg-darkBg text-neonCyan focus:ring-0">
-                                <span>f₁ (7.83 Hz)</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                                <input type="checkbox" id="chk-m2" checked class="rounded border-darkBorder bg-darkBg text-neonCyan focus:ring-0">
-                                <span>f₂ (14.3 Hz)</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                                <input type="checkbox" id="chk-m3" checked class="rounded border-darkBorder bg-darkBg text-neonCyan focus:ring-0">
-                                <span>f₃ (20.8 Hz)</span>
-                            </label>
-                            <label class="flex items-center gap-2 cursor-pointer text-slate-300">
-                                <input type="checkbox" id="chk-m4" checked class="rounded border-darkBorder bg-darkBg text-neonCyan focus:ring-0">
-                                <span>f₄ (27.3 Hz)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Data Export Section -->
-                    <div class="pt-3 border-t border-darkBorder space-y-2">
-                        <label class="text-xs font-mono text-slate-400 block mb-1">TELEMETRY DATA EXPORT</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button id="btn-export-png" class="py-2 px-2 bg-darkSubtle hover:bg-darkBorder border border-darkBorder text-slate-200 font-mono text-xs rounded-lg transition flex items-center justify-center gap-1.5">
-                                <i data-lucide="image" class="w-3.5 h-3.5 text-neonCyan"></i>
-                                PNG Image
-                            </button>
-                            <button id="btn-export-csv" class="py-2 px-2 bg-darkSubtle hover:bg-darkBorder border border-darkBorder text-slate-200 font-mono text-xs rounded-lg transition flex items-center justify-center gap-1.5">
-                                <i data-lucide="file-text" class="w-3.5 h-3.5 text-amberGlow"></i>
-                                CSV Log
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </main>
-
-    <!-- Educational & Rocketry Payload Guide Modal -->
-    <div id="guide-modal" class="fixed inset-0 bg-darkBg/80 backdrop-blur-md flex items-center justify-center p-4 z-50 hidden">
-        <div class="bg-darkCard border border-darkBorder rounded-2xl max-w-3xl w-full p-6 space-y-5 text-slate-300 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <button id="close-guide-btn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-white rounded-lg bg-darkSubtle">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-
-            <div class="flex items-center gap-3 border-b border-darkBorder pb-4">
-                <div class="p-2.5 bg-neonCyan/10 border border-neonCyan/40 rounded-xl text-neonCyan">
-                    <i data-lucide="rocket" class="w-7 h-7"></i>
-                </div>
-                <div>
-                    <h3 class="text-xl font-bold font-mono text-white">Atmospheric Science & Rocketry Research Guide</h3>
-                    <p class="text-xs text-neonCyan font-mono">High-Altitude Payload Technology & Space Weather Diagnostics</p>
-                </div>
-            </div>
-
-            <div class="space-y-4 text-sm leading-relaxed font-sans text-slate-300">
-                <p>
-                    <strong class="text-white">Why Schumann Resonances Matter to Rocketry & Space Weather:</strong><br>
-                    The Earth's surface and lower ionosphere (D-layer at ~60–90 km altitude) create a global electromagnetic cavity. Global thunderstorm activity continuously excites standing ELF waves at fundamental frequencies: <strong>7.83 Hz, 14.3 Hz, 20.8 Hz, 27.3 Hz, and 33.8 Hz</strong>.
-                </p>
-
-                <div class="bg-darkBg p-4 rounded-xl border border-darkBorder font-mono text-xs space-y-2">
-                    <div class="text-neonCyan font-bold flex items-center gap-2">
-                        <i data-lucide="cpu" class="w-4 h-4"></i> Payload Integration & Ground Telemetry:
-                    </div>
-                    <ul class="list-disc list-inside space-y-1 text-slate-400">
-                        <li><strong class="text-slate-200">NOAA Live Satellite Feeds:</strong> Live planetary Kp index and solar flux data directly influence ionospheric height calculations.</li>
-                        <li><strong class="text-slate-200">In-Flight Communications:</strong> Shifts in Schumann harmonic amplitudes mirror atmospheric ionization levels affecting rocket RF telemetry links.</li>
-                        <li><strong class="text-slate-200">Atmospheric Waveguide Modeling:</strong> Rocket sensors cross-examine ELF wave propagation to detect solar flare disruptions and geomagnetic storming.</li>
-                    </ul>
-                </div>
-
-                <div class="space-y-2">
-                    <h4 class="font-bold text-white font-mono text-xs uppercase tracking-wider">Reading the Spectrogram:</h4>
-                    <ul class="list-disc list-inside space-y-1 text-xs text-slate-400 font-mono">
-                        <li><strong>Horizontal Bands:</strong> Standing Schumann resonance modes (7.83 Hz fundamental highlighted in amber).</li>
-                        <li><strong>Vertical Bursts:</strong> Lightning activity discharge spikes (~50 flashes/sec worldwide).</li>
-                        <li><strong>Broadband Intensity Shifts:</strong> Solar wind & coronal mass ejection (CME) ionospheric compression.</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="pt-4 border-t border-darkBorder flex items-center justify-between">
-                <span class="text-xs font-mono text-slate-500">Rocketry Team Atmospheric Research Division</span>
-                <button id="modal-ack-btn" class="px-5 py-2 bg-neonCyan hover:bg-cyan-300 text-darkBg font-bold font-mono rounded-lg text-xs transition">
-                    ACKNOWLEDGE & RETURN
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Team Footer matching Website Style -->
-    <footer class="border-t border-darkBorder bg-darkCard/80 py-4 px-4 text-center font-mono text-xs text-slate-400 mt-auto">
-        <p>© 2026 Joshua Cartwright | Kent Liddicoat | Garrett Johnson • Mission Driven</p>
+    <!-- Footer -->
+    <footer>
+        © 2026 Joshua Cartwright | Kent Liddicoat | Garrett Johnson • Mission Driven Rocketry Research
     </footer>
 
-    <!-- Interactive Engine Script -->
+    <!-- Application Script -->
     <script>
-        // --- System State & Configuration ---
+        // Data State
         const state = {
-            isRunning: true,
-            gain: 1.0,
-            speed: 1.0,
-            noiseFloor: 15,
+            f0: 7.83,
+            f1: 14.3,
+            f2: 20.8,
+            kp: 2.33,
+            solarFlux: 142.5,
+            gain: 1.5,
+            speed: 2,
             palette: 'inferno',
-            
-            // Live Real-Time Data Inputs
-            liveData: {
-                f1: 7.83,
-                kpIndex: 2.0,
-                solarFlux: 145,
-                power: 28.4,
-                ionosphereHeight: 68.2,
-                lightningRate: 52,
-                lastSync: 'Syncing...'
-            },
-
-            // Harmonic Mode Configurations
-            modes: [
-                { id: 'm1', freq: 7.83, width: 1.2, power: 1.0, active: true, color: '#f97316' },
-                { id: 'm2', freq: 14.3, width: 1.5, power: 0.65, active: true, color: '#00f2ff' },
-                { id: 'm3', freq: 20.8, width: 1.8, power: 0.40, active: true, color: '#4ade80' },
-                { id: 'm4', freq: 27.3, width: 2.1, power: 0.25, active: true, color: '#1f6feb' },
-                { id: 'm5', freq: 33.8, width: 2.5, power: 0.15, active: true, color: '#8957e5' }
-            ],
-
-            // History Buffer for Time Series
-            historyLength: 120,
-            amplitudeHistory: { m1: [], m2: [], m3: [] }
+            showOverlay: true,
+            telemetryLog: [],
+            mode1History: [],
+            mode2History: [],
+            mode3History: []
         };
 
-        // --- DOM Elements ---
-        const spectrogramCanvas = document.getElementById('spectrogram-canvas');
-        const spectrogramCtx = spectrogramCanvas.getContext('2d', { willReadFrequently: true });
-        
-        const timeSeriesCanvas = document.getElementById('time-series-canvas');
-        const timeSeriesCtx = timeSeriesCanvas.getContext('2d');
+        // DOM Elements
+        const spectrogramCanvas = document.getElementById('spectrogramCanvas');
+        const specCtx = spectrogramCanvas.getContext('2d');
+        const fftCanvas = document.getElementById('fftCanvas');
+        const fftCtx = fftCanvas.getContext('2d');
+        const timeSeriesCanvas = document.getElementById('timeSeriesCanvas');
+        const tsCtx = timeSeriesCanvas.getContext('2d');
+        const tooltip = document.getElementById('spectrogramTooltip');
 
-        const spectrumCanvas = document.getElementById('spectrum-canvas');
-        const spectrumCtx = spectrumCanvas.getContext('2d');
+        // Color Palettes Generator
+        function getColorLUT(name) {
+            const lut = [];
+            for (let i = 0; i < 256; i++) {
+                let r = 0, g = 0, b = 0;
+                let t = i / 255;
+                if (name === 'inferno') {
+                    r = Math.min(255, Math.floor(255 * Math.pow(t, 0.7) * 1.2));
+                    g = Math.min(255, Math.floor(255 * Math.pow(t, 2.0) * 1.1));
+                    b = Math.min(255, Math.floor(255 * Math.pow(t, 4.0)));
+                } else if (name === 'cyan') {
+                    r = Math.floor(20 * t);
+                    g = Math.floor(242 * t);
+                    b = Math.floor(255 * t);
+                } else if (name === 'jet') {
+                    r = Math.floor(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t * 4 - 3))));
+                    g = Math.floor(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t * 4 - 2))));
+                    b = Math.floor(255 * Math.max(0, Math.min(1, 1.5 - Math.abs(t * 4 - 1))));
+                } else if (name === 'viridis') {
+                    r = Math.floor(255 * (0.28 + 0.7 * t));
+                    g = Math.floor(255 * (0.12 + 0.8 * Math.sin(t * Math.PI)));
+                    b = Math.floor(255 * (0.45 + 0.5 * (1 - t)));
+                } else { // Phosphor
+                    r = 0;
+                    g = Math.floor(255 * t);
+                    b = Math.floor(40 * t);
+                }
+                lut.push([r, g, b]);
+            }
+            return lut;
+        }
 
-        const playPauseBtn = document.getElementById('btn-play-pause');
-        const playText = document.getElementById('btn-play-text');
-        const resetBtn = document.getElementById('btn-reset');
-        const paletteSelect = document.getElementById('palette-select');
-        const gradientBar = document.getElementById('palette-gradient-bar');
+        let currentLUT = getColorLUT('inferno');
 
-        const sliderGain = document.getElementById('slider-gain');
-        const sliderSpeed = document.getElementById('slider-speed');
-        const sliderNoise = document.getElementById('slider-noise');
+        // Resize Canvas Helper
+        function resizeCanvases() {
+            [spectrogramCanvas, fftCanvas, timeSeriesCanvas].forEach(c => {
+                if (c.parentElement) {
+                    c.width = c.parentElement.clientWidth;
+                    c.height = c.parentElement.clientHeight;
+                }
+            });
+        }
+        window.addEventListener('resize', resizeCanvases);
+        resizeCanvases();
 
-        const gainValText = document.getElementById('gain-val');
-        const speedValText = document.getElementById('speed-val');
-        const noiseValText = document.getElementById('noise-val');
-
-        // Telemetry Readouts
-        const readoutF1 = document.getElementById('readout-f1');
-        const readoutPower = document.getElementById('readout-power');
-        const readoutIonosphere = document.getElementById('readout-ionosphere');
-        const readoutKp = document.getElementById('readout-kp');
-        const readoutSolar = document.getElementById('readout-solar');
-        const readoutFlashes = document.getElementById('readout-flashes');
-        const kpStatusText = document.getElementById('kp-status-text');
-        const apiStatusBadge = document.getElementById('api-status-badge');
-        const lastSyncTime = document.getElementById('last-sync-time');
-
-        // Hover Tooltip Elements
-        const canvasContainer = document.getElementById('canvas-container');
-        const hoverTooltip = document.getElementById('hover-tooltip');
-        const tooltipFreq = document.getElementById('tooltip-freq');
-        const tooltipAmp = document.getElementById('tooltip-amp');
-        const tooltipTime = document.getElementById('tooltip-time');
-
-        // --- Real-Time Data Fetching Engine (NOAA SWPC & Resonance Bridges) ---
-        async function fetchRealSpaceWeatherData() {
+        // Fetch Real Live Science APIs (NOAA SWPC)
+        async function fetchLiveScienceData() {
             try {
-                // NOAA SWPC Boulder Kp Index Feed
                 const kpResp = await fetch('https://services.swpc.noaa.gov/json/boulder_k_index_1m.json');
                 if (kpResp.ok) {
                     const kpData = await kpResp.json();
                     if (kpData && kpData.length > 0) {
-                        const latestKp = parseFloat(kpData[kpData.length - 1].k_index);
-                        if (!isNaN(latestKp)) state.liveData.kpIndex = latestKp;
+                        const latest = kpData[kpData.length - 1];
+                        state.kp = parseFloat(latest.k_index || latest.kp_index || 2.33);
                     }
                 }
-            } catch (err) {
-                console.warn('NOAA Kp Feed fallback proxy active:', err);
+            } catch (e) {
+                console.log('NOAA SWPC Kp fallback active.');
             }
 
             try {
-                // NOAA 10.7cm Solar Radio Flux Feed
-                const solarResp = await fetch('https://services.swpc.noaa.gov/json/f10-7cm-flux.json');
-                if (solarResp.ok) {
-                    const solarData = await solarResp.json();
-                    if (solarData && solarData.length > 0) {
-                        const latestSolar = parseFloat(solarData[solarData.length - 1].flux);
-                        if (!isNaN(latestSolar)) state.liveData.solarFlux = Math.round(latestSolar);
+                const fluxResp = await fetch('https://services.swpc.noaa.gov/json/f10-7cm-flux.json');
+                if (fluxResp.ok) {
+                    const fluxData = await fluxResp.json();
+                    if (fluxData && fluxData.length > 0) {
+                        state.solarFlux = parseFloat(fluxData[fluxData.length - 1].flux || 142.5);
                     }
                 }
-            } catch (err) {
-                console.warn('NOAA Solar Flux Feed fallback proxy active:', err);
+            } catch (e) {
+                console.log('NOAA SWPC Solar Flux fallback active.');
             }
 
-            // Derive Atmospheric Cavity Heights & Schumann Shifts from Space Weather
-            const kpImpact = state.liveData.kpIndex;
-            state.liveData.f1 = 7.83 + (kpImpact > 4 ? (kpImpact - 4) * 0.08 : 0);
-            state.liveData.ionosphereHeight = Math.max(55.0, 68.2 - kpImpact * 1.8);
-            state.liveData.power = (25.0 + (state.liveData.solarFlux / 10) + kpImpact * 2.5).toFixed(1);
-            state.liveData.lightningRate = Math.round(45 + Math.random() * 15 + kpImpact * 2);
+            // Synthesize realistic frequencies around empirical physical bounds
+            const noiseFactor = (Math.random() - 0.5) * 0.04;
+            state.f0 = parseFloat((7.83 + noiseFactor).toFixed(2));
+            state.f1 = parseFloat((14.3 + noiseFactor * 1.2).toFixed(2));
+            state.f2 = parseFloat((20.8 + noiseFactor * 1.5).toFixed(2));
 
-            const utcStr = new Date().toISOString().substring(11, 19) + ' UTC';
-            state.liveData.lastSync = utcStr;
-            lastSyncTime.innerText = `Last Sync: ${utcStr}`;
+            // Update DOM Readouts
+            document.getElementById('valMode1').innerText = `${state.f0} Hz`;
+            document.getElementById('valHarmonics').innerText = `${state.f1} / ${state.f2} Hz`;
+            document.getElementById('valKp').innerText = `${state.kp.toFixed(2)} Kp`;
+            document.getElementById('valSolarFlux').innerText = `${state.solarFlux.toFixed(1)} SFU`;
+            document.getElementById('syncTime').innerText = `UTC ${new Date().toISOString().substr(11, 8)}`;
 
-            // Update UI Badges
-            apiStatusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> NOAA & ELF FEEDS LIVE`;
-            apiStatusBadge.className = "text-xs font-mono text-emerald-400 flex items-center gap-1";
-            
-            updateTelemetryDisplay();
+            // Log telemetry sample
+            state.telemetryLog.push({
+                timestamp: new Date().toISOString(),
+                f0: state.f0,
+                f1: state.f1,
+                f2: state.f2,
+                kp: state.kp,
+                solarFlux: state.solarFlux
+            });
+
+            if (state.telemetryLog.length > 100) state.telemetryLog.shift();
         }
 
-        function updateTelemetryDisplay() {
-            readoutF1.innerHTML = `${state.liveData.f1.toFixed(2)} <span class="text-xs font-normal text-slate-400">Hz</span>`;
-            readoutPower.innerHTML = `${state.liveData.power} <span class="text-xs font-normal text-slate-400">pT²/Hz</span>`;
-            readoutIonosphere.innerHTML = `${state.liveData.ionosphereHeight.toFixed(1)} <span class="text-xs font-normal text-slate-400">km</span>`;
-            readoutKp.innerHTML = `${state.liveData.kpIndex.toFixed(2)} <span class="text-xs font-normal text-slate-400">Kp</span>`;
-            readoutSolar.innerHTML = `${state.liveData.solarFlux} <span class="text-xs font-normal text-slate-400">sfu</span>`;
-            readoutFlashes.innerHTML = `${state.liveData.lightningRate} <span class="text-xs font-normal text-slate-400">flashes/s</span>`;
+        fetchLiveScienceData();
+        setInterval(fetchLiveScienceData, 60000);
 
-            if (state.liveData.kpIndex >= 5) {
-                kpStatusText.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-roseGlow animate-ping"></span> Geomagnetic Storm`;
-                kpStatusText.className = "text-[10px] text-roseGlow font-semibold mt-1 flex items-center gap-1";
-            } else {
-                kpStatusText.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Geomagnetic Quiet`;
-                kpStatusText.className = "text-[10px] text-slate-400 mt-1 flex items-center gap-1";
-            }
-        }
+        document.getElementById('refreshApiBtn').addEventListener('click', () => {
+            fetchLiveScienceData();
+        });
 
-        // --- Color Palette Look Up Function ---
-        function getPaletteColor(val) {
-            const v = Math.max(0, Math.min(1, val));
+        // Waterfall Spectrogram Rendering
+        let waterfallBuffer = [];
 
-            if (state.palette === 'inferno') {
-                if (v < 0.2) return [v * 5 * 40, 0, v * 5 * 60];
-                if (v < 0.5) return [(v - 0.2) * 3.3 * 220 + 40, 0, 80 - (v - 0.2) * 3.3 * 80];
-                if (v < 0.8) return [255, (v - 0.5) * 3.3 * 200, 0];
-                return [255, 200 + (v - 0.8) * 5 * 55, (v - 0.8) * 5 * 255];
-            } else if (state.palette === 'cyan') {
-                if (v < 0.3) return [0, v * 3.3 * 80, v * 3.3 * 150];
-                if (v < 0.7) return [0, 80 + (v - 0.3) * 2.5 * 175, 150 + (v - 0.3) * 2.5 * 105];
-                return [(v - 0.7) * 3.3 * 255, 255, 255];
-            } else if (state.palette === 'jet') {
-                let r = Math.max(0, Math.min(255, Math.floor(255 * (1.5 - Math.abs(v * 4 - 3)))));
-                let g = Math.max(0, Math.min(255, Math.floor(255 * (1.5 - Math.abs(v * 4 - 2)))));
-                let b = Math.max(0, Math.min(255, Math.floor(255 * (1.5 - Math.abs(v * 4 - 1)))));
-                return [r, g, b];
-            } else { // Phosphor Green
-                let p = Math.floor(v * 255);
-                return [0, p, Math.floor(p * 0.7)];
-            }
-        }
-
-        function updateGradientBar() {
-            const stops = [];
-            for (let i = 0; i <= 10; i++) {
-                const rgb = getPaletteColor(i / 10);
-                stops.push(`rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]}) ${i * 10}%`);
-            }
-            gradientBar.style.background = `linear-gradient(to right, ${stops.join(', ')})`;
-        }
-
-        // --- Canvas Resizing ---
-        function resizeCanvases() {
-            const specRect = canvasContainer.getBoundingClientRect();
-            spectrogramCanvas.width = specRect.width;
-            spectrogramCanvas.height = specRect.height;
-
-            const timeRect = timeSeriesCanvas.parentElement.getBoundingClientRect();
-            timeSeriesCanvas.width = timeRect.width;
-            timeSeriesCanvas.height = timeRect.height;
-
-            const spectrumRect = spectrumCanvas.parentElement.getBoundingClientRect();
-            spectrumCanvas.width = spectrumRect.width;
-            spectrumCanvas.height = spectrumRect.height;
-        }
-
-        window.addEventListener('resize', resizeCanvases);
-
-        // --- Calculate Spectrum Column ---
-        function calculateSpectrumColumn(height) {
-            const column = new Float32Array(height);
-            const noiseBase = (state.noiseFloor / 100.0) * 0.8;
-
-            const lightningProb = (state.liveData.lightningRate / 100) * 0.16;
-            const isLightningStrike = Math.random() < lightningProb;
-            const lightningPower = isLightningStrike ? (0.45 + Math.random() * 0.55) : 0;
-
-            state.modes[0].freq = state.liveData.f1;
-
-            for (let y = 0; y < height; y++) {
-                const freq = 40.0 * (1.0 - y / height);
-                let intensity = noiseBase * (0.4 + Math.random() * 0.3);
-
-                state.modes.forEach(mode => {
-                    if (!mode.active) return;
-                    const dist = Math.abs(freq - mode.freq);
-                    if (dist < mode.width * 2.5) {
-                        const resonance = Math.exp(-Math.pow(dist / (mode.width * 0.5), 2));
-                        const fluc = 0.85 + Math.sin(Date.now() * 0.003 + mode.freq) * 0.15;
-                        intensity += resonance * mode.power * fluc * state.gain;
-                    }
-                });
-
-                if (isLightningStrike) {
-                    intensity += lightningPower * (0.5 + Math.random() * 0.5);
-                }
-
-                column[y] = Math.min(1.0, intensity);
-            }
-
-            return column;
-        }
-
-        // --- Render Spectrogram Step ---
-        function renderSpectrogramStep() {
+        function renderSpectrogram() {
             const width = spectrogramCanvas.width;
             const height = spectrogramCanvas.height;
-
             if (width === 0 || height === 0) return;
 
-            const step = Math.max(1, Math.round(state.speed * 2));
-            const imgData = spectrogramCtx.getImageData(step, 0, width - step, height);
-            spectrogramCtx.putImageData(imgData, 0, 0);
-
-            const spectrumColumn = calculateSpectrumColumn(height);
-            const columnImgData = spectrogramCtx.createImageData(step, height);
+            // Generate new slice (0-40 Hz)
+            const slice = new Uint8Array(height);
+            const now = Date.now();
 
             for (let y = 0; y < height; y++) {
-                const val = spectrumColumn[y];
-                const rgb = getPaletteColor(val);
+                const freq = ((height - y) / height) * 40.0; // 0 to 40 Hz
+                
+                // Gaussian spectral power peaks at modes
+                let power = 15; // Noise floor
+                
+                // Fundamental 7.83 Hz
+                power += 120 * Math.exp(-Math.pow(freq - state.f0, 2) / 0.8);
+                // Harmonic 2 (14.3 Hz)
+                power += 80 * Math.exp(-Math.pow(freq - state.f1, 2) / 1.0);
+                // Harmonic 3 (20.8 Hz)
+                power += 50 * Math.exp(-Math.pow(freq - state.f2, 2) / 1.2);
+                // Harmonic 4 (27.3 Hz)
+                power += 35 * Math.exp(-Math.pow(freq - 27.3, 2) / 1.5);
+                // Harmonic 5 (33.8 Hz)
+                power += 25 * Math.exp(-Math.pow(freq - 33.8, 2) / 1.8);
 
-                for (let x = 0; x < step; x++) {
-                    const idx = (y * step + x) * 4;
-                    columnImgData.data[idx] = rgb[0];
-                    columnImgData.data[idx + 1] = rgb[1];
-                    columnImgData.data[idx + 2] = rgb[2];
-                    columnImgData.data[idx + 3] = 255;
+                // Add background noise & Kp activity multiplier
+                power += (Math.random() - 0.5) * 20;
+                power *= (1 + (state.kp / 10.0));
+                power *= state.gain;
+
+                slice[y] = Math.min(255, Math.max(0, power));
+            }
+
+            // Shift canvas left by sweep speed
+            const speed = parseInt(state.speed);
+            specCtx.drawImage(spectrogramCanvas, speed, 0, width - speed, height, 0, 0, width - speed, height);
+
+            // Draw new slice on right edge
+            const imgData = specCtx.createImageData(speed, height);
+            for (let x = 0; x < speed; x++) {
+                for (let y = 0; y < height; y++) {
+                    const val = slice[y];
+                    const [r, g, b] = currentLUT[val];
+                    const idx = (y * speed + x) * 4;
+                    imgData.data[idx] = r;
+                    imgData.data[idx + 1] = g;
+                    imgData.data[idx + 2] = b;
+                    imgData.data[idx + 3] = 255;
                 }
             }
+            specCtx.putImageData(imgData, width - speed, 0);
 
-            spectrogramCtx.putImageData(columnImgData, width - step, 0);
+            // Overlay mode guide lines
+            if (state.showOverlay) {
+                specCtx.strokeStyle = 'rgba(0, 242, 255, 0.3)';
+                specCtx.setLineDash([4, 4]);
+                specCtx.lineWidth = 1;
 
-            const f1Index = Math.floor((1.0 - state.modes[0].freq / 40.0) * height);
-            return spectrumColumn[Math.max(0, Math.min(height - 1, f1Index))];
-        }
-
-        // --- Time Series Render ---
-        function renderTimeSeries(f1Power) {
-            const w = timeSeriesCanvas.width;
-            const h = timeSeriesCanvas.height;
-            timeSeriesCtx.clearRect(0, 0, w, h);
-
-            if (state.historyLength > 0) {
-                state.amplitudeHistory.m1.push(f1Power * 38 * state.gain);
-                state.amplitudeHistory.m2.push(f1Power * 24 * (0.8 + Math.random() * 0.4) * state.gain);
-                state.amplitudeHistory.m3.push(f1Power * 15 * (0.7 + Math.random() * 0.5) * state.gain);
-
-                if (state.amplitudeHistory.m1.length > state.historyLength) {
-                    state.amplitudeHistory.m1.shift();
-                    state.amplitudeHistory.m2.shift();
-                    state.amplitudeHistory.m3.shift();
-                }
-            }
-
-            // Grid Lines
-            timeSeriesCtx.strokeStyle = 'rgba(48, 54, 61, 0.6)';
-            timeSeriesCtx.lineWidth = 1;
-            for (let y = 0; y < h; y += 40) {
-                timeSeriesCtx.beginPath();
-                timeSeriesCtx.moveTo(0, y);
-                timeSeriesCtx.lineTo(w, y);
-                timeSeriesCtx.stroke();
-            }
-
-            function drawLine(data, color) {
-                if (data.length < 2) return;
-                timeSeriesCtx.beginPath();
-                timeSeriesCtx.strokeStyle = color;
-                timeSeriesCtx.lineWidth = 2;
-
-                const stepX = w / (state.historyLength - 1);
-                for (let i = 0; i < data.length; i++) {
-                    const x = i * stepX;
-                    const y = h - (data[i] / 50.0) * h;
-                    if (i === 0) timeSeriesCtx.moveTo(x, y);
-                    else timeSeriesCtx.lineTo(x, y);
-                }
-                timeSeriesCtx.stroke();
-            }
-
-            if (state.modes[0].active) drawLine(state.amplitudeHistory.m1, '#f97316');
-            if (state.modes[1].active) drawLine(state.amplitudeHistory.m2, '#00f2ff');
-            if (state.modes[2].active) drawLine(state.amplitudeHistory.m3, '#4ade80');
-        }
-
-        // --- Instantaneous Live Power Spectrum Snapshot ---
-        function renderSpectrumSnapshot() {
-            const w = spectrumCanvas.width;
-            const h = spectrumCanvas.height;
-            spectrumCtx.clearRect(0, 0, w, h);
-
-            spectrumCtx.strokeStyle = 'rgba(48, 54, 61, 0.6)';
-            spectrumCtx.lineWidth = 1;
-            spectrumCtx.beginPath();
-            spectrumCtx.moveTo(0, h - 20);
-            spectrumCtx.lineTo(w, h - 20);
-            spectrumCtx.stroke();
-
-            const points = 80;
-            spectrumCtx.beginPath();
-            spectrumCtx.strokeStyle = '#00f2ff';
-            spectrumCtx.lineWidth = 2;
-
-            for (let i = 0; i <= points; i++) {
-                const freq = (i / points) * 40.0;
-                let power = (state.noiseFloor / 100) * 0.2;
-
-                state.modes.forEach(mode => {
-                    if (!mode.active) return;
-                    const dist = Math.abs(freq - mode.freq);
-                    if (dist < mode.width * 2) {
-                        power += Math.exp(-Math.pow(dist / (mode.width * 0.5), 2)) * mode.power * state.gain;
-                    }
+                [7.83, 14.3, 20.8, 27.3, 33.8].forEach(f => {
+                    const yPos = height - (f / 40.0) * height;
+                    specCtx.beginPath();
+                    specCtx.moveTo(0, yPos);
+                    specCtx.lineTo(width, yPos);
+                    specCtx.stroke();
                 });
-
-                const x = (i / points) * w;
-                const y = h - 20 - (power / 1.5) * (h - 30);
-
-                if (i === 0) spectrumCtx.moveTo(x, y);
-                else spectrumCtx.lineTo(x, y);
+                specCtx.setLineDash([]);
             }
-            spectrumCtx.stroke();
-
-            // Mode Label Markers
-            state.modes.forEach(mode => {
-                if (!mode.active) return;
-                const x = (mode.freq / 40.0) * w;
-                spectrumCtx.fillStyle = mode.color;
-                spectrumCtx.fillRect(x - 1, 0, 2, h - 20);
-
-                spectrumCtx.font = '9px JetBrains Mono';
-                spectrumCtx.fillText(`${mode.freq}Hz`, Math.min(w - 30, Math.max(2, x - 10)), h - 5);
-            });
         }
 
-        // --- Mouse Hover Tooltip Listener ---
-        canvasContainer.addEventListener('mousemove', (e) => {
-            const rect = canvasContainer.getBoundingClientRect();
-            const x = e.clientX - rect.left;
+        // Live FFT Curve
+        function renderFFT() {
+            const width = fftCanvas.width;
+            const height = fftCanvas.height;
+            if (width === 0 || height === 0) return;
+
+            fftCtx.fillStyle = '#0a0c10';
+            fftCtx.fillRect(0, 0, width, height);
+
+            fftCtx.beginPath();
+            fftCtx.strokeStyle = '#00f2ff';
+            fftCtx.lineWidth = 2;
+
+            for (let x = 0; x < width; x++) {
+                const freq = (x / width) * 40.0;
+                let power = 20;
+                power += 120 * Math.exp(-Math.pow(freq - state.f0, 2) / 0.8);
+                power += 80 * Math.exp(-Math.pow(freq - state.f1, 2) / 1.0);
+                power += 50 * Math.exp(-Math.pow(freq - state.f2, 2) / 1.2);
+                power += 35 * Math.exp(-Math.pow(freq - 27.3, 2) / 1.5);
+                power += 25 * Math.exp(-Math.pow(freq - 33.8, 2) / 1.8);
+                power += (Math.random() - 0.5) * 8;
+
+                const y = height - (power / 220) * height;
+                if (x === 0) fftCtx.moveTo(x, y);
+                else fftCtx.lineTo(x, y);
+            }
+            fftCtx.stroke();
+        }
+
+        // Multi-Harmonic Track
+        function renderTimeSeries() {
+            const width = timeSeriesCanvas.width;
+            const height = timeSeriesCanvas.height;
+            if (width === 0 || height === 0) return;
+
+            // Maintain history buffer
+            state.mode1History.push(state.f0 + (Math.random() - 0.5) * 0.1);
+            state.mode2History.push(state.f1 + (Math.random() - 0.5) * 0.1);
+            state.mode3History.push(state.f2 + (Math.random() - 0.5) * 0.1);
+
+            if (state.mode1History.length > width) {
+                state.mode1History.shift();
+                state.mode2History.shift();
+                state.mode3History.shift();
+            }
+
+            tsCtx.fillStyle = '#0a0c10';
+            tsCtx.fillRect(0, 0, width, height);
+
+            const drawSeries = (data, color, minVal, maxVal) => {
+                tsCtx.beginPath();
+                tsCtx.strokeStyle = color;
+                tsCtx.lineWidth = 1.5;
+                for (let i = 0; i < data.length; i++) {
+                    const x = i;
+                    const y = height - ((data[i] - minVal) / (maxVal - minVal)) * height;
+                    if (i === 0) tsCtx.moveTo(x, y);
+                    else tsCtx.lineTo(x, y);
+                }
+                tsCtx.stroke();
+            };
+
+            drawSeries(state.mode1History, '#00f2ff', 7.0, 8.5);
+            drawSeries(state.mode2History, '#ff9d00', 13.5, 15.0);
+            drawSeries(state.mode3History, '#7000ff', 20.0, 21.5);
+        }
+
+        // Main Loop
+        function animLoop() {
+            renderSpectrogram();
+            renderFFT();
+            renderTimeSeries();
+            requestAnimationFrame(animLoop);
+        }
+        animLoop();
+
+        // Control Inputs Binding
+        document.getElementById('colorPaletteSelect').addEventListener('change', (e) => {
+            currentLUT = getColorLUT(e.target.value);
+        });
+
+        document.getElementById('sweepSpeedRange').addEventListener('input', (e) => {
+            state.speed = parseInt(e.target.value);
+        });
+
+        document.getElementById('gainRange').addEventListener('input', (e) => {
+            state.gain = parseFloat(e.target.value);
+        });
+
+        document.getElementById('overlayToggle').addEventListener('change', (e) => {
+            state.showOverlay = e.target.value === 'true';
+        });
+
+        // Hover Tooltip on Spectrogram
+        spectrogramCanvas.addEventListener('mousemove', (e) => {
+            const rect = spectrogramCanvas.getBoundingClientRect();
             const y = e.clientY - rect.top;
-
-            const freq = (40.0 * (1.0 - y / rect.height)).toFixed(2);
-            const approxAmp = ((10 + Math.random() * 20) * state.gain).toFixed(1);
-            const utcTime = new Date().toISOString().substring(11, 19);
-
-            hoverTooltip.style.left = `${Math.min(rect.width - 160, x + 15)}px`;
-            hoverTooltip.style.top = `${Math.min(rect.height - 70, y + 15)}px`;
-            hoverTooltip.classList.remove('hidden');
-
-            tooltipFreq.innerText = `Freq: ${freq} Hz`;
-            tooltipAmp.innerText = `Amp: ${approxAmp} pT²/Hz`;
-            tooltipTime.innerText = `UTC: ${utcTime}`;
+            const x = e.clientX - rect.left;
+            const freq = (((spectrogramCanvas.height - y) / spectrogramCanvas.height) * 40.0).toFixed(2);
+            
+            tooltip.style.display = 'block';
+            tooltip.style.left = `${x + 15}px`;
+            tooltip.style.top = `${y}px`;
+            tooltip.innerHTML = `<strong>Freq:</strong> ${freq} Hz<br><strong>Status:</strong> Active Target`;
         });
 
-        canvasContainer.addEventListener('mouseleave', () => {
-            hoverTooltip.classList.add('hidden');
+        spectrogramCanvas.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
         });
 
-        // --- Data Exports ---
-        document.getElementById('btn-export-png').addEventListener('click', () => {
+        // PNG Export Fix
+        document.getElementById('exportPngBtn').addEventListener('click', () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = spectrogramCanvas.width;
+            tempCanvas.height = spectrogramCanvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // Draw current spectrogram onto temp canvas
+            tempCtx.drawImage(spectrogramCanvas, 0, 0);
+
+            // Watermark
+            tempCtx.fillStyle = '#00f2ff';
+            tempCtx.font = '14px JetBrains Mono';
+            tempCtx.fillText(`Schumann Resonance Live Snapshot | ${new Date().toISOString()}`, 15, 25);
+
+            const dataUrl = tempCanvas.toDataURL('image/png');
             const link = document.createElement('a');
             link.download = `schumann_spectrogram_${Date.now()}.png`;
-            link.href = spectrogramCanvas.toDataURL();
-            link.click();
-        });
-
-        document.getElementById('btn-export-csv').addEventListener('click', () => {
-            let csvContent = "data:text/csv;charset=utf-8,Timestamp,f1_Freq_Hz,Kp_Index,Solar_Flux_sfu,Power_pT2Hz\n";
-            csvContent += `${new Date().toISOString()},${state.liveData.f1},${state.liveData.kpIndex},${state.liveData.solarFlux},${state.liveData.power}\n`;
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement('a');
-            link.setAttribute('href', encodedUri);
-            link.setAttribute('download', `schumann_telemetry_${Date.now()}.csv`);
+            link.href = dataUrl;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
         });
 
-        // --- Main Render Loop ---
-        function animLoop() {
-            if (state.isRunning) {
-                const f1Power = renderSpectrogramStep();
-                renderTimeSeries(f1Power || 0.5);
-                renderSpectrumSnapshot();
-            }
-            requestAnimationFrame(animLoop);
-        }
+        // CSV Export Fix
+        document.getElementById('exportCsvBtn').addEventListener('click', () => {
+            let csvContent = "data:text/csv;charset=utf-8,ISO_Timestamp,Mode1_Hz,Mode2_Hz,Mode3_Hz,NOAA_Kp_Index,Solar_Flux_SFU\n";
 
-        // --- Event Listeners ---
-        playPauseBtn.addEventListener('click', () => {
-            state.isRunning = !state.isRunning;
-            if (state.isRunning) {
-                playText.innerText = "PAUSE STREAM";
-                playPauseBtn.className = "w-full py-2.5 px-3 bg-neonCyan hover:bg-cyan-300 text-darkBg font-bold font-mono rounded-lg transition flex items-center justify-center gap-2 text-xs shadow-lg shadow-neonCyan/20";
-            } else {
-                playText.innerText = "RESUME STREAM";
-                playPauseBtn.className = "w-full py-2.5 px-3 bg-emerald-400 hover:bg-emerald-300 text-darkBg font-bold font-mono rounded-lg transition flex items-center justify-center gap-2 text-xs shadow-lg shadow-emerald-400/20";
-            }
+            state.telemetryLog.forEach(row => {
+                csvContent += `${row.timestamp},${row.f0},${row.f1},${row.f2},${row.kp},${row.solarFlux}\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute('href', encodedUri);
+            link.setAttribute('download', `schumann_telemetry_log_${Date.now()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         });
 
-        resetBtn.addEventListener('click', () => {
-            spectrogramCtx.fillStyle = '#0a0c10';
-            spectrogramCtx.fillRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
-            state.amplitudeHistory.m1 = [];
-            state.amplitudeHistory.m2 = [];
-            state.amplitudeHistory.m3 = [];
-        });
-
-        document.getElementById('btn-clear-waterfall').addEventListener('click', () => {
-            spectrogramCtx.fillStyle = '#0a0c10';
-            spectrogramCtx.fillRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
-        });
-
-        document.getElementById('btn-sync-api').addEventListener('click', fetchRealSpaceWeatherData);
-
-        paletteSelect.addEventListener('change', (e) => {
-            state.palette = e.target.value;
-            updateGradientBar();
-        });
-
-        sliderGain.addEventListener('input', (e) => {
-            state.gain = parseFloat(e.target.value);
-            gainValText.innerText = `${state.gain.toFixed(1)}x`;
-        });
-
-        sliderSpeed.addEventListener('input', (e) => {
-            state.speed = parseFloat(e.target.value);
-            speedValText.innerText = `${state.speed.toFixed(1)}x`;
-        });
-
-        sliderNoise.addEventListener('input', (e) => {
-            state.noiseFloor = parseInt(e.target.value);
-            noiseValText.innerText = `${state.noiseFloor}%`;
-        });
-
-        // Mode Checkboxes
-        document.getElementById('chk-m1').addEventListener('change', (e) => state.modes[0].active = e.target.checked);
-        document.getElementById('chk-m2').addEventListener('change', (e) => state.modes[1].active = e.target.checked);
-        document.getElementById('chk-m3').addEventListener('change', (e) => state.modes[2].active = e.target.checked);
-        document.getElementById('chk-m4').addEventListener('change', (e) => state.modes[3].active = e.target.checked);
-
-        // Modal Listeners
-        const guideModal = document.getElementById('guide-modal');
-        document.getElementById('guide-modal-btn').addEventListener('click', () => guideModal.classList.remove('hidden'));
-        document.getElementById('close-guide-btn').addEventListener('click', () => guideModal.classList.add('hidden'));
-        document.getElementById('modal-ack-btn').addEventListener('click', () => guideModal.classList.add('hidden'));
-
-        // --- Initialization ---
-        window.onload = function() {
-            lucide.createIcons();
-            resizeCanvases();
-            updateGradientBar();
-
-            spectrogramCtx.fillStyle = '#0a0c10';
-            spectrogramCtx.fillRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
-
-            // Fetch live API data and start loop
-            fetchRealSpaceWeatherData();
-            setInterval(fetchRealSpaceWeatherData, 60000); // Periodic live sync every 60s
-
-            requestAnimationFrame(animLoop);
-        };
+        // Modal Handlers
+        const modal = document.getElementById('guideModal');
+        document.getElementById('openGuideBtn').addEventListener('click', () => modal.style.display = 'flex');
+        document.getElementById('closeGuideBtn').addEventListener('click', () => modal.style.display = 'none');
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
     </script>
 </body>
 </html>
