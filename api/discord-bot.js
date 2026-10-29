@@ -21,8 +21,8 @@ export default async function handler(req, res) {
       }
     ];
 
-    try {
-      const discordRes = await flexFetch(`https://discord.com/api/v10/applications/${APPLICATION_ID}/commands`, {
+        try {
+      const discordRes = await fetch(`https://discord.com/api/v10/applications/${APPLICATION_ID}/commands`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bot ${BOT_TOKEN}`,
@@ -40,8 +40,10 @@ export default async function handler(req, res) {
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
-  }
 
+
+      
+  
   // 2. POST REQUEST: Handles incoming Discord interactions (Ping & Slash Commands)
   if (req.method === 'POST') {
     // Standard verification for Discord requests
