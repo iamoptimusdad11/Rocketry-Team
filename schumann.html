@@ -928,10 +928,8 @@
             tempCanvas.height = spectrogramCanvas.height;
             const tempCtx = tempCanvas.getContext('2d');
 
-            // Draw current spectrogram onto temp canvas
             tempCtx.drawImage(spectrogramCanvas, 0, 0);
 
-            // Watermark
             tempCtx.fillStyle = '#00f2ff';
             tempCtx.font = '14px JetBrains Mono';
             tempCtx.fillText(`Schumann Resonance Live Snapshot | ${new Date().toISOString()}`, 15, 25);
