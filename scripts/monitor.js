@@ -183,7 +183,6 @@ async function runAiAnalysisAndAlerts(newRows) {
     }
 }
 
-
 async function sendDiscordAlert(message) {
     const webhookUrl = process.env.DISCORD_BOT_TOKEN;
     if (!webhookUrl) {
