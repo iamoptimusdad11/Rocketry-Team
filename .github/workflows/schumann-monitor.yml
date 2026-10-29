@@ -31,4 +31,5 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/schumann_log.csv
           git diff --staged --quiet || git commit -m "chore: update schumann resonance log [skip ci]"
+          git pull --rebase origin main
           git push
