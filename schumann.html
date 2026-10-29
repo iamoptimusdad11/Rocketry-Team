@@ -688,23 +688,46 @@
         }
 
         // --- Canvas Resizing ---
+                // --- Canvas Resizing (Fixed for mobile scroll / address bar shifts) ---
         function resizeCanvases() {
             const specRect = canvasContainer.getBoundingClientRect();
-            spectrogramCanvas.width = specRect.width;
-            spectrogramCanvas.height = specRect.height;
+            
+            // Only resize spectrogram if width actually changed (prevents mobile address bar height shifts from clearing canvas)
+            if (spectrogramCanvas.width !== specRect.width || spectrogramCanvas.height !== specRect.height) {
+                // Save current canvas contents before resizing
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = spectrogramCanvas.width;
+                tempCanvas.height = spectrogramCanvas.height;
+                if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+                    tempCanvas.getContext('2d').drawImage(spectrogramCanvas, 0, 0);
+                }
+
+                // Apply new size
+                spectrogramCanvas.width = specRect.width;
+                spectrogramCanvas.height = specRect.height;
+
+                // Restore previous waterfall contents scaled to fit
+                if (tempCanvas.width > 0 && tempCanvas.height > 0) {
+                    spectrogramCtx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
+                } else {
+                    spectrogramCtx.fillStyle = '#0a0c10';
+                    spectrogramCtx.fillRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
+                }
+            }
 
             const timeRect = timeSeriesCanvas.parentElement.getBoundingClientRect();
-            timeSeriesCanvas.width = timeRect.width;
-            timeSeriesCanvas.height = timeRect.height;
+            if (timeSeriesCanvas.width !== timeRect.width || timeSeriesCanvas.height !== timeRect.height) {
+                timeSeriesCanvas.width = timeRect.width;
+                timeSeriesCanvas.height = timeRect.height;
+            }
 
             const spectrumRect = spectrumCanvas.parentElement.getBoundingClientRect();
-            spectrumCanvas.width = spectrumRect.width;
-            spectrumCanvas.height = spectrumRect.height;
+            if (spectrumCanvas.width !== spectrumRect.width || spectrumCanvas.height !== spectrumRect.height) {
+                spectrumCanvas.width = spectrumRect.width;
+                spectrumCanvas.height = spectrumRect.height;
+            }
         }
-
-        window.addEventListener('resize', resizeCanvases);
-
-        // --- Calculate Spectrum Column ---
+   // --- Calculate Spectrum Column ---
         function calculateSpectrumColumn(height) {
             const column = new Float32Array(height);
             const noiseBase = (state.noiseFloor / 100.0) * 0.8;
