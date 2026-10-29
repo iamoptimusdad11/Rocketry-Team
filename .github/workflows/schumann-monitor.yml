@@ -3,25 +3,22 @@ name: Schumann Resonance AI Monitor
 on:
   schedule:
     - cron: '*/10 * * * *' # Runs every 10 minutes
-  workflow_dispatch: # Allows manual run from GitHub interface
+  workflow_dispatch: # Allows you to trigger manual test runs
+
+permissions:
+  contents: write # Required so GitHub Actions can commit and push the CSV file back
 
 jobs:
   monitor:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # REQUIRED: Allows the bot to commit and push the updated CSV back to your repo
-
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Install Dependencies
-        run: npm install discord.js node-fetch
 
       - name: Run AI Monitor Script
         env:
@@ -30,8 +27,8 @@ jobs:
 
       - name: Commit and push changes if data updated
         run: |
-          git config --global user.name "GitHub Actions Bot"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add data/schumann_log.csv
-          # Only commit and push if there are actual changes (skips if nothing changed)
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update Schumann resonance log [skip ci]" && git push)
+          git diff --staged --quiet || git commit -m "chore: update schumann resonance log [skip ci]"
+          git push
