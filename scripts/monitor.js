@@ -119,7 +119,7 @@ async function runAiAnalysisAndAlerts(latestData) {
     const power = parseFloat(latestData.Power_pT2Hz);
     
     // Threshold check for anomaly alerts
-    if (true) {
+    if (power > 100) {
         console.log("Anomaly detected! Sending Discord alert...");
         await sendDiscordAlert(`⚠️ **Schumann Anomaly Detected!**\nPower: ${power} pT²/Hz at ${latestData.Timestamp}`);
     } else {
