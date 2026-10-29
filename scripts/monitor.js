@@ -174,9 +174,9 @@ async function runAiAnalysisAndAlerts(newRows) {
         , anomalies[0]);
 
         await sendDiscordAlert(
-            `⚠️ **Schumann Anomaly Detected!**\n` +
-            `Peak Power: **${peakAnomaly.Power_pT2Hz} pT²/Hz** at ${peakAnomaly.Timestamp}\n` +
-            `Total anomalous readings in batch: ${anomalies.length}`
+            "⚠️ **Schumann Anomaly Detected!**\n" +
+            "Peak Power: **" + peakAnomaly.Power_pT2Hz + " pT²/Hz** at " + peakAnomaly.Timestamp + "\n" +
+            "Total anomalous readings in batch: " + anomalies.length
         );
     } else {
         console.log("All metrics normal across newly fetched records. No alert required.");
