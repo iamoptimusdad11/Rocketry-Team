@@ -13,13 +13,13 @@ async function runSchumannMonitor() {
 
         console.log(`Current Planetary Kp Index: ${kpIndex}`);
 
-        // Define Anomaly Condition (e.g., Kp >= 4.0 triggers an alert)
+        // Define Anomaly Condition (Kp >= 4.0 triggers an alert)
         const isAnomaly = kpIndex >= 4.0;
 
         if (isAnomaly) {
             await sendDiscordAlert({
                 title: '🚨 Schumann Observatory: Geomagnetic Anomaly Detected',
-                description: `High geomagnetic activity detected on live telemetry feeds. Ionospheric D-Layer compression likely.`,
+                description: 'High geomagnetic activity detected on live telemetry feeds. Ionospheric D-Layer compression likely.',
                 fields: [
                     { name: 'Planetary Kp Index', value: `${kpIndex} Kp`, inline: true },
                     { name: 'Fundamental (f₁)', value: '7.83 Hz', inline: true },
@@ -33,6 +33,7 @@ async function runSchumannMonitor() {
 
     } catch (error) {
         console.error('Error monitoring Schumann data:', error);
+        process.exit(1);
     }
 }
 
@@ -40,16 +41,25 @@ async function sendDiscordAlert(alertData) {
     const token = process.env.DISCORD_BOT_TOKEN;
     if (!token) {
         console.error('Missing DISCORD_BOT_TOKEN environment variable.');
-        return;
+        process.exit(1);
     }
 
     const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
     client.once('ready', async () => {
-        // Automatically finds the first text channel in your server to send the message
-        const guild = client.guilds.cache.first();
-        if (guild) {
-            const channel = guild.channels.cache.find(c => c.isTextBased() && c.permissionsFor(guild.members.me).has('SendMessages'));
+        try {
+            // Automatically finds the first available text channel in your server
+            const guild = client.guilds.cache.first();
+            if (!guild) {
+                console.error('Bot is not in any guilds/servers.');
+                client.destroy();
+                return;
+            }
+
+            const channel = guild.channels.cache.find(
+                c => c.isTextBased() && c.permissionsFor(guild.members.me).has('SendMessages')
+            );
+
             if (channel) {
                 const embed = new EmbedBuilder()
                     .setTitle(alertData.title)
@@ -60,9 +70,14 @@ async function sendDiscordAlert(alertData) {
 
                 await channel.send({ embeds: [embed] });
                 console.log('Successfully posted alert to Discord!');
+            } else {
+                console.error('Could not find a valid text channel with permission to send messages.');
             }
+        } catch (err) {
+            console.error('Error sending message to Discord:', err);
+        } finally {
+            client.destroy();
         }
-        client.destroy();
     });
 
     await client.login(token);
