@@ -1,12 +1,19 @@
 const { verifyKey } = require('discord-interactions');
 
-// Helper to read the raw request body buffer on Vercel
-async function buffer(readable) {
-    const chunks = [];
-    for await (const chunk of readable) {
-        chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
-    }
-    return Buffer.concat(chunks);
+// CRITICAL: Disable Vercel's default body parser so raw bytes stay intact for verification
+module.exports.config = {
+    api: {
+        bodyParser: false,
+    },
+};
+
+async function getRawBody(req) {
+    return new Promise((resolve, reject) => {
+        let chunks = [];
+        req.on('data', (chunk) => chunks.push(chunk));
+        req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        req.on('error', (err) => reject(err));
+    });
 }
 
 module.exports = async function handler(req, res) {
@@ -22,8 +29,7 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        const buf = await buffer(req);
-        const rawBody = buf.toString('utf8');
+        const rawBody = await getRawBody(req);
 
         // Verify cryptographic signature from Discord
         const isVerified = verifyKey(rawBody, signature, timestamp, process.env.DISCORD_PUBLIC_KEY);
@@ -51,7 +57,7 @@ module.exports = async function handler(req, res) {
                     const kp = latest ? latest.kp_index : '2.0';
 
                     return res.status(200).json({
-                        type: 4, // Channel message with source
+                        type: 4,
                         data: {
                             content: `🌍 **Schumann Observatory Live Status**\n- **Planetary Kp Index:** ${kp}\n- **Fundamental Frequency:** 7.83 Hz\n- **Dashboard Link:** https://rocketry-team.vercel.app/schumann.html`
                         }
