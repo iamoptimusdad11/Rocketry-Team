@@ -128,20 +128,28 @@ async function runAiAnalysisAndAlerts(latestData) {
 }
 
 async function sendDiscordAlert(message) {
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) {
+    const webhookUrl = process.env.DISCORD_BOT_TOKEN;
+    if (!webhookUrl) {
         console.log("Discord token not found, skipping alert.");
         return;
     }
-    console.log("Alert sent to Discord:", message);
-}
 
-async function main() {
-    const data = await fetchAndCalculateSchumannData();
-    if (data) {
-        const latestRow = updateAndCleanLog(data);
-        await runAiAnalysisAndAlerts(latestRow);
+    try {
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message })
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to send Discord alert: ${response.statusText}`);
+        } else {
+            console.log("Alert successfully sent to Discord!");
+        }
+    } catch (error) {
+        console.error("Error sending Discord alert:", error);
     }
 }
+
 
 main();
