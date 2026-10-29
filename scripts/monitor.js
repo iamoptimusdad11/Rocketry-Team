@@ -37,7 +37,7 @@ async function fetchAndCalculateSchumannData() {
         console.warn('Warning: Could not fetch NOAA Solar Flux Feed:', err.message);
     }
 
-    // 3. Derive Schumann metrics using your exact formula
+    // 3. Derive Schumann metrics
     const f1 = 7.83 + (kpIndex > 4 ? (kpIndex - 4) * 0.08 : 0);
     const power = (25.0 + (solarFlux / 10) + kpIndex * 2.5).toFixed(1);
     const timestamp = new Date().toISOString();
@@ -87,7 +87,7 @@ function updateAndCleanLog(newData) {
         rows.push(newData);
     }
 
-    // Filter out rows older than 365 days (Rolling Year Window)
+    // Filter out rows older than 365 days
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - RETENTION_DAYS);
 
@@ -118,7 +118,7 @@ async function runAiAnalysisAndAlerts(latestData) {
 
     const power = parseFloat(latestData.Power_pT2Hz);
     
-    // Threshold check for anomaly alerts (change to true if testing webhooks)
+    // Threshold check for anomaly alerts
     if (power > 100) {
         console.log("Anomaly detected! Sending Discord alert...");
         await sendDiscordAlert(`⚠️ **Schumann Anomaly Detected!**\nPower: ${power} pT²/Hz at ${latestData.Timestamp}`);
