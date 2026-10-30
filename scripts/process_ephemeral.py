@@ -1,7 +1,9 @@
 import os
 import json
+import csv
 import random
 import time
+from datetime import datetime
 import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter
@@ -112,8 +114,10 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     Image.fromarray(ir_norm).save(os.path.join(OUT_DIR, "jwst.png"))
     Image.fromarray(diff_norm).save(os.path.join(OUT_DIR, "difference.png"))
 
+    current_timestamp_iso = datetime.utcnow().isoformat()
     telemetry = {
         "timestamp": int(time.time()),
+        "iso_timestamp": current_timestamp_iso,
         "target_name": target_name,
         "psf_matching_applied": True,
         "kernel_stddev": kernel_sigma,
@@ -142,7 +146,26 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     with open(archive_path, "w") as f:
         json.dump(history, f, indent=2)
 
-    print(f"[✓] Processed target {target_name}. Output updated in /data.")
+    # ---------------------------------------------------------
+    # Log Entry to subtracted_transient_difference.csv
+    # ---------------------------------------------------------
+    csv_path = os.path.join(OUT_DIR, "subtracted_transient_difference.csv")
+    file_exists = os.path.exists(csv_path)
+    
+    peak_metric = found_targets[0]["peak_flux_sigma"] if found_targets else 0.0
+
+    with open(csv_path, mode="a", newline="") as f:
+        writer = csv.writer(f)
+        if not file_exists:
+            writer.writerow(["Timestamp", "Target", "Peak_Flux_Sigma", "Anomalies_Found"])
+        writer.writerow([
+            current_timestamp_iso,
+            target_name,
+            peak_metric,
+            len(found_targets)
+        ])
+
+    print(f"[✓] Processed target {target_name}. Output and CSV updated in /data.")
 
 if __name__ == "__main__":
     selected_target = random.choice(TARGET_LIST)
