@@ -1,4 +1,4 @@
-Name: Ephemeral Difference Imaging
+name: Ephemeral Difference Imaging
 
 on:
   schedule:
@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true  # Prevents overlapping runs and race conditions
 
 permissions:
   contents: write
@@ -18,6 +18,8 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -31,11 +33,9 @@ jobs:
       - name: Run Ephemeral Subtraction Pipeline
         run: python scripts/process_ephemeral.py
 
-      - name: Commit and Push Web Outputs & CSV Log
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/*.png data/telemetry.json data/archive.json data/subtracted_transient_difference.csv
-          git diff --quiet && git diff --staged --quiet || git commit -m "10-min telemetry update & transient difference log [skip ci]"
-          git pull origin main --rebase
-          git push origin main
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Telemetry update & transient difference log [skip ci]"
+          branch: main
+          file_pattern: data/*.png data/telemetry.json data/archive.json data/subtracted_transient_difference.csv
