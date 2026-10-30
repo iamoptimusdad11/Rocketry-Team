@@ -2,8 +2,12 @@ name: Ephemeral Difference Imaging
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs automatically every midnight UTC
+    - cron: '0 * * * *'  # Runs automatically at the top of every hour
   workflow_dispatch:     # Retains manual "Run workflow" button
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -22,15 +26,16 @@ jobs:
 
       - name: Install Science Libraries
         run: |
-          pip install astroquery astropy reproject numpy pillow scipy
+          pip install astroquery astropy reproject numpy pillow scipy pandas
 
       - name: Run Ephemeral Subtraction Pipeline
         run: python scripts/process_ephemeral.py
 
-      - name: Commit Lightweight Web Outputs Only
+      - name: Commit and Push Web Outputs & CSV Log
         run: |
           git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add data/*.png data/telemetry.json data/archive.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update target telemetry & archive [skip ci]"
-          git push
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/*.png data/telemetry.json data/archive.json data/subtracted_transient_difference.csv
+          git diff --quiet && git diff --staged --quiet || git commit -m "Hourly telemetry update & transient difference log [skip ci]"
+          git pull origin main --rebase
+          git push origin main
