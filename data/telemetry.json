@@ -1,16 +1,16 @@
 {
-  "timestamp": 1793375911,
-  "iso_timestamp": "2026-10-30T15:58:31.831784",
-  "target_name": "M104",
+  "timestamp": 1793390088,
+  "iso_timestamp": "2026-10-30T19:54:48.871847",
+  "target_name": "M51",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 252,
-      "pixel_y": 149,
-      "peak_flux_sigma": 27.68
+      "pixel_x": 368,
+      "pixel_y": 43,
+      "peak_flux_sigma": 29.26
     }
   ],
   "hst_img": "data/hst_aligned.png",
