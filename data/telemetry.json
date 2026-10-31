@@ -1,16 +1,16 @@
 {
-  "timestamp": 1793414464,
-  "iso_timestamp": "2026-10-31T02:41:04.095899",
-  "target_name": "M104",
+  "timestamp": 1793437080,
+  "iso_timestamp": "2026-10-31T08:58:00.252292",
+  "target_name": "NGC 4038",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 115,
-      "pixel_y": 81,
-      "peak_flux_sigma": 12.14
+      "pixel_x": 79,
+      "pixel_y": 245,
+      "peak_flux_sigma": 19.36
     }
   ],
   "hst_img": "data/hst_aligned.png",
