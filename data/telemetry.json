@@ -1,16 +1,16 @@
 {
-  "timestamp": 1793455937,
-  "iso_timestamp": "2026-10-31T14:12:17.071348",
-  "target_name": "M82",
+  "timestamp": 1793459598,
+  "iso_timestamp": "2026-10-31T15:13:18.196594",
+  "target_name": "M31",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 136,
-      "pixel_y": 18,
-      "peak_flux_sigma": 19.45
+      "pixel_x": 387,
+      "pixel_y": 339,
+      "peak_flux_sigma": 16.66
     }
   ],
   "hst_img": "data/hst_aligned.png",
