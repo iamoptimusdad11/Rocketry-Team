@@ -1,7 +1,6 @@
 import os
 import json
 import csv
-import random
 import time
 from datetime import datetime
 import numpy as np
@@ -163,5 +162,8 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     print(f"[✓] Processed target {target_name} at {current_timestamp_iso}. GitHub CSV updated successfully.")
 
 if __name__ == "__main__":
-    selected_target = random.choice(TARGET_LIST)
+    # Rotate targets sequentially based on the current 10-minute workflow slot window
+    time_slot_index = int(time.time() // 600) % len(TARGET_LIST)
+    selected_target = TARGET_LIST[time_slot_index]
+    
     run_real_archive_pipeline(selected_target)
