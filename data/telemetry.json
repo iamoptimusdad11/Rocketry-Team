@@ -1,16 +1,16 @@
 {
-  "timestamp": 1793486518,
-  "iso_timestamp": "2026-10-31T22:41:58.937779",
-  "target_name": "NGC 1300",
+  "timestamp": 1793496692,
+  "iso_timestamp": "2026-11-01T01:31:32.923292",
+  "target_name": "M51",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 223,
-      "pixel_y": 294,
-      "peak_flux_sigma": 16.66
+      "pixel_x": 287,
+      "pixel_y": 168,
+      "peak_flux_sigma": 15.86
     }
   ],
   "hst_img": "data/hst_aligned.png",
