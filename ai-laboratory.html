@@ -103,10 +103,12 @@
 </script>
 
 <!-- Vercel Web Analytics -->
-<script type="module">
-  import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
-  inject();
+<script>
+  window.va = window.va || function () { 
+    (window.vaq = window.vaq || []).push(arguments); 
+  };
 </script>
+<script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
 
 <meta charset="UTF-8">
 
