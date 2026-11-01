@@ -1,6 +1,6 @@
 {
-  "timestamp": 1793561844,
-  "iso_timestamp": "2026-11-01T19:37:24.551797",
+  "timestamp": 1793574299,
+  "iso_timestamp": "2026-11-01T23:04:59.398888",
   "target_name": "M104",
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
@@ -8,9 +8,9 @@
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 324,
-      "pixel_y": 385,
-      "peak_flux_sigma": 20.38
+      "pixel_x": 115,
+      "pixel_y": 81,
+      "peak_flux_sigma": 12.14
     }
   ],
   "hst_img": "data/hst_aligned.png",
