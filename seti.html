@@ -559,6 +559,12 @@ async function connectAndAnalyze() {
         : error.message === 'Failed to fetch'
           ? 'Failed to fetch: URL/TLS/tunnel/CORS issue. Use the exact HTTPS API URL, keep the Colab runtime open, and rerun the final cell'
           : error.message;
+    document.getElementById('center-frequency').innerText = 'Unavailable';
+    document.getElementById('candidate-count').innerText = '0 Flagged';
+    document.getElementById('candidate-count').style.color = 'var(--accent-alert)';
+    document.querySelector('.log-table tbody').innerHTML =
+      '<tr><td colspan="4">No live analysis loaded - Colab connection failed</td></tr>';
+    drawIdleCanvas('Colab connection failed');
   }
 }
 
@@ -951,7 +957,21 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
     document.getElementById('stream-status').innerText =
       savedEndpointIsColab ? 'Colab connection unavailable' : 'Static analysis status unavailable';
     document.getElementById('backend-status').innerText =
-      savedEndpointIsColab ? (err.message || 'Colab connection unavailable') : 'Analysis has not run';
+      savedEndpointIsColab
+        ? (err.name === 'AbortError'
+            ? 'Colab analysis timed out'
+            : err.message === 'Failed to fetch'
+              ? 'Failed to fetch: POST/CORS/tunnel unavailable; use a newly generated Colab URL and restart the runtime'
+              : err.message || 'Colab connection unavailable')
+        : 'Analysis has not run';
+    document.getElementById('center-frequency').innerText =
+      savedEndpointIsColab ? 'Unavailable' : 'Loading...';
+    document.getElementById('candidate-count').innerText =
+      savedEndpointIsColab ? '0 Flagged' : 'Running...';
+    document.getElementById('candidate-count').style.color = 'var(--accent-alert)';
+    document.querySelector('.log-table tbody').innerHTML =
+      `<tr><td colspan="4">${savedEndpointIsColab ? 'No live analysis loaded - Colab POST failed' : 'No analysis has produced candidates yet'}</td></tr>`;
+    drawIdleCanvas(savedEndpointIsColab ? 'Colab POST failed - restart and reconnect' : 'Waiting for HDF5 analysis');
   }
 }
 
