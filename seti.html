@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='7' fill='%230b1624'/%3E%3Ccircle cx='8' cy='8' r='2' fill='%2333c6e0'/%3E%3C/svg%3E">
   <!-- ================================================================= -->
 <!-- AIâ€¢{} TRACKING SDK SNIPPET (Add to any website)                   -->
 <!-- ================================================================= -->
@@ -9,9 +10,8 @@
   // CONFIGURATION: Set this to your live Quantum Visualizer URL or Webhook endpoint
   const AI_CONFIG = {
     appId: "my-website-tracker",
-    debug: true,
-    // Replace with your hosted Visualizer URL if using postMessage / webhooks:
-    endpoint: "https://your-visualizer-domain.com/api/ingest" 
+    debug: false,
+    endpoint: ""
   };
 
   // Main Tracking Function
@@ -102,10 +102,7 @@
 </script>
 
 <!-- Vercel Web Analytics -->
-<script type="module">
-  import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/dist/index.js';
-  inject();
-</script>
+<script defer src="/_vercel/insights/script.js"></script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
