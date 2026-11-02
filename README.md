@@ -8,6 +8,7 @@ This site analyzes public Breakthrough Listen HDF5 observations without storing 
 2. Choose a Berkeley HDF5 file under 1 GB.
 3. Select Auto, CPU, or CUDA GPU analysis.
 4. Select **Download CSV** to export the candidate records shown by the current result.
+5. To use browser WebGPU on your device, select **Use Device GPU - 50% workload**.
 
 Candidates are statistical hypotheses, not proof of extraterrestrial intelligence. Confirm candidates independently with cadence-off observations and radio-frequency interference checks.
 
@@ -40,3 +41,9 @@ The connection token grants access only to your temporary Colab runtime. Do not 
 - GPU mode fails instead of silently falling back to CPU.
 - Results are statistical candidates and require verification.
 - Colab is not a production security boundary.
+
+## Device GPU mode
+
+**Use Device GPU - 50% workload** uses browser WebGPU. It limits WebGPU processing to half of an available spectrum window, uses the browser's lower-power GPU preference, and creates no network uploads or system-wide GPU configuration changes.
+
+WebGPU cannot guarantee an exact 50% hardware wattage or clock speed; browser policies and operating-system drivers control physical power use. This mode is primarily a bounded visualization/computation assist. Full HDF5 analysis should use CUDA in Colab, while the server remains the CPU fallback.

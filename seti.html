@@ -353,6 +353,7 @@
         <option value="auto">Auto backend</option>
         <option value="cpu">CPU analysis</option>
         <option value="gpu">CUDA GPU analysis</option>
+        <option value="device-gpu-50">Use Device GPU - 50% workload</option>
       </select>
       <button class="gpu-button" id="connect-gpu-button" type="button">Connect Your Own Colab GPU</button>
       <button class="gpu-button" id="download-colab-button" type="button">Download Colab Notebook + Instructions</button>
@@ -551,6 +552,77 @@ document.getElementById('download-csv-button').addEventListener('click', functio
 });
 loadH5Catalog();
 
+async function accelerateSpectrumOnDevice(values) {
+  if (!navigator.gpu) {
+    throw new Error('WebGPU is unavailable in this browser. Use Chrome or Edge with WebGPU enabled.');
+  }
+
+  const adapter = await navigator.gpu.requestAdapter({ powerPreference: 'low-power' });
+  if (!adapter) {
+    throw new Error('No compatible device GPU adapter was found.');
+  }
+
+  const device = await adapter.requestDevice({
+    label: 'SETI device GPU, 50 percent workload'
+  });
+
+  const workSize = Math.ceil(Math.min(values.length, 4096) * 0.50);
+  const input = new Float32Array(values).slice(0, workSize);
+  const inputBuffer = device.createBuffer({
+    size: input.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST
+  });
+  device.queue.writeBuffer(inputBuffer, 0, input);
+
+  const outputBuffer = device.createBuffer({
+    size: input.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC
+  });
+  const readBuffer = device.createBuffer({
+    size: input.byteLength,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
+  });
+
+  const module = device.createShaderModule({
+    code: `
+      @group(0) @binding(0) var<storage, read> input: array<f32>;
+      @group(0) @binding(1) var<storage, read_write> output: array<f32>;
+      @compute @workgroup_size(64)
+      fn main(@builtin(global_invocation_id) id: vec3<u32>) {
+        if (id.x < arrayLength(&input)) {
+          output[id.x] = clamp(input[id.x] * 1.08, 0.0, 255.0);
+        }
+      }
+    `
+  });
+  const pipeline = device.createComputePipeline({ compute: { module, entryPoint: 'main' } });
+  const bindGroup = device.createBindGroup({
+    layout: pipeline.getBindGroupLayout(0),
+    entries: [
+      { binding: 0, resource: { buffer: inputBuffer } },
+      { binding: 1, resource: { buffer: outputBuffer } }
+    ]
+  });
+  const encoder = device.createCommandEncoder();
+  const pass = encoder.beginComputePass();
+  pass.setPipeline(pipeline);
+  pass.setBindGroup(0, bindGroup);
+  pass.dispatchWorkgroups(Math.ceil(workSize / 64));
+  pass.end();
+  encoder.copyBufferToBuffer(outputBuffer, 0, readBuffer, 0, input.byteLength);
+  device.queue.submit([encoder.finish()]);
+
+  await readBuffer.mapAsync(GPUMapMode.READ);
+  const processed = Array.from(new Float32Array(readBuffer.getMappedRange().slice(0)));
+  readBuffer.unmap();
+  inputBuffer.destroy();
+  outputBuffer.destroy();
+  readBuffer.destroy();
+  device.destroy();
+
+  return values.map((value, index) => index < processed.length ? processed[index] : value);
+}
+
 async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
   try {
     let liveEndpoint = currentApiEndpoint;
@@ -606,6 +678,17 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
     }
     const data = await response.json();
     currentAnalysisData = data;
+
+    if (backend === 'device-gpu-50' && data.spectrum_row?.length) {
+      try {
+        data.spectrum_row = await accelerateSpectrumOnDevice(data.spectrum_row);
+        data.backend = 'Device GPU / WebGPU (50% workload)';
+        data.accelerated = true;
+      } catch (deviceError) {
+        data.backend = deviceError.message || 'Device GPU unavailable';
+        data.accelerated = false;
+      }
+    }
 
     if (!data.spectrum_row || data.spectrum_row.length === 0) return;
 
