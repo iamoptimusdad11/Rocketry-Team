@@ -1557,5 +1557,28 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1793588331,
+    "iso_timestamp": "2026-11-02T02:58:51.070212+00:00",
+    "target_name": "NGC 4038",
+    "data_source": "synthetic_fallback",
+    "optical_survey": "Synthetic",
+    "infrared_survey": "Synthetic",
+    "archive_error": "list index out of range",
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 252,
+        "pixel_y": 149,
+        "peak_flux_sigma": 27.92
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]
