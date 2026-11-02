@@ -427,6 +427,10 @@
           One-session Bearer token
           <input id="colab-bearer-token" type="password" placeholder="Bearer token printed by Colab" autocomplete="off">
         </label>
+        <label>
+          <input id="save-artifacts-drive" type="checkbox">
+          Save JSON/CSV analysis artifacts to Google Drive
+        </label>
       </div>
       <div class="seti-controls">
         <button class="gpu-button" id="connect-colab-now" type="button">Connect</button>
@@ -488,7 +492,7 @@ async function loadH5Catalog() {
     const catalog = await response.json();
     select.innerHTML = catalog.files.map((file, index) =>
       `<option value="${encodeURIComponent(file.url)}" data-size="${file.size_bytes}">${file.name} - ${Math.round(file.size_bytes / 1048576)} MB</option>`
-    ).join('');
+    ).join('') + '<option value="__custom__">Custom approved Berkeley HDF5 URL</option>';
   } catch (error) {
     select.innerHTML = '<option value="">Catalog unavailable</option>';
     console.error('HDF5 catalog error:', error);
@@ -605,6 +609,34 @@ document.getElementById('download-csv-button').addEventListener('click', functio
   URL.revokeObjectURL(url);
 });
 loadH5Catalog();
+
+document.getElementById('h5-file-select').addEventListener('change', function() {
+  if (this.value !== '__custom__') return;
+  const customUrl = prompt('Enter an HTTPS Berkeley HDF5 URL under 1 GB:');
+  if (!customUrl) {
+    this.selectedIndex = 0;
+    return;
+  }
+  try {
+    const parsed = new URL(customUrl.trim());
+    if (parsed.protocol !== 'https:' || parsed.hostname !== 'bldata.berkeley.edu') {
+      alert('Only HTTPS URLs on bldata.berkeley.edu are accepted.');
+      this.selectedIndex = 0;
+      return;
+    }
+    if (!parsed.pathname.toLowerCase().endsWith('.h5')) {
+      alert('The URL must point to an HDF5 (.h5) file.');
+      this.selectedIndex = 0;
+      return;
+    }
+    const customOption = this.options[this.selectedIndex];
+    customOption.value = encodeURIComponent(parsed.href);
+    customOption.textContent = 'Custom Berkeley HDF5 file';
+  } catch (error) {
+    alert('Enter a valid HTTPS Berkeley HDF5 URL.');
+    this.selectedIndex = 0;
+  }
+});
 
 async function accelerateSpectrumOnDevice(values) {
   if (!navigator.gpu) {
@@ -762,7 +794,8 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
           url: selectedUrl,
           start_bin: 0,
           num_bins: 256,
-          threshold: 6.5
+          threshold: 6.5,
+          save_to_drive: document.getElementById('save-artifacts-drive').checked
         })
       });
     } else if (selectedUrl) {

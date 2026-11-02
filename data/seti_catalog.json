@@ -49,6 +49,48 @@
       "center_frequency_mhz": 1475.09765625,
       "size_bytes": 238613673,
       "url": "https://bldata.berkeley.edu/pipeline/AGBT16B_999_21/holding/spliced_blc0001020304050607_guppi_57640_19220_HIP5364_0025.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP113357 - ON observation",
+      "target": "HIP113357",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 239947980,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_08/holding/spliced_blc0001020304050607_2bit_guppi_57388_82516_HIP113357_0010.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP113357 - OFF observation",
+      "target": "HIP113357 OFF",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 239843622,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_08/holding/spliced_blc0001020304050607_2bit_guppi_57388_82849_HIP113357_OFF_0011.gpuspec.0002.h5"
+    },
+    {
+      "name": "J2229+2643 observation",
+      "target": "J2229+2643",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 92694118,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_08/holding/spliced_blc0001020304050607_2bit_guppi_57388_J2229%2B2643_0016.gpuspec.0002.h5"
+    },
+    {
+      "name": "W75N observation",
+      "target": "W75N",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 42336256,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_08/holding/spliced_blc0001020304050607_2bit_guppi_57388_W75N_0004.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP27918 - ON observation",
+      "target": "HIP27918",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 201420800,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_103/holding/spliced_blc02030405_2bit_guppi_57470_01878_HIP27918_0002.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP27918 - OFF observation",
+      "target": "HIP27918 OFF",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 201420800,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_103/holding/spliced_blc02030405_2bit_guppi_57470_02205_HIP27918_OFF_0003.gpuspec.0002.h5"
     }
   ]
 }
