@@ -387,6 +387,92 @@
     .btn-primary:active {
       opacity: 0.8;
     }
+
+    .mission-strip, .contrast-controls, .intelligence-controls {
+      display: grid;
+      gap: 0.55rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .mission-strip {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (min-width: 600px) {
+      .mission-strip {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    .mission-chip {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 5px;
+      padding: 0.55rem;
+      background: rgba(255, 255, 255, 0.025);
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      text-align: left;
+      color: var(--text-muted);
+    }
+
+    .mission-chip strong {
+      color: var(--text-main);
+      display: block;
+      margin-bottom: 0.2rem;
+    }
+
+    .mission-chip.active {
+      border-color: var(--accent-cyan);
+      background: rgba(0, 240, 255, 0.08);
+    }
+
+    .control-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 42px;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .control-row input[type="range"] {
+      accent-color: var(--accent-cyan);
+      min-width: 0;
+    }
+
+    .control-row select, .control-row button {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      background: #0b0e14;
+      color: var(--text-main);
+      padding: 0.45rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .contrast-controls {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .contrast-controls .control-row {
+      grid-template-columns: 82px 1fr 38px;
+    }
+
+    .signal-meter {
+      height: 7px;
+      border-radius: 4px;
+      background: linear-gradient(90deg, #00f0ff, #ffb000, #ff0055);
+      overflow: hidden;
+    }
+
+    .signal-meter > span {
+      display: block;
+      height: 100%;
+      width: 0%;
+      background: rgba(255, 255, 255, 0.75);
+      transition: width 0.25s ease;
+    }
   </style>
 </head>
 <body>
@@ -420,6 +506,40 @@
           <button id="btn-diff" class="btn-toggle">DIFF ONLY</button>
         </div>
 
+        <div class="panel-title">NASA Mission Compare</div>
+        <div class="mission-strip" id="mission-strip">
+          <div class="mission-chip active"><strong>HST</strong><span>OPTICAL / UV</span></div>
+          <div class="mission-chip active"><strong>JWST</strong><span>NEAR / MID-IR</span></div>
+          <div class="mission-chip"><strong>GALEX</strong><span>ULTRAVIOLET</span></div>
+          <div class="mission-chip"><strong>WISE</strong><span>INFRARED</span></div>
+        </div>
+
+        <div class="contrast-controls">
+          <div class="control-row">
+            <label for="contrast-range">CONTRAST</label>
+            <input id="contrast-range" type="range" min="50" max="250" value="100">
+            <span id="contrast-value">100%</span>
+          </div>
+          <div class="control-row">
+            <label for="brightness-range">LIGHT</label>
+            <input id="brightness-range" type="range" min="50" max="250" value="100">
+            <span id="brightness-value">100%</span>
+          </div>
+        </div>
+
+        <div class="intelligence-controls">
+          <div class="control-row" style="grid-template-columns: 110px 1fr;">
+            <label for="light-filter">LIGHT MODE</label>
+            <select id="light-filter">
+              <option value="none">Natural light</option>
+              <option value="grayscale">Monochrome light</option>
+              <option value="invert">False color inverse</option>
+              <option value="cyan">Cyan energy map</option>
+              <option value="orange">Hot signature map</option>
+            </select>
+          </div>
+        </div>
+
         <div id="grid" class="image-grid">
           <div id="frame-a" class="frame-container">
             <div class="frame-tag" id="tag-a">HST // OPTICAL</div>
@@ -445,6 +565,26 @@
           </div>
         </div>
 
+        <div class="panel-title">Deep-Space Intelligence Search</div>
+        <div class="control-row">
+          <label for="detection-mode">MODE</label>
+          <select id="detection-mode">
+            <option value="transient">Transient candidate</option>
+            <option value="point-source">Unresolved point source</option>
+            <option value="pattern">Repeating pattern</option>
+            <option value="anomalous">Cross-wavelength anomaly</option>
+          </select>
+        </div>
+        <div class="control-row" style="grid-template-columns: 110px 1fr 42px;">
+          <label for="threshold-range">SIGMA FLOOR</label>
+          <input id="threshold-range" type="range" min="3" max="10" step="0.5" value="5">
+          <span id="threshold-value">5σ</span>
+        </div>
+        <div class="signal-meter" title="Candidate signal strength"><span id="signal-meter-fill"></span></div>
+        <div id="search-assessment" class="meta" style="font-family: var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
+          WAITING FOR PIPELINE CANDIDATE
+        </div>
+
         <button class="btn-primary" id="btn-execute">EXECUTE SUBTRACTION</button>
       </div>
     </div>
@@ -464,6 +604,15 @@
   const executeBtn = document.getElementById('btn-execute');
   const telemetryContainer = document.getElementById('telemetry-content');
   const reticle  = document.getElementById('reticle');
+  const contrastRange = document.getElementById('contrast-range');
+  const brightnessRange = document.getElementById('brightness-range');
+  const contrastValue = document.getElementById('contrast-value');
+  const brightnessValue = document.getElementById('brightness-value');
+  const lightFilter = document.getElementById('light-filter');
+  const thresholdRange = document.getElementById('threshold-range');
+  const thresholdValue = document.getElementById('threshold-value');
+  const signalMeterFill = document.getElementById('signal-meter-fill');
+  const searchAssessment = document.getElementById('search-assessment');
 
   let blinkInterval = null;
   let telemetryCache = null;
@@ -483,6 +632,7 @@
   window.addEventListener('DOMContentLoaded', () => {
     imgA.src = getCleanPath('data/hst_aligned.png');
     imgB.src = getCleanPath('data/jwst.png');
+    applyImageDisplayControls();
   });
 
   // Mode Toggles
@@ -547,6 +697,45 @@
     if (blinkInterval) clearInterval(blinkInterval);
   }
 
+  function applyImageDisplayControls() {
+    const contrast = contrastRange.value;
+    const brightness = brightnessRange.value;
+    let colorFilter = '';
+
+    switch (lightFilter.value) {
+      case 'grayscale':
+        colorFilter = ' grayscale(1)';
+        break;
+      case 'invert':
+        colorFilter = ' invert(1) hue-rotate(180deg)';
+        break;
+      case 'cyan':
+        colorFilter = ' sepia(1) hue-rotate(130deg) saturate(2.5)';
+        break;
+      case 'orange':
+        colorFilter = ' sepia(1) hue-rotate(-35deg) saturate(3)';
+        break;
+    }
+
+    const filterValue = `contrast(${contrast}%) brightness(${brightness}%)${colorFilter}`;
+    imgA.style.filter = filterValue;
+    imgB.style.filter = filterValue;
+    contrastValue.innerText = `${contrast}%`;
+    brightnessValue.innerText = `${brightness}%`;
+  }
+
+  contrastRange.addEventListener('input', applyImageDisplayControls);
+  brightnessRange.addEventListener('input', applyImageDisplayControls);
+  lightFilter.addEventListener('change', applyImageDisplayControls);
+
+  thresholdRange.addEventListener('input', () => {
+    thresholdValue.innerText = `${thresholdRange.value}σ`;
+  });
+
+  document.querySelectorAll('.mission-chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('active'));
+  });
+
   // Pipeline Execution & Data Fetch
   executeBtn.addEventListener('click', async () => {
     try {
@@ -564,6 +753,18 @@
       imgB.src = getCleanPath(telemetryCache.jwst_img);
       tagA.innerText = `${telemetryCache.optical_survey || 'OPTICAL'} // OPTICAL`;
       tagB.innerText = `${telemetryCache.infrared_survey || 'INFRARED'} // PSF-MATCHED IR`;
+      applyImageDisplayControls();
+
+      const peakSigma = Number(telemetryCache.targets?.[0]?.peak_flux_sigma || 0);
+      const userThreshold = Number(thresholdRange.value);
+      const signalScore = Math.min(100, Math.max(0, ((peakSigma / 30) * 100)));
+      signalMeterFill.style.width = `${signalScore}%`;
+      signalMeterFill.style.background = peakSigma >= userThreshold
+        ? 'rgba(255,255,255,0.85)'
+        : 'rgba(255,255,255,0.35)';
+      searchAssessment.innerHTML = peakSigma >= userThreshold
+        ? `CANDIDATE EXCEEDS ${userThreshold}σ — REVIEW INDEPENDENTLY`
+        : `NO CANDIDATE EXCEEDS USER ${userThreshold}σ FLOOR`;
 
       // 2. Position Target Overlay Reticle
       if (telemetryCache.anomalies_found > 0 && telemetryCache.targets && telemetryCache.targets.length > 0) {
