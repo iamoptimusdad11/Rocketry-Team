@@ -117,6 +117,8 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
 
         except Exception as inner_e:
 
+            archive_error = str(inner_e)
+            
             print(
                 f"[!] Multi-survey request failed: {inner_e}"
             )
