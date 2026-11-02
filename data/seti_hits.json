@@ -1,0 +1,11 @@
+{
+  "status": "error",
+  "error": "HDF5 dataset access requires an environment with compatible synchronous file reads; no candidate data was fabricated.",
+  "source": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_200/holding/spliced_blc0001020304050607_guppi_57532_09539_HIP56445_0027.gpuspec.0002.h5",
+  "max_download_bytes": 1073741824,
+  "accelerated": false,
+  "backend": "Not run",
+  "spectrum_row": [],
+  "candidates": [],
+  "iso_timestamp": "2026-11-01T22:32:33-06:00"
+}

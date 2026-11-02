@@ -261,6 +261,34 @@
       color: var(--accent-alert);
       font-weight: 600;
     }
+
+    .gpu-button {
+      margin-left: 0.75rem;
+      border: 1px solid var(--accent-cyan);
+      border-radius: 6px;
+      background: rgba(0, 229, 255, 0.08);
+      color: var(--accent-cyan);
+      padding: 0.55rem 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .seti-controls {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .seti-controls select {
+      max-width: 280px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: #111827;
+      color: var(--text-main);
+      padding: 0.55rem;
+      font-family: inherit;
+    }
   </style>
 </head>
 <body>
@@ -271,7 +299,17 @@
       <p>Automated Public Dataset Signal Processing Pipeline</p>
     </div>
     <div class="status-badge">
-      <span class="pulse"></span> Active Stream
+      <span class="pulse"></span> <span id="stream-status">Connecting live source</span>
+    </div>
+    <div class="seti-controls">
+      <select id="h5-file-select" title="Select a public Berkeley HDF5 file under 1 GB" aria-label="HDF5 file"></select>
+      <select id="compute-backend-select" title="Select the analysis backend">
+        <option value="auto">Auto backend</option>
+        <option value="cpu">CPU analysis</option>
+        <option value="gpu">CUDA GPU analysis</option>
+      </select>
+      <button class="gpu-button" id="connect-gpu-button" type="button">Connect / Analyze</button>
+      <a class="gpu-button" id="download-csv-button" href="./data/seti_candidates.csv" download>Download CSV</a>
     </div>
   </header>
 
@@ -288,19 +326,19 @@
       <div class="telemetry-grid">
         <div class="metric-box">
           <div class="metric-label">Center Freq</div>
-          <div class="metric-value">1420.405 MHz</div>
+          <div class="metric-value" id="center-frequency">Loading...</div>
         </div>
         <div class="metric-box">
           <div class="metric-label">Drift Window</div>
-          <div class="metric-value">±4.0 Hz/s</div>
+          <div class="metric-value" id="backend-status">CPU / Detecting</div>
         </div>
         <div class="metric-box">
           <div class="metric-label">SNR Threshold</div>
-          <div class="metric-value">6.5 σ</div>
+          <div class="metric-value" id="snr-threshold">6.5 σ</div>
         </div>
         <div class="metric-box">
           <div class="metric-label">Candidates</div>
-          <div class="metric-value" style="color: var(--accent-green);">1 Flagged</div>
+          <div class="metric-value" id="candidate-count" style="color: var(--accent-green);">Analyzing...</div>
         </div>
       </div>
 
@@ -316,16 +354,7 @@
         </thead>
         <tbody>
           <tr>
-            <td>18:22:04</td>
-            <td>+12.4 Hz</td>
-            <td>-0.32 Hz/s</td>
-            <td class="tag-anomaly">Narrowband</td>
-          </tr>
-          <tr>
-            <td>18:19:40</td>
-            <td>-104.1 Hz</td>
-            <td>0.00 Hz/s</td>
-            <td>RFI (Ground)</td>
+            <td colspan="4">No live analysis loaded</td>
           </tr>
         </tbody>
       </table>
@@ -338,23 +367,98 @@ const ctx = canvas.getContext('2d');
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
-// Default to Vercel serverless API; can be overridden by Colab URL
-let currentApiEndpoint = '/api/seti_hits';
+// Prefer an explicit GPU/live endpoint, then the Vercel API, then generated static JSON.
+let currentApiEndpoint = localStorage.getItem('seti_gpu_endpoint') || '/api/seti_hits';
+let currentAnalysisData = null;
 
-function connectToColabGpu() {
-  const url = prompt("Paste your live Colab Stream URL (e.g., https://xxxx.ngrok-free.app/api/gpu_hits):");
-  if (url) {
-    currentApiEndpoint = url;
-    alert("Connected to live Colab GPU engine!");
+async function loadH5Catalog() {
+  const select = document.getElementById('h5-file-select');
+  try {
+    const response = await fetch('./data/seti_catalog.json?t=' + Date.now(), { cache: 'no-store' });
+    const catalog = await response.json();
+    select.innerHTML = catalog.files.map((file, index) =>
+      `<option value="${encodeURIComponent(file.url)}" data-size="${file.size_bytes}">${file.name} - ${Math.round(file.size_bytes / 1048576)} MB</option>`
+    ).join('');
+  } catch (error) {
+    select.innerHTML = '<option value="">Catalog unavailable</option>';
+    console.error('HDF5 catalog error:', error);
   }
 }
 
-async function updateSetiDashboard() {
+function connectAndAnalyze() {
+  const selectedUrl = document.getElementById('h5-file-select').value;
+  const backend = document.getElementById('compute-backend-select').value;
+  if (!selectedUrl) {
+    alert('Select an HDF5 file first.');
+    return;
+  }
+
+  const endpoint = prompt(
+    "Enter the live GPU API URL, or leave blank to use this site's API",
+    currentApiEndpoint.startsWith('http') ? currentApiEndpoint : ''
+  );
+  if (endpoint !== null && endpoint.trim()) {
+    currentApiEndpoint = endpoint.trim();
+    localStorage.setItem('seti_gpu_endpoint', currentApiEndpoint);
+  } else {
+    currentApiEndpoint = '/api/seti_hits';
+  }
+  updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
+}
+
+document.getElementById('connect-gpu-button').addEventListener('click', connectAndAnalyze);
+document.getElementById('download-csv-button').addEventListener('click', function(event) {
+  if (!currentAnalysisData) return;
+  event.preventDefault();
+  const candidates = currentAnalysisData.candidates || [];
+  const fields = ['time', 'frequency_mhz', 'freq_shift', 'drift_rate', 'classification', 'snr', 'time_bin', 'status'];
+  const escapeCsv = value => `"${String(value ?? '').replaceAll('"', '""')}"`;
+  const csv = [
+    fields.join(','),
+    ...candidates.map(candidate => fields.map(field => escapeCsv(candidate[field])).join(','))
+  ].join('\n');
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'seti_gpu_analysis.csv';
+  link.click();
+  URL.revokeObjectURL(url);
+});
+loadH5Catalog();
+
+async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
   try {
-    const response = await fetch(currentApiEndpoint);
+    let liveEndpoint = currentApiEndpoint;
+    if (selectedUrl) {
+      const separator = liveEndpoint.includes('?') ? '&' : '?';
+      liveEndpoint += separator + new URLSearchParams({
+        url: selectedUrl,
+        backend,
+        start_bin: '0',
+        num_bins: '256',
+        threshold: '6.5',
+        t: Date.now()
+      }).toString();
+    } else {
+      liveEndpoint += (liveEndpoint.includes('?') ? '&' : '?') + 't=' + Date.now();
+    }
+    let response = await fetch(liveEndpoint, {
+      cache: 'no-store'
+    });
+    if (!response.ok && currentApiEndpoint !== './data/seti_hits.json') {
+      response = await fetch('./data/seti_hits.json?t=' + Date.now(), { cache: 'no-store' });
+    }
     const data = await response.json();
+    currentAnalysisData = data;
 
     if (!data.spectrum_row || data.spectrum_row.length === 0) return;
+
+    document.getElementById('stream-status').innerText = data.status === 'online' ? 'Live public dataset stream' : 'Static analysis available';
+    document.getElementById('center-frequency').innerText = `${Number(data.center_frequency_mhz || 1420.405).toFixed(4)} MHz`;
+    document.getElementById('snr-threshold').innerText = `${Number(data.snr_threshold || 6.5).toFixed(1)} σ`;
+    document.getElementById('backend-status').innerText = data.backend || (data.accelerated ? 'GPU/CUDA' : 'CPU');
+    document.getElementById('candidate-count').innerText = `${data.candidates?.length || 0} Flagged`;
+    document.getElementById('candidate-count').style.color = data.candidates?.length ? 'var(--accent-alert)' : 'var(--accent-green)';
 
     // Shift existing canvas down by 2px
     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height - 2);
@@ -366,7 +470,8 @@ async function updateSetiDashboard() {
 
     for (let x = 0; x < canvas.width; x++) {
       const channelIdx = Math.floor((x / canvas.width) * spectrum.length);
-      const intensity = Math.min(255, spectrum[channelIdx] * 2);
+      const rawIntensity = Number(spectrum[channelIdx] || 0);
+      const intensity = Math.min(255, rawIntensity > 255 ? rawIntensity : rawIntensity * 2);
 
       const idx = x * 4;
       row.data[idx] = 0;                  // Red
@@ -377,18 +482,25 @@ async function updateSetiDashboard() {
 
     ctx.putImageData(row, 0, 0);
 
-    // Update log table
-    if (data.candidates && data.candidates.length > 0) {
-      const tbody = document.querySelector('.log-table tbody');
-      const hit = data.candidates[0];
-      tbody.innerHTML = `
-        <tr>
-          <td>${hit.time}</td>
-          <td>${hit.freq_shift}</td>
-          <td>${hit.drift_rate}</td>
-          <td class="${hit.classification.includes('Narrowband') ? 'tag-anomaly' : ''}">${hit.classification}</td>
-        </tr>
-      `;
+    // Update log table from analyzed candidates only; these remain hypotheses until verification.
+    const tbody = document.querySelector('.log-table tbody');
+    const candidates = data.candidates || [];
+    if (candidates.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="4">No candidates above the configured threshold</td></tr>';
+    } else {
+      tbody.innerHTML = candidates.slice(0, 10).map(hit => {
+        const timestamp = hit.time && hit.time !== 'LIVE S3 STREAM'
+          ? new Date(hit.time).toLocaleTimeString()
+          : 'Public S3';
+        return `
+          <tr>
+            <td>${timestamp}</td>
+            <td>${hit.frequency_mhz ? hit.frequency_mhz.toFixed(6) + ' MHz' : hit.freq_shift}</td>
+            <td>${hit.drift_rate || 'Unavailable'}</td>
+            <td class="${hit.classification?.includes('Narrowband') ? 'tag-anomaly' : ''}" title="${hit.status || ''}">${hit.classification}${hit.snr ? ' · ' + hit.snr + 'σ' : ''}</td>
+          </tr>
+        `;
+      }).join('');
     }
 
   } catch (err) {

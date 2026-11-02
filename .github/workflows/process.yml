@@ -30,14 +30,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r requirements.txt
-          python -m pip install astroquery astropy reproject pandas
+          python -m pip install astroquery astropy reproject pandas torch
 
       - name: Run Ephemeral Subtraction Pipeline
         run: python scripts/process_ephemeral.py
+
+      - name: Run public SETI data analysis
+        run: python scripts/analyze_seti.py --output data/seti_hits.json
 
       - name: Commit and Push Changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "Telemetry update & transient difference log [skip ci]"
           branch: main
-          file_pattern: data/*.png data/telemetry.json data/archive.json data/subtracted_transient_difference.csv
+          file_pattern: data/*.png data/*.json data/subtracted_transient_difference.csv data/seti_candidates.csv

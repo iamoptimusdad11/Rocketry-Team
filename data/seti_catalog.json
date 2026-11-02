@@ -1,0 +1,54 @@
+{
+  "max_download_bytes": 1073741824,
+  "files": [
+    {
+      "name": "HIP56445 - 1475 MHz",
+      "target": "HIP56445",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 242855367,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16A_999_200/holding/spliced_blc0001020304050607_guppi_57532_09539_HIP56445_0027.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP56445 - 2300 MHz A",
+      "target": "HIP56445",
+      "center_frequency_mhz": 2300.390625,
+      "size_bytes": 263811372,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16B_999_60/holding/spliced_blc0001020304050607_guppi_57695_44351_HIP56445_0008.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP56445 - 2300 MHz B",
+      "target": "HIP56445",
+      "center_frequency_mhz": 2300.390625,
+      "size_bytes": 270963755,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT17A_999_77/holding/spliced_blc0001020304050607_guppi_57908_76721_HIP56445_0026.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP56445 - 2300 MHz C",
+      "target": "HIP56445",
+      "center_frequency_mhz": 2300.390625,
+      "size_bytes": 269901196,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT17A_999_77/holding/spliced_blc0001020304050607_guppi_57908_77398_HIP56445_0028.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP5364 - 1475 MHz A",
+      "target": "HIP5364",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 238777398,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16B_999_21/holding/spliced_blc0001020304050607_guppi_57640_17872_HIP5364_0021.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP5364 - 1475 MHz B",
+      "target": "HIP5364",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 238645249,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16B_999_21/holding/spliced_blc0001020304050607_guppi_57640_18546_HIP5364_0023.gpuspec.0002.h5"
+    },
+    {
+      "name": "HIP5364 - 1475 MHz C",
+      "target": "HIP5364",
+      "center_frequency_mhz": 1475.09765625,
+      "size_bytes": 238613673,
+      "url": "https://bldata.berkeley.edu/pipeline/AGBT16B_999_21/holding/spliced_blc0001020304050607_guppi_57640_19220_HIP5364_0025.gpuspec.0002.h5"
+    }
+  ]
+}

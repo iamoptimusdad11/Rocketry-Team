@@ -1,46 +1,30 @@
 from http.server import BaseHTTPRequestHandler
 import json
-import numpy as np
-import h5py
-import fsspec
+import os
+import sys
 
-S3_VOYAGER_URL = "https://breakthrough.s3.amazonaws.com/voyager/Voyager1.single_coarse.fine_res.h5"
+ROOT = os.path.dirname(os.path.dirname(__file__))
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+
+from scripts.analyze_seti import analyze
 
 class handler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
-            # Stream directly from S3 using fsspec HTTP Range Request
-            with fsspec.open(S3_VOYAGER_URL, 'rb') as f:
-                with h5py.File(f, 'r') as h5_file:
-                    data_ds = h5_file['data']
-                    time_steps = data_ds.shape[0]
-                    
-                    # Take a light 256-channel frequency slice for fast Vercel execution
-                    matrix = np.array(data_ds[0:time_steps, 0, 1000:1256])
-                    fch1 = float(h5_file['data'].attrs.get('fch1', 1420.405))
-                    foff = float(h5_file['data'].attrs.get('foff', -2.835e-6))
-
-            spectrum_row = matrix[-1].tolist() if len(matrix) > 0 else []
-
-            # SNR signal quality check
-            mean_val = float(np.mean(matrix))
-            std_val = float(np.std(matrix))
-            snr_peak = float((np.max(matrix) - mean_val) / (std_val + 1e-6))
-
-            response_data = {
-                "status": "online",
-                "center_frequency_mhz": round(fch1, 4),
-                "snr_peak": round(snr_peak, 2),
-                "spectrum_row": spectrum_row,
-                "candidates": [
-                    {
-                        "time": "LIVE S3 STREAM",
-                        "freq_shift": f"{round(foff * 1e6, 2)} Hz/ch",
-                        "drift_rate": "-0.32 Hz/s",
-                        "classification": "Narrowband" if snr_peak > 6.0 else "Background"
-                    }
-                ]
-            }
+            from urllib.parse import parse_qs, urlparse
+            query = parse_qs(urlparse(self.path).query)
+            url = query.get("url", ["https://bldata.berkeley.edu/pipeline/AGBT16A_999_200/holding/spliced_blc0001020304050607_guppi_57532_09539_HIP56445_0027.gpuspec.0002.h5"])[0]
+            backend = query.get("backend", ["auto"])[0]
+            if backend not in ("auto", "cpu", "gpu"):
+                raise ValueError("Invalid backend")
+            response_data = analyze(
+                url=url,
+                start_bin=int(query.get("start_bin", ["0"])[0]),
+                num_bins=int(query.get("num_bins", ["256"])[0]),
+                snr_threshold=float(query.get("threshold", ["6.5"])[0]),
+                backend=backend,
+            )
 
             self.send_response(200)
             self.send_header('Content-Type', 'application/json')
