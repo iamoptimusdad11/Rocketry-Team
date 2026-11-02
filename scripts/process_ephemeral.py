@@ -115,16 +115,16 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
 
             print("[✓] SkyView archive retrieval successful")
 
-        except Exception as inner_e:
+       except Exception as inner_e:
 
-            archive_error = str(inner_e)
-            
-            print(
-                f"[!] Multi-survey request failed: {inner_e}"
-            )
+    archive_error = f"DSS2 Red + WISE 3.4 failed: {inner_e}"
 
-            print("[*] Attempting DSS fallback retrieval...")
+    print(
+        f"[!] Multi-survey request failed: {inner_e}"
+    )
 
+    print("[*] Attempting DSS fallback retrieval...")
+    
             images = SkyView.get_images(
                 position=coord,
                 survey=["DSS"],
