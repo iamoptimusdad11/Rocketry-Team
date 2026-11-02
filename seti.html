@@ -582,6 +582,10 @@ document.getElementById('run-analysis-button').addEventListener('click', functio
     colabDialog.showModal();
     return;
   }
+  document.getElementById('stream-status').innerText = 'Analyzing HDF5 file';
+  document.getElementById('backend-status').innerText = 'Contacting Colab GPU';
+  document.getElementById('candidate-count').innerText = 'Running...';
+  drawIdleCanvas('Analyzing HDF5 file...');
   updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
 });
 document.getElementById('connect-colab-now').addEventListener('click', function() {
@@ -915,9 +919,11 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
   }
 }
 
-// Poll API every 2 seconds
-setInterval(updateSetiDashboard, 2000);
-updateSetiDashboard();
+// Static status loads once. A live Colab analysis is triggered by the Run button
+// and must not be overwritten by background polling.
+if (!currentApiEndpoint.includes('/api/gpu_hits')) {
+  updateSetiDashboard();
+}
 
   </script>
 </body>
