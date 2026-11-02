@@ -86,6 +86,7 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
 
     try:
         from astroquery.skyview import SkyView
+        print(SkyView.list_surveys())
         from astropy.coordinates import SkyCoord
         import astropy.units as u
 
