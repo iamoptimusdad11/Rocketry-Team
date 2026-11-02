@@ -308,7 +308,7 @@
         <option value="cpu">CPU analysis</option>
         <option value="gpu">CUDA GPU analysis</option>
       </select>
-      <button class="gpu-button" id="connect-gpu-button" type="button">Connect / Analyze</button>
+      <button class="gpu-button" id="connect-gpu-button" type="button">Connect Your Own Colab GPU</button>
       <a class="gpu-button" id="download-csv-button" href="./data/seti_candidates.csv" download>Download CSV</a>
     </div>
   </header>
@@ -370,6 +370,7 @@ canvas.height = canvas.offsetHeight;
 // Prefer an explicit GPU/live endpoint, then the Vercel API, then generated static JSON.
 let currentApiEndpoint = localStorage.getItem('seti_gpu_endpoint') || '/api/seti_hits';
 let currentAnalysisData = null;
+let colabBearerToken = sessionStorage.getItem('seti_colab_token') || '';
 
 async function loadH5Catalog() {
   const select = document.getElementById('h5-file-select');
@@ -394,12 +395,18 @@ function connectAndAnalyze() {
   }
 
   const endpoint = prompt(
-    "Enter the live GPU API URL, or leave blank to use this site's API",
+    "Enter your Colab GPU API URL (HTTPS) or leave blank to use the site API",
     currentApiEndpoint.startsWith('http') ? currentApiEndpoint : ''
   );
   if (endpoint !== null && endpoint.trim()) {
-    currentApiEndpoint = endpoint.trim();
+    const normalized = endpoint.trim().replace(/\/+$/, '');
+    currentApiEndpoint = normalized + (normalized.endsWith('/api/gpu_hits') ? '' : '/api/gpu_hits');
     localStorage.setItem('seti_gpu_endpoint', currentApiEndpoint);
+    const token = prompt('Enter the one-session Bearer token printed by your Colab notebook');
+    if (token !== null && token.trim()) {
+      colabBearerToken = token.trim();
+      sessionStorage.setItem('seti_colab_token', colabBearerToken);
+    }
   } else {
     currentApiEndpoint = '/api/seti_hits';
   }
@@ -429,7 +436,31 @@ loadH5Catalog();
 async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
   try {
     let liveEndpoint = currentApiEndpoint;
-    if (selectedUrl) {
+    let response;
+    const isColabEndpoint = liveEndpoint.includes('/api/gpu_hits');
+
+    if (selectedUrl && isColabEndpoint) {
+      if (!liveEndpoint.startsWith('https://')) {
+        throw new Error('Colab API must use an HTTPS URL');
+      }
+      if (!colabBearerToken) {
+        throw new Error('Connect Your Own Colab GPU requires the one-session Bearer token');
+      }
+      response = await fetch(liveEndpoint, {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          'Authorization': `Bearer ${colabBearerToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          url: selectedUrl,
+          start_bin: 0,
+          num_bins: 256,
+          threshold: 6.5
+        })
+      });
+    } else if (selectedUrl) {
       const separator = liveEndpoint.includes('?') ? '&' : '?';
       liveEndpoint += separator + new URLSearchParams({
         url: selectedUrl,
@@ -439,14 +470,21 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
         threshold: '6.5',
         t: Date.now()
       }).toString();
+      response = await fetch(liveEndpoint, {
+        cache: 'no-store'
+      });
     } else {
       liveEndpoint += (liveEndpoint.includes('?') ? '&' : '?') + 't=' + Date.now();
+      response = await fetch(liveEndpoint, {
+        cache: 'no-store'
+      });
     }
-    let response = await fetch(liveEndpoint, {
-      cache: 'no-store'
-    });
-    if (!response.ok && currentApiEndpoint !== './data/seti_hits.json') {
+    if (!response.ok && !isColabEndpoint && currentApiEndpoint !== './data/seti_hits.json') {
       response = await fetch('./data/seti_hits.json?t=' + Date.now(), { cache: 'no-store' });
+    }
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || `Colab API returned HTTP ${response.status}`);
     }
     const data = await response.json();
     currentAnalysisData = data;
@@ -505,6 +543,8 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
 
   } catch (err) {
     console.error("Stream connection error:", err);
+    document.getElementById('stream-status').innerText = 'Connection unavailable';
+    document.getElementById('backend-status').innerText = err.message || 'Connection unavailable';
   }
 }
 
