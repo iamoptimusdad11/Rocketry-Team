@@ -106,7 +106,7 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
             print("[*] Requesting WISE 3.4 imagery...")
             ir_images = SkyView.get_images(
                 position=coord,
-                survey=["WISE 3.4"],
+                survey=["2MASS-K"],
                 radius=radius_arcmin * u.arcmin,
                 pixels=400
             )
