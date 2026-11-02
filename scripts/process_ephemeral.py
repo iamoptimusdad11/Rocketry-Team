@@ -96,7 +96,7 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
 
         coord = SkyCoord.from_name(target_name)
 
-        try:
+               try:
             print("[*] Requesting DSS2 Red imagery...")
 
             optical_images = SkyView.get_images(
@@ -106,6 +106,8 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
                 pixels=400
             )
 
+            print("[✓] DSS2 Red download successful")
+
             print("[*] Requesting WISE 3.4 imagery...")
 
             ir_images = SkyView.get_images(
@@ -114,6 +116,8 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
                 radius=radius_arcmin * u.arcmin,
                 pixels=400
             )
+
+            print("[✓] WISE 3.4 download successful")
 
             optical_raw = optical_images[0][0].data
             ir_raw = ir_images[0][0].data
@@ -158,7 +162,6 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
             infrared_survey = "Synthetic IR"
 
             print("[✓] DSS fallback retrieval successful")
-
     except Exception as e:
 
         archive_error = str(e)
