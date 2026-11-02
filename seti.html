@@ -355,6 +355,10 @@
         <option value="gpu">CUDA GPU analysis</option>
         <option value="device-gpu-50">Use Device GPU - 50% workload</option>
       </select>
+      <select id="display-mode-select" title="Select the analysis display">
+        <option value="waterfall">Waterfall display</option>
+        <option value="spectrum">Power vs frequency display</option>
+      </select>
       <button class="gpu-button" id="connect-gpu-button" type="button">Connect Your Own Colab GPU</button>
       <button class="gpu-button" id="download-colab-button" type="button">Download Colab Notebook + Instructions</button>
       <a class="gpu-button" id="download-csv-button" href="./data/seti_candidates.csv" download>Download CSV</a>
@@ -364,7 +368,7 @@
   <main class="dashboard-grid">
     <!-- Main Spectrogram Panel -->
     <section class="card">
-      <h2>Real-Time Spectrogram (Waterfall Display)</h2>
+      <h2 id="display-title">Real-Time Spectrogram (Waterfall Display)</h2>
       <canvas id="waterfallCanvas"></canvas>
     </section>
 
@@ -624,6 +628,63 @@ async function accelerateSpectrumOnDevice(values) {
   return values.map((value, index) => index < processed.length ? processed[index] : value);
 }
 
+let currentDisplayMode = 'waterfall';
+
+function drawSpectrumGraph(spectrum) {
+  const width = canvas.width;
+  const height = canvas.height;
+  ctx.fillStyle = '#0b1220';
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = '#263349';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= 10; x++) {
+    const gridX = Math.round((x / 10) * width);
+    ctx.beginPath();
+    ctx.moveTo(gridX, 0);
+    ctx.lineTo(gridX, height);
+    ctx.stroke();
+  }
+  for (let y = 0; y <= 6; y++) {
+    const gridY = Math.round((y / 6) * height);
+    ctx.beginPath();
+    ctx.moveTo(0, gridY);
+    ctx.lineTo(width, gridY);
+    ctx.stroke();
+  }
+
+  const values = spectrum.map(value => Number(value || 0));
+  const maximum = Math.max(...values, 1);
+  ctx.strokeStyle = '#33c6e0';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  values.forEach((value, index) => {
+    const x = values.length === 1 ? 0 : (index / (values.length - 1)) * width;
+    const y = height - Math.min(1, value / maximum) * (height - 12) - 4;
+    if (index === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.stroke();
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px system-ui';
+  ctx.fillText('Frequency bins (low to high)', 12, height - 10);
+  ctx.fillText('Relative power', 12, 16);
+}
+
+document.getElementById('display-mode-select').addEventListener('change', function() {
+  currentDisplayMode = this.value;
+  document.getElementById('display-title').innerText =
+    currentDisplayMode === 'spectrum'
+      ? 'SETI Power Spectrum (Power vs Frequency)'
+      : 'Real-Time Spectrogram (Waterfall Display)';
+  if (currentAnalysisData?.spectrum_row?.length) {
+    if (currentDisplayMode === 'spectrum') {
+      drawSpectrumGraph(currentAnalysisData.spectrum_row);
+    }
+  }
+});
+
 async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
   try {
     let liveEndpoint = currentApiEndpoint;
@@ -714,27 +775,26 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
     document.getElementById('candidate-count').innerText = `${data.candidates?.length || 0} Flagged`;
     document.getElementById('candidate-count').style.color = data.candidates?.length ? 'var(--accent-alert)' : 'var(--accent-green)';
 
-    // Shift existing canvas down by 2px
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height - 2);
-    ctx.putImageData(imgData, 0, 2);
-
-    // Render new spectrum line at the top
-    const row = ctx.createImageData(canvas.width, 2);
     const spectrum = data.spectrum_row;
+    if (currentDisplayMode === 'spectrum') {
+      drawSpectrumGraph(spectrum);
+    } else {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height - 2);
+      ctx.putImageData(imgData, 0, 2);
 
-    for (let x = 0; x < canvas.width; x++) {
-      const channelIdx = Math.floor((x / canvas.width) * spectrum.length);
-      const rawIntensity = Number(spectrum[channelIdx] || 0);
-      const intensity = Math.min(255, rawIntensity > 255 ? rawIntensity : rawIntensity * 2);
-
-      const idx = x * 4;
-      row.data[idx] = 0;                  // Red
-      row.data[idx + 1] = intensity;      // Green
-      row.data[idx + 2] = intensity * 1.2;// Blue
-      row.data[idx + 3] = 255;            // Alpha
+      const row = ctx.createImageData(canvas.width, 2);
+      for (let x = 0; x < canvas.width; x++) {
+        const channelIdx = Math.floor((x / canvas.width) * spectrum.length);
+        const rawIntensity = Number(spectrum[channelIdx] || 0);
+        const intensity = Math.min(255, rawIntensity > 255 ? rawIntensity : rawIntensity * 2);
+        const idx = x * 4;
+        row.data[idx] = 0;
+        row.data[idx + 1] = intensity;
+        row.data[idx + 2] = intensity * 1.2;
+        row.data[idx + 3] = 255;
+      }
+      ctx.putImageData(row, 0, 0);
     }
-
-    ctx.putImageData(row, 0, 0);
 
     // Update log table from analyzed candidates only; these remain hypotheses until verification.
     const tbody = document.querySelector('.log-table tbody');
