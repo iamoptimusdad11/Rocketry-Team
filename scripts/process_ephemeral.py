@@ -2,7 +2,7 @@ import os
 import json
 import csv
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 from PIL import Image
@@ -41,9 +41,7 @@ def generate_fallback_images():
     """
     Generates synthetic optical and IR images if archive retrieval fails.
     """
-
     shape = (400, 400)
-
     y, x = np.ogrid[:shape[0], :shape[1]]
 
     center_y = 200
@@ -76,7 +74,6 @@ def generate_fallback_images():
 
 
 def run_real_archive_pipeline(target_name, radius_arcmin=10):
-
     print(f"[*] Starting processing for {target_name}")
 
     optical_raw = None
@@ -93,30 +90,25 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
         import astropy.units as u
 
         print("[*] Resolving target coordinates...")
-
         coord = SkyCoord.from_name(target_name)
 
         try:
             print("[*] Requesting DSS2 Red imagery...")
-
             optical_images = SkyView.get_images(
                 position=coord,
                 survey=["DSS2 Red"],
                 radius=radius_arcmin * u.arcmin,
                 pixels=400
             )
-
             print("[✓] DSS2 Red download successful")
 
             print("[*] Requesting WISE 3.4 imagery...")
-
             ir_images = SkyView.get_images(
                 position=coord,
                 survey=["WISE 3.4"],
                 radius=radius_arcmin * u.arcmin,
                 pixels=400
             )
-
             print("[✓] WISE 3.4 download successful")
 
             optical_raw = optical_images[0][0].data
@@ -125,21 +117,13 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
             data_source = "skyview_archive"
             optical_survey = "DSS2 Red"
             infrared_survey = "WISE 3.4"
-
             archive_error = None
 
             print("[✓] SkyView archive retrieval successful")
 
         except Exception as inner_e:
-
-            archive_error = (
-                f"DSS2 Red or WISE 3.4 failed: {inner_e}"
-            )
-
-            print(
-                f"[!] Archive survey failure: {inner_e}"
-            )
-
+            archive_error = f"DSS2 Red or WISE 3.4 failed: {inner_e}"
+            print(f"[!] Archive survey failure: {inner_e}")
             print("[*] Attempting DSS fallback retrieval...")
 
             images = SkyView.get_images(
@@ -150,11 +134,8 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
             )
 
             optical_raw = images[0][0].data
-
             ir_raw = optical_raw + np.random.normal(
-                0,
-                20,
-                optical_raw.shape
+                0, 20, optical_raw.shape
             )
 
             data_source = "skyview_single_survey"
@@ -162,14 +143,10 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
             infrared_survey = "Synthetic IR"
 
             print("[✓] DSS fallback retrieval successful")
+
     except Exception as e:
-
         archive_error = str(e)
-
-        print(
-            f"[!] Archive retrieval failed completely: {e}"
-        )
-
+        print(f"[!] Archive retrieval failed completely: {e}")
         print("[!] Using synthetic fallback data")
 
         optical_raw, ir_raw = generate_fallback_images()
@@ -181,16 +158,13 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     # --------------------------------------------------
     # Normalize Images
     # --------------------------------------------------
-
     optical_norm = normalize_to_8bit(optical_raw)
     ir_norm = normalize_to_8bit(ir_raw)
 
     # --------------------------------------------------
     # PSF Matching
     # --------------------------------------------------
-
     kernel_sigma = 1.2
-
     optical_psf_matched = gaussian_filter(
         optical_norm.astype(float),
         sigma=kernel_sigma
@@ -199,34 +173,26 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     # --------------------------------------------------
     # Difference Image
     # --------------------------------------------------
-
     diff_array = ir_norm.astype(float) - optical_psf_matched
-
     diff_clipped = np.clip(diff_array, 0, 255)
-
     diff_norm = normalize_to_8bit(diff_clipped)
 
     # --------------------------------------------------
     # Detection Logic
     # --------------------------------------------------
-
     diff_clean = np.nan_to_num(diff_array)
-
     median = np.median(diff_clean)
-
     std_dev = np.std(diff_clean)
 
     if std_dev == 0:
         std_dev = 1.0
 
     threshold = median + (5.0 * std_dev)
-
     anomalies = np.argwhere(diff_clean > threshold)
 
     found_targets = []
 
     if len(anomalies) > 0:
-
         peak_y, peak_x = anomalies[
             np.argmax(
                 diff_clean[
@@ -237,7 +203,6 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
         ]
 
         peak_val = diff_clean[peak_y, peak_x]
-
         sigma_peak = round(
             float((peak_val - median) / std_dev),
             2
@@ -254,7 +219,6 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     # --------------------------------------------------
     # Output Images
     # --------------------------------------------------
-
     hst_path = os.path.join(OUT_DIR, "hst_aligned.png")
     jwst_path = os.path.join(OUT_DIR, "jwst.png")
     diff_path = os.path.join(OUT_DIR, "difference.png")
@@ -266,26 +230,20 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     # --------------------------------------------------
     # Telemetry
     # --------------------------------------------------
-
-    current_timestamp_iso = datetime.utcnow().isoformat()
+    current_timestamp_iso = datetime.now(timezone.utc).isoformat()
 
     telemetry = {
         "timestamp": int(time.time()),
         "iso_timestamp": current_timestamp_iso,
-
         "target_name": target_name,
-
         "data_source": data_source,
         "optical_survey": optical_survey,
         "infrared_survey": infrared_survey,
         "archive_error": archive_error,
-
         "psf_matching_applied": True,
         "kernel_stddev": kernel_sigma,
         "sigma_threshold": 5.0,
-
         "anomalies_found": len(found_targets),
-
         "targets": (
             found_targets
             if found_targets
@@ -297,29 +255,19 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
                 }
             ]
         ),
-
         "hst_img": "data/hst_aligned.png",
         "jwst_img": "data/jwst.png",
         "diff_img": "data/difference.png"
     }
 
-    telemetry_path = os.path.join(
-        OUT_DIR,
-        "telemetry.json"
-    )
-
+    telemetry_path = os.path.join(OUT_DIR, "telemetry.json")
     with open(telemetry_path, "w") as f:
         json.dump(telemetry, f, indent=2)
 
     # --------------------------------------------------
     # Archive History
     # --------------------------------------------------
-
-    archive_path = os.path.join(
-        OUT_DIR,
-        "archive.json"
-    )
-
+    archive_path = os.path.join(OUT_DIR, "archive.json")
     history = []
 
     if os.path.exists(archive_path):
@@ -337,7 +285,6 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     # --------------------------------------------------
     # CSV Logging
     # --------------------------------------------------
-
     csv_path = os.path.join(
         OUT_DIR,
         "subtracted_transient_difference.csv"
@@ -352,7 +299,6 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
     )
 
     with open(csv_path, "a", newline="") as f:
-
         writer = csv.writer(f)
 
         if not file_exists:
@@ -388,12 +334,10 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
 
 
 if __name__ == "__main__":
-
     time_slot_index = (
         int(time.time() // 600)
         % len(TARGET_LIST)
     )
 
     selected_target = TARGET_LIST[time_slot_index]
-
     run_real_archive_pipeline(selected_target)
