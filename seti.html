@@ -421,7 +421,7 @@
       <div class="colab-fields">
         <label>
           Colab API URL
-          <input id="colab-api-url" type="url" placeholder="https://example.trycloudflare.com/api/gpu_hits" autocomplete="off">
+          <input id="colab-api-url" type="url" placeholder="https://example.trycloudflare.com" autocomplete="off">
         </label>
         <label>
           One-session Bearer token
@@ -499,7 +499,7 @@ async function loadH5Catalog() {
   }
 }
 
-function connectAndAnalyze() {
+async function connectAndAnalyze() {
   const selectedUrl = document.getElementById('h5-file-select').value;
   const backend = document.getElementById('compute-backend-select').value;
   if (!selectedUrl) {
@@ -523,7 +523,34 @@ function connectAndAnalyze() {
   colabBearerToken = tokenInput.value.trim();
   localStorage.setItem('seti_gpu_endpoint', currentApiEndpoint);
   sessionStorage.setItem('seti_colab_token', colabBearerToken);
-  updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
+  document.getElementById('stream-status').innerText = 'Checking Colab connection';
+  document.getElementById('backend-status').innerText = 'Testing HTTPS endpoint';
+
+  try {
+    const healthUrl = normalized.replace(/\/api\/gpu_hits\/?$/, '') + '/api/health';
+    const healthResponse = await fetch(healthUrl, {
+      method: 'GET',
+      cache: 'no-store',
+      headers: { 'Authorization': `Bearer ${colabBearerToken}` }
+    });
+    if (!healthResponse.ok) {
+      const detail = await healthResponse.text();
+      throw new Error(`Colab health check returned HTTP ${healthResponse.status}${detail ? ': ' + detail : ''}`);
+    }
+    const health = await healthResponse.json();
+    if (!health.gpu) {
+      throw new Error('Colab is online, but CUDA GPU is unavailable. Select a T4 GPU runtime and rerun the notebook.');
+    }
+    document.getElementById('stream-status').innerText = 'Colab GPU connected';
+    document.getElementById('backend-status').innerText = 'CUDA/PyTorch ready';
+    await updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
+  } catch (error) {
+    document.getElementById('stream-status').innerText = 'Colab connection unavailable';
+    document.getElementById('backend-status').innerText =
+      error.message === 'Failed to fetch'
+        ? 'Failed to fetch: verify the API URL, runtime, and tunnel; keep Colab open'
+        : error.message;
+  }
 }
 
 function downloadColabSetup() {
