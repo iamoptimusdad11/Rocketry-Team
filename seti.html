@@ -273,6 +273,28 @@
       font-family: inherit;
     }
 
+    dialog {
+      width: min(680px, calc(100% - 2rem));
+      border: 1px solid var(--accent-cyan);
+      border-radius: 12px;
+      background: #101827;
+      color: var(--text-main);
+      padding: 0;
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, 0.75);
+    }
+
+    .colab-dialog-content {
+      padding: 1.5rem;
+    }
+
+    .colab-dialog-content ol {
+      padding-left: 1.25rem;
+      line-height: 1.55;
+    }
+
     .seti-controls {
       display: flex;
       align-items: center;
@@ -361,6 +383,24 @@
     </section>
   </main>
 
+  <dialog id="colab-gpu-dialog">
+    <div class="colab-dialog-content">
+      <h2>Use Your Own Colab GPU</h2>
+      <ol>
+        <li>Select <strong>Runtime &gt; Change runtime type &gt; T4 GPU</strong> in Google Colab.</li>
+        <li>Upload <strong>SETI_GPU_Backend.ipynb</strong>, then select <strong>Runtime &gt; Run all</strong>.</li>
+        <li>Copy the API URL and one-session Bearer token printed by the final cell.</li>
+        <li>Choose an HDF5 file and GPU mode, then select <strong>Connect API</strong>.</li>
+      </ol>
+      <p>Keep the Colab runtime open while analyzing. Never share or commit the Bearer token.</p>
+      <div class="seti-controls">
+        <button class="gpu-button" id="download-colab-files" type="button">Download Notebook + Instructions</button>
+        <button class="gpu-button" id="connect-colab-now" type="button">Connect API</button>
+        <button class="gpu-button" id="close-colab-dialog" type="button">Close</button>
+      </div>
+    </div>
+  </dialog>
+
   <script>
    const canvas = document.getElementById('waterfallCanvas');
 const ctx = canvas.getContext('2d');
@@ -413,7 +453,55 @@ function connectAndAnalyze() {
   updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
 }
 
-document.getElementById('connect-gpu-button').addEventListener('click', connectAndAnalyze);
+function downloadColabSetup() {
+  const notebook = document.createElement('a');
+  notebook.href = './colab/SETI_GPU_Backend.ipynb';
+  notebook.download = 'SETI_GPU_Backend.ipynb';
+  document.body.appendChild(notebook);
+  notebook.click();
+  notebook.remove();
+
+  const instructions = [
+    'SETI GPU Backend - Google Colab Setup',
+    '',
+    '1. Download and upload SETI_GPU_Backend.ipynb to Google Colab.',
+    '2. Select Runtime > Change runtime type > T4 GPU.',
+    '3. Select Runtime > Run all.',
+    '4. Copy the HTTPS API URL and Bearer token printed by the final cell.',
+    '5. Keep the Colab runtime open.',
+    '6. On the SETI website, choose an HDF5 file and CUDA GPU analysis.',
+    '7. Select Connect Your Own Colab GPU, then enter the API URL and Bearer token.',
+    '',
+    'Safety:',
+    '- Do not commit or publicly share the Bearer token.',
+    '- Only public bldata.berkeley.edu HDF5 files are accepted.',
+    '- Downloads are limited to 1 GB.',
+    '- Temporary files are deleted after analysis.',
+    '- GPU results are statistical candidates requiring independent verification.'
+  ].join('\n');
+  const instructionsUrl = URL.createObjectURL(new Blob([instructions], { type: 'text/plain;charset=utf-8' }));
+  const instructionsLink = document.createElement('a');
+  instructionsLink.href = instructionsUrl;
+  instructionsLink.download = 'SETI_GPU_Backend_Instructions.txt';
+  document.body.appendChild(instructionsLink);
+  instructionsLink.click();
+  instructionsLink.remove();
+  URL.revokeObjectURL(instructionsUrl);
+}
+
+const colabDialog = document.getElementById('colab-gpu-dialog');
+document.getElementById('connect-gpu-button').addEventListener('click', function() {
+  downloadColabSetup();
+  colabDialog.showModal();
+});
+document.getElementById('download-colab-files').addEventListener('click', downloadColabSetup);
+document.getElementById('connect-colab-now').addEventListener('click', function() {
+  colabDialog.close();
+  connectAndAnalyze();
+});
+document.getElementById('close-colab-dialog').addEventListener('click', function() {
+  colabDialog.close();
+});
 document.getElementById('download-csv-button').addEventListener('click', function(event) {
   if (!currentAnalysisData) return;
   event.preventDefault();
