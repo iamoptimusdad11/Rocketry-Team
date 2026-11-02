@@ -96,7 +96,7 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
 
         coord = SkyCoord.from_name(target_name)
 
-               try:
+        try:
             print("[*] Requesting DSS2 Red imagery...")
 
             optical_images = SkyView.get_images(
