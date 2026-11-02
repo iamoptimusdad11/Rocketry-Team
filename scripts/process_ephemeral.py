@@ -97,32 +97,43 @@ def run_real_archive_pipeline(target_name, radius_arcmin=10):
         coord = SkyCoord.from_name(target_name)
 
         try:
-            print("[*] Requesting DSS2 Red + WISE 3.4 imagery...")
+            print("[*] Requesting DSS2 Red imagery...")
 
-            images = SkyView.get_images(
+            optical_images = SkyView.get_images(
                 position=coord,
-                survey=["DSS2 Red", "WISE 3.4"],
+                survey=["DSS2 Red"],
                 radius=radius_arcmin * u.arcmin,
                 pixels=400
             )
 
-            optical_raw = images[0][0].data
-            ir_raw = images[1][0].data
+            print("[*] Requesting WISE 3.4 imagery...")
+
+            ir_images = SkyView.get_images(
+                position=coord,
+                survey=["WISE 3.4"],
+                radius=radius_arcmin * u.arcmin,
+                pixels=400
+            )
+
+            optical_raw = optical_images[0][0].data
+            ir_raw = ir_images[0][0].data
 
             data_source = "skyview_archive"
             optical_survey = "DSS2 Red"
             infrared_survey = "WISE 3.4"
+
+            archive_error = None
 
             print("[✓] SkyView archive retrieval successful")
 
         except Exception as inner_e:
 
             archive_error = (
-                f"DSS2 Red + WISE 3.4 failed: {inner_e}"
+                f"DSS2 Red or WISE 3.4 failed: {inner_e}"
             )
 
             print(
-                f"[!] Multi-survey request failed: {inner_e}"
+                f"[!] Archive survey failure: {inner_e}"
             )
 
             print("[*] Attempting DSS fallback retrieval...")
