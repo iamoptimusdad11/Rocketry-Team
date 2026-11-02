@@ -442,7 +442,11 @@ canvas.height = canvas.offsetHeight;
 
 // Prefer a saved Colab endpoint, otherwise load generated static analysis JSON directly.
 // This avoids serverless runtime downloads and disk usage on Vercel.
-let currentApiEndpoint = localStorage.getItem('seti_gpu_endpoint') || './data/seti_hits.json';
+const savedGpuEndpoint = localStorage.getItem('seti_gpu_endpoint') || '';
+let currentApiEndpoint =
+  savedGpuEndpoint.startsWith('https://') && savedGpuEndpoint.includes('/api/gpu_hits')
+    ? savedGpuEndpoint
+    : './data/seti_hits.json';
 let currentAnalysisData = null;
 let colabBearerToken = sessionStorage.getItem('seti_colab_token') || '';
 
@@ -726,6 +730,7 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
         cache: 'no-store'
       });
     } else {
+      liveEndpoint = './data/seti_hits.json';
       liveEndpoint += (liveEndpoint.includes('?') ? '&' : '?') + 't=' + Date.now();
       response = await fetch(liveEndpoint, {
         cache: 'no-store'
@@ -819,8 +824,11 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
 
   } catch (err) {
     console.error("Stream connection error:", err);
-    document.getElementById('stream-status').innerText = 'Connection unavailable';
-    document.getElementById('backend-status').innerText = err.message || 'Connection unavailable';
+    const savedEndpointIsColab = currentApiEndpoint.includes('/api/gpu_hits');
+    document.getElementById('stream-status').innerText =
+      savedEndpointIsColab ? 'Colab connection unavailable' : 'Static analysis status unavailable';
+    document.getElementById('backend-status').innerText =
+      savedEndpointIsColab ? (err.message || 'Colab connection unavailable') : 'Analysis has not run';
   }
 }
 
