@@ -436,8 +436,9 @@ const ctx = canvas.getContext('2d');
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
 
-// Prefer an explicit GPU/live endpoint, then the Vercel API, then generated static JSON.
-let currentApiEndpoint = localStorage.getItem('seti_gpu_endpoint') || '/api/seti_hits';
+// Prefer a saved Colab endpoint, otherwise load generated static analysis JSON directly.
+// This avoids serverless runtime downloads and disk usage on Vercel.
+let currentApiEndpoint = localStorage.getItem('seti_gpu_endpoint') || './data/seti_hits.json';
 let currentAnalysisData = null;
 let colabBearerToken = sessionStorage.getItem('seti_colab_token') || '';
 
@@ -679,6 +680,12 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
     const data = await response.json();
     currentAnalysisData = data;
 
+    document.getElementById('stream-status').innerText =
+      data.status === 'online' ? 'Live public dataset stream' : 'Static analysis status';
+    document.getElementById('backend-status').innerText = data.backend || (data.accelerated ? 'GPU/CUDA' : 'CPU');
+    document.getElementById('candidate-count').innerText = `${data.candidates?.length || 0} Flagged`;
+    document.getElementById('candidate-count').style.color = 'var(--accent-green)';
+
     if (backend === 'device-gpu-50' && data.spectrum_row?.length) {
       try {
         data.spectrum_row = await accelerateSpectrumOnDevice(data.spectrum_row);
@@ -690,7 +697,15 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
       }
     }
 
-    if (!data.spectrum_row || data.spectrum_row.length === 0) return;
+    if (!data.spectrum_row || data.spectrum_row.length === 0) {
+      document.getElementById('center-frequency').innerText =
+        `${Number(data.center_frequency_mhz || 1420.405).toFixed(4)} MHz`;
+      document.getElementById('snr-threshold').innerText =
+        `${Number(data.snr_threshold || 6.5).toFixed(1)} sigma`;
+      document.querySelector('.log-table tbody').innerHTML =
+        '<tr><td colspan="4">No analysis has produced candidates yet</td></tr>';
+      return;
+    }
 
     document.getElementById('stream-status').innerText = data.status === 'online' ? 'Live public dataset stream' : 'Static analysis available';
     document.getElementById('center-frequency').innerText = `${Number(data.center_frequency_mhz || 1420.405).toFixed(4)} MHz`;
