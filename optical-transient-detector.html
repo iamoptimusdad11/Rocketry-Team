@@ -459,6 +459,7 @@
   const frameB   = document.getElementById('frame-b');
   const imgA     = document.getElementById('img-a');
   const imgB     = document.getElementById('img-b');
+  const tagA     = document.getElementById('tag-a');
   const tagB     = document.getElementById('tag-b');
   const executeBtn = document.getElementById('btn-execute');
   const telemetryContainer = document.getElementById('telemetry-content');
@@ -493,7 +494,8 @@
     frameB.classList.remove('hidden');
     if (telemetryCache) {
       imgB.src = getCleanPath(telemetryCache.jwst_img);
-      tagB.innerText = "JWST // PSF-MATCHED IR";
+      tagA.innerText = `${telemetryCache.optical_survey || 'OPTICAL'} // OPTICAL`;
+      tagB.innerText = `${telemetryCache.infrared_survey || 'INFRARED'} // PSF-MATCHED IR`;
     }
   });
 
@@ -502,7 +504,8 @@
     grid.className = 'image-grid blink-mode';
     if (telemetryCache) {
       imgB.src = getCleanPath(telemetryCache.jwst_img);
-      tagB.innerText = "JWST // PSF-MATCHED IR";
+      tagA.innerText = `${telemetryCache.optical_survey || 'OPTICAL'} // OPTICAL`;
+      tagB.innerText = `${telemetryCache.infrared_survey || 'INFRARED'} // PSF-MATCHED IR`;
     }
     startBlink();
   });
@@ -559,6 +562,8 @@
       // 1. Update Image Sources
       imgA.src = getCleanPath(telemetryCache.hst_img);
       imgB.src = getCleanPath(telemetryCache.jwst_img);
+      tagA.innerText = `${telemetryCache.optical_survey || 'OPTICAL'} // OPTICAL`;
+      tagB.innerText = `${telemetryCache.infrared_survey || 'INFRARED'} // PSF-MATCHED IR`;
 
       // 2. Position Target Overlay Reticle
       if (telemetryCache.anomalies_found > 0 && telemetryCache.targets && telemetryCache.targets.length > 0) {
@@ -585,6 +590,9 @@
         <div style="font-family: var(--font-mono); font-size: 0.75rem; display: flex; flex-direction: column; gap: 0.3rem; color: var(--text-muted);">
           <div>Threshold: <span style="color:var(--text-main)">${telemetryCache.sigma_threshold}σ</span></div>
           <div>Targets Found: <span style="color:var(--accent-cyan)">${telemetryCache.anomalies_found}</span></div>
+          <div>Source: <span style="color:var(--text-main)">${telemetryCache.data_source || 'unknown'}</span></div>
+          <div>MAST/Surveys: <span style="color:var(--text-main)">${(telemetryCache.available_sources || []).slice(0, 6).join(', ') || 'none'}</span></div>
+          <div>MAST FITS: <span style="color:var(--text-main)">${(telemetryCache.mast_products || []).join(', ') || 'not available; SkyView fallback active'}</span></div>
         </div>
       `;
 

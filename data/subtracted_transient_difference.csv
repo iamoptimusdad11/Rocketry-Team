@@ -23,3 +23,7 @@ Timestamp,Target,Peak_Flux_Sigma,Anomalies_Found
 2026-11-02T02:46:10.120416+00:00,NGC 1300,skyview_single_survey,17.5,1
 2026-11-02T02:53:09.747664+00:00,NGC 4038,skyview_single_survey,19.39,1
 2026-11-02T02:58:51.070212+00:00,NGC 4038,synthetic_fallback,27.92,1
+2026-11-02T03:35:16.550128+00:00,M82,synthetic_fallback,28.12,1
+2026-11-02T03:36:12.509130+00:00,M82,skyview_archive,19.45,1
+2026-11-02T03:41:02.245463+00:00,M104,skyview_archive,12.14,1
+2026-11-02T03:41:40.889492+00:00,M104,skyview_archive,12.14,1

@@ -1580,5 +1580,168 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1793590516,
+    "iso_timestamp": "2026-11-02T03:35:16.550128+00:00",
+    "target_name": "M82",
+    "data_source": "synthetic_fallback",
+    "optical_survey": "Synthetic",
+    "infrared_survey": "Synthetic",
+    "available_sources": [
+      "FUSE",
+      "GALEX",
+      "GALEX:GALEX Near UV",
+      "Ground/DSS:DSS2 Red",
+      "HLA",
+      "HLSP",
+      "HST",
+      "HUT",
+      "IUE",
+      "JWST",
+      "OPO",
+      "PS1",
+      "SDSS",
+      "SWIFT",
+      "TESS",
+      "WISE:WISE 3.4"
+    ],
+    "archive_error": "'charmap' codec can't encode character '\\u2713' in position 1: character maps to <undefined>",
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 251,
+        "pixel_y": 148,
+        "peak_flux_sigma": 28.12
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1793590572,
+    "iso_timestamp": "2026-11-02T03:36:12.509130+00:00",
+    "target_name": "M82",
+    "data_source": "skyview_archive",
+    "optical_survey": "DSS2 Red",
+    "infrared_survey": "WISE 3.4",
+    "available_sources": [
+      "FUSE",
+      "GALEX",
+      "Ground/DSS:DSS2 Red",
+      "HLA",
+      "HLSP",
+      "HST",
+      "HUT",
+      "IUE",
+      "JWST",
+      "OPO",
+      "PS1",
+      "SDSS",
+      "SWIFT",
+      "TESS",
+      "WISE:WISE 3.4"
+    ],
+    "archive_error": null,
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 136,
+        "pixel_y": 18,
+        "peak_flux_sigma": 19.45
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1793590862,
+    "iso_timestamp": "2026-11-02T03:41:02.245463+00:00",
+    "target_name": "M104",
+    "data_source": "skyview_archive",
+    "optical_survey": "DSS2 Red",
+    "infrared_survey": "WISE 3.4",
+    "available_sources": [
+      "GALEX",
+      "Ground/DSS:DSS2 Red",
+      "HLA",
+      "HLSP",
+      "HST",
+      "HUT",
+      "IUE",
+      "JWST",
+      "OPO",
+      "PS1",
+      "SDSS",
+      "SWIFT",
+      "TESS",
+      "WISE:WISE 3.4"
+    ],
+    "mast_products": [],
+    "archive_error": null,
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 115,
+        "pixel_y": 81,
+        "peak_flux_sigma": 12.14
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1793590900,
+    "iso_timestamp": "2026-11-02T03:41:40.889492+00:00",
+    "target_name": "M104",
+    "data_source": "skyview_archive",
+    "optical_survey": "DSS2 Red",
+    "infrared_survey": "WISE 3.4",
+    "available_sources": [
+      "GALEX",
+      "Ground/DSS:DSS2 Red",
+      "HLA",
+      "HLSP",
+      "HST",
+      "HUT",
+      "IUE",
+      "JWST",
+      "OPO",
+      "PS1",
+      "SDSS",
+      "SWIFT",
+      "TESS",
+      "WISE:WISE 3.4"
+    ],
+    "mast_products": [
+      "HST:o8l7e1l8q_x2d.fits"
+    ],
+    "archive_error": null,
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 115,
+        "pixel_y": 81,
+        "peak_flux_sigma": 12.14
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]
