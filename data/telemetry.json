@@ -1,7 +1,7 @@
 {
-  "timestamp": 1793586558,
-  "iso_timestamp": "2026-11-02T02:29:18.803799",
-  "target_name": "M82",
+  "timestamp": 1793587570,
+  "iso_timestamp": "2026-11-02T02:46:10.120416+00:00",
+  "target_name": "NGC 1300",
   "data_source": "skyview_single_survey",
   "optical_survey": "DSS",
   "infrared_survey": "Synthetic IR",
@@ -12,9 +12,9 @@
   "anomalies_found": 1,
   "targets": [
     {
-      "pixel_x": 269,
+      "pixel_x": 298,
       "pixel_y": 282,
-      "peak_flux_sigma": 27.44
+      "peak_flux_sigma": 17.5
     }
   ],
   "hst_img": "data/hst_aligned.png",
