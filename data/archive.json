@@ -1419,5 +1419,28 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1793580262,
+    "iso_timestamp": "2026-11-02T00:44:22.517626",
+    "target_name": "M1",
+    "data_source": "skyview_single_survey",
+    "optical_survey": "DSS",
+    "infrared_survey": "Synthetic IR",
+    "archive_error": null,
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 229,
+        "pixel_y": 89,
+        "peak_flux_sigma": 12.11
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]
