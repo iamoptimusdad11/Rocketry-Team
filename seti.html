@@ -485,6 +485,16 @@ let currentApiEndpoint =
 let currentAnalysisData = null;
 let colabBearerToken = sessionStorage.getItem('seti_colab_token') || '';
 
+function normalizeColabBaseUrl(value) {
+  return value.trim().replace(/\/+$/, '').replace(/\/api\/(?:health|gpu_hits)$/, '');
+}
+
+function fetchWithTimeout(url, options, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
 async function loadH5Catalog() {
   const select = document.getElementById('h5-file-select');
   try {
@@ -509,7 +519,7 @@ async function connectAndAnalyze() {
 
   const endpointInput = document.getElementById('colab-api-url');
   const tokenInput = document.getElementById('colab-bearer-token');
-  const normalized = endpointInput.value.trim().replace(/\/+$/, '');
+  const normalized = normalizeColabBaseUrl(endpointInput.value);
   if (!normalized.startsWith('https://')) {
     alert('Enter an HTTPS Colab API URL.');
     return;
@@ -519,7 +529,7 @@ async function connectAndAnalyze() {
     return;
   }
 
-  currentApiEndpoint = normalized + (normalized.endsWith('/api/gpu_hits') ? '' : '/api/gpu_hits');
+  currentApiEndpoint = normalized + '/api/gpu_hits';
   colabBearerToken = tokenInput.value.trim();
   localStorage.setItem('seti_gpu_endpoint', currentApiEndpoint);
   sessionStorage.setItem('seti_colab_token', colabBearerToken);
@@ -527,12 +537,12 @@ async function connectAndAnalyze() {
   document.getElementById('backend-status').innerText = 'Testing HTTPS endpoint';
 
   try {
-    const healthUrl = normalized.replace(/\/api\/gpu_hits\/?$/, '') + '/api/health';
-    const healthResponse = await fetch(healthUrl, {
+    const healthUrl = normalized + '/api/health';
+    const healthResponse = await fetchWithTimeout(healthUrl, {
       method: 'GET',
       cache: 'no-store',
       headers: { 'Authorization': `Bearer ${colabBearerToken}` }
-    });
+    }, 15000);
     if (!healthResponse.ok) {
       const detail = await healthResponse.text();
       throw new Error(`Colab health check returned HTTP ${healthResponse.status}${detail ? ': ' + detail : ''}`);
@@ -547,9 +557,11 @@ async function connectAndAnalyze() {
   } catch (error) {
     document.getElementById('stream-status').innerText = 'Colab connection unavailable';
     document.getElementById('backend-status').innerText =
-      error.message === 'Failed to fetch'
-        ? 'Failed to fetch: verify the API URL, runtime, and tunnel; keep Colab open'
-        : error.message;
+      error.name === 'AbortError'
+        ? 'Colab health timed out: the runtime or tunnel did not respond within 15 seconds'
+        : error.message === 'Failed to fetch'
+          ? 'Failed to fetch: URL/TLS/tunnel/CORS issue. Use the exact HTTPS API URL, keep the Colab runtime open, and rerun the final cell'
+          : error.message;
   }
 }
 
@@ -814,7 +826,7 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
       if (!colabBearerToken) {
         throw new Error('Connect Your Own Colab GPU requires the one-session Bearer token');
       }
-      response = await fetch(liveEndpoint, {
+      response = await fetchWithTimeout(liveEndpoint, {
         method: 'POST',
         cache: 'no-store',
         headers: {
@@ -828,7 +840,7 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
           threshold: 6.5,
           save_to_drive: document.getElementById('save-artifacts-drive').checked
         })
-      });
+      }, 900000);
     } else if (selectedUrl) {
       const separator = liveEndpoint.includes('?') ? '&' : '?';
       liveEndpoint += separator + new URLSearchParams({
