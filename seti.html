@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <!-- ================================================================= -->
-<!-- AI•{} TRACKING SDK SNIPPET (Add to any website)                   -->
+<!-- AIâ€¢{} TRACKING SDK SNIPPET (Add to any website)                   -->
 <!-- ================================================================= -->
 <script>
 (function() {
@@ -27,7 +27,7 @@
       };
 
       if (AI_CONFIG.debug) {
-        console.log("[AI• Tag Dispatched]", payload);
+        console.log("[AIâ€¢ Tag Dispatched]", payload);
       }
 
       // 1. Dispatch via PostMessage (if embedded or connected to the Visualizer canvas)
@@ -62,7 +62,7 @@
     if (!tagAttr) {
       const elId = target.id || target.tagName.toLowerCase();
       const elText = (target.innerText || "").trim().substring(0, 20);
-      tagAttr = `AI•{event: click, element: "${elId}", text: "${elText}"}`;
+      tagAttr = `AIâ€¢{event: click, element: "${elId}", text: "${elText}"}`;
     }
 
     window.AI.tag(tagAttr, {
@@ -76,7 +76,7 @@
   document.addEventListener("submit", function(e) {
     const form = e.target;
     const formId = form.id || "unnamed_form";
-    const tagStr = `AI•{event: form_submit, id: "${formId}", state: superposition}`;
+    const tagStr = `AIâ€¢{event: form_submit, id: "${formId}", state: superposition}`;
     
     window.AI.tag(tagStr, {
       action: form.action || window.location.href
@@ -92,12 +92,12 @@
     const currentScroll = Math.round((window.scrollY / totalHeight) * 100);
     if (currentScroll >= maxScroll + 25 && currentScroll <= 100) {
       maxScroll = currentScroll;
-      window.AI.tag(`AI•{event: scroll, depth: ${maxScroll}%}`, { depth: maxScroll });
+      window.AI.tag(`AIâ€¢{event: scroll, depth: ${maxScroll}%}`, { depth: maxScroll });
     }
   });
 
   // Initial Page Load Pulse
-  window.AI.tag(`AI•{event: page_view, path: "${window.location.pathname}"}`);
+  window.AI.tag(`AIâ€¢{event: page_view, path: "${window.location.pathname}"}`);
 })();
 </script>
 
@@ -295,6 +295,30 @@
       line-height: 1.55;
     }
 
+    .colab-fields {
+      display: grid;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .colab-fields label {
+      display: grid;
+      gap: 0.35rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .colab-fields input {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: #0b0f19;
+      color: var(--text-main);
+      padding: 0.65rem;
+      font-family: inherit;
+    }
+
     .seti-controls {
       display: flex;
       align-items: center;
@@ -331,6 +355,7 @@
         <option value="gpu">CUDA GPU analysis</option>
       </select>
       <button class="gpu-button" id="connect-gpu-button" type="button">Connect Your Own Colab GPU</button>
+      <button class="gpu-button" id="download-colab-button" type="button">Download Colab Notebook + Instructions</button>
       <a class="gpu-button" id="download-csv-button" href="./data/seti_candidates.csv" download>Download CSV</a>
     </div>
   </header>
@@ -356,7 +381,7 @@
         </div>
         <div class="metric-box">
           <div class="metric-label">SNR Threshold</div>
-          <div class="metric-value" id="snr-threshold">6.5 σ</div>
+          <div class="metric-value" id="snr-threshold">6.5 Ïƒ</div>
         </div>
         <div class="metric-box">
           <div class="metric-label">Candidates</div>
@@ -386,17 +411,20 @@
   <dialog id="colab-gpu-dialog">
     <div class="colab-dialog-content">
       <h2>Use Your Own Colab GPU</h2>
-      <ol>
-        <li>Select <strong>Runtime &gt; Change runtime type &gt; T4 GPU</strong> in Google Colab.</li>
-        <li>Upload <strong>SETI_GPU_Backend.ipynb</strong>, then select <strong>Runtime &gt; Run all</strong>.</li>
-        <li>Copy the API URL and one-session Bearer token printed by the final cell.</li>
-        <li>Choose an HDF5 file and GPU mode, then select <strong>Connect API</strong>.</li>
-      </ol>
-      <p>Keep the Colab runtime open while analyzing. Never share or commit the Bearer token.</p>
+      <p>Enter the connection details printed by the running Colab notebook. Keep the runtime open while analyzing.</p>
+      <div class="colab-fields">
+        <label>
+          Colab API URL
+          <input id="colab-api-url" type="url" placeholder="https://example.trycloudflare.com/api/gpu_hits" autocomplete="off">
+        </label>
+        <label>
+          One-session Bearer token
+          <input id="colab-bearer-token" type="password" placeholder="Bearer token printed by Colab" autocomplete="off">
+        </label>
+      </div>
       <div class="seti-controls">
-        <button class="gpu-button" id="download-colab-files" type="button">Download Notebook + Instructions</button>
-        <button class="gpu-button" id="connect-colab-now" type="button">Connect API</button>
-        <button class="gpu-button" id="close-colab-dialog" type="button">Close</button>
+        <button class="gpu-button" id="connect-colab-now" type="button">Connect</button>
+        <button class="gpu-button" id="close-colab-dialog" type="button">Cancel</button>
       </div>
     </div>
   </dialog>
@@ -434,22 +462,22 @@ function connectAndAnalyze() {
     return;
   }
 
-  const endpoint = prompt(
-    "Enter your Colab GPU API URL (HTTPS) or leave blank to use the site API",
-    currentApiEndpoint.startsWith('http') ? currentApiEndpoint : ''
-  );
-  if (endpoint !== null && endpoint.trim()) {
-    const normalized = endpoint.trim().replace(/\/+$/, '');
-    currentApiEndpoint = normalized + (normalized.endsWith('/api/gpu_hits') ? '' : '/api/gpu_hits');
-    localStorage.setItem('seti_gpu_endpoint', currentApiEndpoint);
-    const token = prompt('Enter the one-session Bearer token printed by your Colab notebook');
-    if (token !== null && token.trim()) {
-      colabBearerToken = token.trim();
-      sessionStorage.setItem('seti_colab_token', colabBearerToken);
-    }
-  } else {
-    currentApiEndpoint = '/api/seti_hits';
+  const endpointInput = document.getElementById('colab-api-url');
+  const tokenInput = document.getElementById('colab-bearer-token');
+  const normalized = endpointInput.value.trim().replace(/\/+$/, '');
+  if (!normalized.startsWith('https://')) {
+    alert('Enter an HTTPS Colab API URL.');
+    return;
   }
+  if (!tokenInput.value.trim()) {
+    alert('Enter the one-session Bearer token printed by Colab.');
+    return;
+  }
+
+  currentApiEndpoint = normalized + (normalized.endsWith('/api/gpu_hits') ? '' : '/api/gpu_hits');
+  colabBearerToken = tokenInput.value.trim();
+  localStorage.setItem('seti_gpu_endpoint', currentApiEndpoint);
+  sessionStorage.setItem('seti_colab_token', colabBearerToken);
   updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
 }
 
@@ -491,10 +519,12 @@ function downloadColabSetup() {
 
 const colabDialog = document.getElementById('colab-gpu-dialog');
 document.getElementById('connect-gpu-button').addEventListener('click', function() {
-  downloadColabSetup();
+  const savedEndpoint = currentApiEndpoint.startsWith('http') ? currentApiEndpoint : '';
+  document.getElementById('colab-api-url').value = savedEndpoint;
+  document.getElementById('colab-bearer-token').value = colabBearerToken;
   colabDialog.showModal();
 });
-document.getElementById('download-colab-files').addEventListener('click', downloadColabSetup);
+document.getElementById('download-colab-button').addEventListener('click', downloadColabSetup);
 document.getElementById('connect-colab-now').addEventListener('click', function() {
   colabDialog.close();
   connectAndAnalyze();
@@ -581,7 +611,7 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
 
     document.getElementById('stream-status').innerText = data.status === 'online' ? 'Live public dataset stream' : 'Static analysis available';
     document.getElementById('center-frequency').innerText = `${Number(data.center_frequency_mhz || 1420.405).toFixed(4)} MHz`;
-    document.getElementById('snr-threshold').innerText = `${Number(data.snr_threshold || 6.5).toFixed(1)} σ`;
+    document.getElementById('snr-threshold').innerText = `${Number(data.snr_threshold || 6.5).toFixed(1)} Ïƒ`;
     document.getElementById('backend-status').innerText = data.backend || (data.accelerated ? 'GPU/CUDA' : 'CPU');
     document.getElementById('candidate-count').innerText = `${data.candidates?.length || 0} Flagged`;
     document.getElementById('candidate-count').style.color = data.candidates?.length ? 'var(--accent-alert)' : 'var(--accent-green)';
@@ -623,7 +653,7 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
             <td>${timestamp}</td>
             <td>${hit.frequency_mhz ? hit.frequency_mhz.toFixed(6) + ' MHz' : hit.freq_shift}</td>
             <td>${hit.drift_rate || 'Unavailable'}</td>
-            <td class="${hit.classification?.includes('Narrowband') ? 'tag-anomaly' : ''}" title="${hit.status || ''}">${hit.classification}${hit.snr ? ' · ' + hit.snr + 'σ' : ''}</td>
+            <td class="${hit.classification?.includes('Narrowband') ? 'tag-anomaly' : ''}" title="${hit.status || ''}">${hit.classification}${hit.snr ? ' Â· ' + hit.snr + 'Ïƒ' : ''}</td>
           </tr>
         `;
       }).join('');
