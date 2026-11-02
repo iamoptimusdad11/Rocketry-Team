@@ -359,6 +359,7 @@
         <option value="waterfall">Waterfall display</option>
         <option value="spectrum">Power vs frequency display</option>
       </select>
+      <button class="gpu-button" id="run-analysis-button" type="button">Run HDF5 Analysis</button>
       <button class="gpu-button" id="connect-gpu-button" type="button">Connect Your Own Colab GPU</button>
       <button class="gpu-button" id="download-colab-button" type="button">Download Colab Notebook + Instructions</button>
       <a class="gpu-button" id="download-csv-button" href="./data/seti_candidates.csv" download>Download CSV</a>
@@ -439,6 +440,36 @@
 const ctx = canvas.getContext('2d');
 canvas.width = canvas.offsetWidth;
 canvas.height = canvas.offsetHeight;
+
+function drawIdleCanvas(message) {
+  ctx.fillStyle = '#0b1220';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.strokeStyle = '#263349';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= 10; x++) {
+    const gridX = Math.round((x / 10) * canvas.width);
+    ctx.beginPath();
+    ctx.moveTo(gridX, 0);
+    ctx.lineTo(gridX, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = 0; y <= 8; y++) {
+    const gridY = Math.round((y / 8) * canvas.height);
+    ctx.beginPath();
+    ctx.moveTo(0, gridY);
+    ctx.lineTo(canvas.width, gridY);
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.textAlign = 'center';
+  ctx.font = '16px system-ui';
+  ctx.fillText(message, canvas.width / 2, canvas.height / 2);
+  ctx.textAlign = 'left';
+}
+
+drawIdleCanvas('Waiting for HDF5 analysis');
 
 // Prefer a saved Colab endpoint, otherwise load generated static analysis JSON directly.
 // This avoids serverless runtime downloads and disk usage on Vercel.
@@ -535,6 +566,20 @@ document.getElementById('connect-gpu-button').addEventListener('click', function
   colabDialog.showModal();
 });
 document.getElementById('download-colab-button').addEventListener('click', downloadColabSetup);
+document.getElementById('run-analysis-button').addEventListener('click', function() {
+  const selectedUrl = document.getElementById('h5-file-select').value;
+  const backend = document.getElementById('compute-backend-select').value;
+  if (!selectedUrl) {
+    alert('Select an HDF5 file first.');
+    return;
+  }
+
+  if (!currentApiEndpoint.startsWith('https://') || !currentApiEndpoint.includes('/api/gpu_hits')) {
+    colabDialog.showModal();
+    return;
+  }
+  updateSetiDashboard(decodeURIComponent(selectedUrl), backend);
+});
 document.getElementById('connect-colab-now').addEventListener('click', function() {
   colabDialog.close();
   connectAndAnalyze();
@@ -686,6 +731,10 @@ document.getElementById('display-mode-select').addEventListener('change', functi
     if (currentDisplayMode === 'spectrum') {
       drawSpectrumGraph(currentAnalysisData.spectrum_row);
     }
+  } else {
+    drawIdleCanvas(currentDisplayMode === 'spectrum'
+      ? 'Waiting for power spectrum data'
+      : 'Waiting for HDF5 analysis');
   }
 });
 
@@ -770,6 +819,7 @@ async function updateSetiDashboard(selectedUrl = null, backend = 'auto') {
         `${Number(data.snr_threshold || 6.5).toFixed(1)} sigma`;
       document.querySelector('.log-table tbody').innerHTML =
         '<tr><td colspan="4">No analysis has produced candidates yet</td></tr>';
+      drawIdleCanvas('Waiting for HDF5 analysis');
       return;
     }
 
