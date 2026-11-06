@@ -152,6 +152,7 @@ def analyze(url=DEFAULT_URL, start_bin=0, num_bins=256, snr_threshold=6.5, backe
                 "source_shape": None,
                 "downloaded_bytes": downloaded_bytes,
                 "max_download_bytes": MAX_DOWNLOAD_BYTES,
+                "matrix_shape": [],
                 "accelerated": False,
                 "backend": "Not run",
                 "spectrum_row": [],
