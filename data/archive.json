@@ -1835,5 +1835,30 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1794052690,
+    "iso_timestamp": "2026-11-07T11:58:10.653989+00:00",
+    "target_name": "M82",
+    "data_source": "synthetic_fallback",
+    "optical_survey": "Synthetic",
+    "infrared_survey": "Synthetic",
+    "available_sources": [],
+    "mast_products": [],
+    "archive_error": "All Sesame queries failed. Unable to retrieve coordinates. See errors per URL below: \n https://cds.unistra.fr/cgi-bin/nph-sesame/SNV?M82: timed out\nhttp://vizier.cfa.harvard.edu/viz-bin/nph-sesame/SNV?M82: Request took longer than the allowed 10.0 seconds",
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 1,
+    "targets": [
+      {
+        "pixel_x": 251,
+        "pixel_y": 148,
+        "peak_flux_sigma": 27.76
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]
