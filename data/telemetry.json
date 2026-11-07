@@ -1,22 +1,39 @@
 {
-  "timestamp": 1794009616,
-  "iso_timestamp": "2026-11-07T00:00:16.516110+00:00",
+  "timestamp": 1794030279,
+  "iso_timestamp": "2026-11-07T05:44:39.966175+00:00",
   "target_name": "M51",
-  "data_source": "synthetic_fallback",
-  "optical_survey": "Synthetic",
-  "infrared_survey": "Synthetic",
-  "available_sources": [],
-  "mast_products": [],
-  "archive_error": "All Sesame queries failed. Unable to retrieve coordinates. See errors per URL below: \n https://cds.unistra.fr/cgi-bin/nph-sesame/SNV?M51: timed out\nhttp://vizier.cfa.harvard.edu/viz-bin/nph-sesame/SNV?M51: Request took longer than the allowed 10.0 seconds",
+  "data_source": "mast_fits_aligned",
+  "optical_survey": "HST science FITS",
+  "infrared_survey": "JWST science FITS",
+  "available_sources": [
+    "FUSE",
+    "GALEX",
+    "HLA",
+    "HLSP",
+    "HST",
+    "HUT",
+    "IUE",
+    "JWST",
+    "OPO",
+    "PS1",
+    "SDSS",
+    "SWIFT",
+    "TESS"
+  ],
+  "mast_products": [
+    "HST:n626mds1q_cal.fits",
+    "JWST:jw03990372001_08201_00004_nrca1_cal.fits"
+  ],
+  "archive_error": null,
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
-  "anomalies_found": 1,
+  "anomalies_found": 0,
   "targets": [
     {
-      "pixel_x": 251,
-      "pixel_y": 148,
-      "peak_flux_sigma": 27.82
+      "pixel_x": 200,
+      "pixel_y": 200,
+      "peak_flux_sigma": 0
     }
   ],
   "hst_img": "data/hst_aligned.png",

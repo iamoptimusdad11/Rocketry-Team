@@ -1793,5 +1793,47 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1794030279,
+    "iso_timestamp": "2026-11-07T05:44:39.966175+00:00",
+    "target_name": "M51",
+    "data_source": "mast_fits_aligned",
+    "optical_survey": "HST science FITS",
+    "infrared_survey": "JWST science FITS",
+    "available_sources": [
+      "FUSE",
+      "GALEX",
+      "HLA",
+      "HLSP",
+      "HST",
+      "HUT",
+      "IUE",
+      "JWST",
+      "OPO",
+      "PS1",
+      "SDSS",
+      "SWIFT",
+      "TESS"
+    ],
+    "mast_products": [
+      "HST:n626mds1q_cal.fits",
+      "JWST:jw03990372001_08201_00004_nrca1_cal.fits"
+    ],
+    "archive_error": null,
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 0,
+    "targets": [
+      {
+        "pixel_x": 200,
+        "pixel_y": 200,
+        "peak_flux_sigma": 0
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]
