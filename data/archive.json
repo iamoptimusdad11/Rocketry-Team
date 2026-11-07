@@ -1860,5 +1860,33 @@
     "hst_img": "data/hst_aligned.png",
     "jwst_img": "data/jwst.png",
     "diff_img": "data/difference.png"
+  },
+  {
+    "timestamp": 1794073127,
+    "iso_timestamp": "2026-11-07T17:38:47.277896+00:00",
+    "target_name": "M31",
+    "data_source": "skyview_archive",
+    "optical_survey": "DSS2 Red",
+    "infrared_survey": "2MASS-K",
+    "available_sources": [
+      "2MASS:2MASS-K",
+      "Ground/DSS:DSS2 Red"
+    ],
+    "mast_products": [],
+    "archive_error": null,
+    "psf_matching_applied": true,
+    "kernel_stddev": 1.2,
+    "sigma_threshold": 5.0,
+    "anomalies_found": 0,
+    "targets": [
+      {
+        "pixel_x": 200,
+        "pixel_y": 200,
+        "peak_flux_sigma": 0
+      }
+    ],
+    "hst_img": "data/hst_aligned.png",
+    "jwst_img": "data/jwst.png",
+    "diff_img": "data/difference.png"
   }
 ]

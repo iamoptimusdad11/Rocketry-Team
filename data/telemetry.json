@@ -1,22 +1,25 @@
 {
-  "timestamp": 1794052690,
-  "iso_timestamp": "2026-11-07T11:58:10.653989+00:00",
-  "target_name": "M82",
-  "data_source": "synthetic_fallback",
-  "optical_survey": "Synthetic",
-  "infrared_survey": "Synthetic",
-  "available_sources": [],
+  "timestamp": 1794073127,
+  "iso_timestamp": "2026-11-07T17:38:47.277896+00:00",
+  "target_name": "M31",
+  "data_source": "skyview_archive",
+  "optical_survey": "DSS2 Red",
+  "infrared_survey": "2MASS-K",
+  "available_sources": [
+    "2MASS:2MASS-K",
+    "Ground/DSS:DSS2 Red"
+  ],
   "mast_products": [],
-  "archive_error": "All Sesame queries failed. Unable to retrieve coordinates. See errors per URL below: \n https://cds.unistra.fr/cgi-bin/nph-sesame/SNV?M82: timed out\nhttp://vizier.cfa.harvard.edu/viz-bin/nph-sesame/SNV?M82: Request took longer than the allowed 10.0 seconds",
+  "archive_error": null,
   "psf_matching_applied": true,
   "kernel_stddev": 1.2,
   "sigma_threshold": 5.0,
-  "anomalies_found": 1,
+  "anomalies_found": 0,
   "targets": [
     {
-      "pixel_x": 251,
-      "pixel_y": 148,
-      "peak_flux_sigma": 27.76
+      "pixel_x": 200,
+      "pixel_y": 200,
+      "peak_flux_sigma": 0
     }
   ],
   "hst_img": "data/hst_aligned.png",

@@ -31,3 +31,4 @@ Timestamp,Target,Peak_Flux_Sigma,Anomalies_Found
 2026-11-07T00:00:16.516110+00:00,M51,synthetic_fallback,27.82,1
 2026-11-07T05:44:39.966175+00:00,M51,mast_fits_aligned,0.0,0
 2026-11-07T11:58:10.653989+00:00,M82,synthetic_fallback,27.76,1
+2026-11-07T17:38:47.277896+00:00,M31,skyview_archive,0.0,0
